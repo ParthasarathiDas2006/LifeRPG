@@ -1,4 +1,5 @@
 import { AvatarStyle, CharacterClass, CharacterGender, SpritePartsConfig } from './types';
+import { HERO_GAME_ART } from './characterArt/heroArt';
 
 export interface HumanBodySpecs {
   physique: string;
@@ -59,7 +60,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+20% Sprint Speed & Momentum',
     },
     battleStats: { winRate: 84, kdRatio: 4.8, agility: 99, combatPower: 3100 },
-    portraitUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-ff-kelly'],
     humanSpecs: {
       physique: 'Toned Athletic Sprinter Physique',
       faceAndEyes: 'Radiant facial symmetry, sparkling amber eyes, determined battle smile',
@@ -98,7 +99,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+25% Willpower & Damage Shield',
     },
     battleStats: { winRate: 88, kdRatio: 5.4, agility: 92, combatPower: 3350 },
-    portraitUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-pubg-lone-survivor'],
     humanSpecs: {
       physique: 'Hardened Military Commando Build',
       faceAndEyes: 'Strong chiseled jawline, intense focused commando gaze under ballistic visor',
@@ -137,7 +138,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+15 HP/Mana Regen & Audio Aura',
     },
     battleStats: { winRate: 86, kdRatio: 5.1, agility: 95, combatPower: 3250 },
-    portraitUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-ff-alok'],
     humanSpecs: {
       physique: 'Chiseled Muscular Athletic Build',
       faceAndEyes: 'Ultra-handsome facial contours, neat designer beard, gold aviator sunglasses',
@@ -176,7 +177,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+30% Critical Hit Chance',
     },
     battleStats: { winRate: 87, kdRatio: 5.3, agility: 96, combatPower: 3300 },
-    portraitUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-pubg-valkyrie'],
     humanSpecs: {
       physique: 'Lean Muscular Spec-Ops Physique',
       faceAndEyes: 'High cheekbones, piercing hazel-green eyes with laser-sharp sniper focus, subtle warpaint',
@@ -215,7 +216,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+20% Extra Gold & Hidden Drops',
     },
     battleStats: { winRate: 80, kdRatio: 4.6, agility: 98, combatPower: 2950 },
-    portraitUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-ff-moco'],
     humanSpecs: {
       physique: 'Agile Cybernetic Infiltrator Body',
       faceAndEyes: 'Futuristic facial aesthetic, neon turquoise eyeliner, holographic digital retinal HUD',
@@ -254,7 +255,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+40% Gold Loot Multiplier',
     },
     battleStats: { winRate: 92, kdRatio: 5.9, agility: 94, combatPower: 3500 },
-    portraitUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-pubg-pharaoh'],
     humanSpecs: {
       physique: 'God-Like Regal Warrior Physique',
       faceAndEyes: 'Noble pharaonic features, glowing amber eyes with divine kohl eyeliner',
@@ -293,7 +294,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+25% Raid Boss Damage & XP',
     },
     battleStats: { winRate: 83, kdRatio: 4.7, agility: 91, combatPower: 3020 },
-    portraitUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-ff-hayato'],
     humanSpecs: {
       physique: 'Muscular Battle-Trained Ronin Physique',
       faceAndEyes: 'Handsome Japanese samurai warrior face, honorable scar on cheek, intense dark eyes',
@@ -332,7 +333,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: 'Free Daily Streak Protection',
     },
     battleStats: { winRate: 85, kdRatio: 5.0, agility: 94, combatPower: 3180 },
-    portraitUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-ff-chrono'],
     humanSpecs: {
       physique: 'Peak International Athletic Body',
       faceAndEyes: 'Handsome angular jawline, confident cybernetic gaze with temporal blue eye glint',
@@ -371,7 +372,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+25% Deep Work Focus Mana',
     },
     battleStats: { winRate: 82, kdRatio: 4.9, agility: 98, combatPower: 3060 },
-    portraitUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-pubg-desert'],
     humanSpecs: {
       physique: 'Agile Toned Desert Operative Body',
       faceAndEyes: 'Sun-kissed complexion, golden wind-swept bob, ballistic goggles on forehead, amber gaze',
@@ -410,7 +411,7 @@ export const HERO_PRESETS: HeroPreset[] = [
       buffText: '+30% Permanent XP Multiplier',
     },
     battleStats: { winRate: 99, kdRatio: 6.2, agility: 100, combatPower: 3900 },
-    portraitUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&auto=format&fit=crop&q=80',
+    portraitUrl: HERO_GAME_ART['hero-sl-jinwoo'],
     humanSpecs: {
       physique: 'Tall Slender Muscular Sovereign Physique',
       faceAndEyes: 'Sharp attractive Korean manhwa facial contour, glowing electric cyan pupils, calm dominance',

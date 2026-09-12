@@ -279,8 +279,8 @@ export function LobbySection({
                   )}
 
                   {/* 1-Click Battle Royale Hero Quick Switcher */}
-                  <div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 max-w-sm">
-                    {HERO_PRESETS.slice(0, 5).map((preset) => (
+                  <div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
+                    {HERO_PRESETS.map((preset) => (
                       <button
                         key={preset.id}
                         onClick={async () => {
@@ -312,7 +312,7 @@ export function LobbySection({
                         }`}
                         title={preset.name}
                       >
-                        {/* Mini human face avatar icon */}
+                        {/* Mini game art avatar icon */}
                         <div className="h-4 w-4 rounded-full overflow-hidden border border-slate-700">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={preset.portraitUrl} alt={preset.name} className="h-full w-full object-cover" />
@@ -322,10 +322,10 @@ export function LobbySection({
                     ))}
                     <button
                       onClick={onEditCharacter}
-                      className="rounded-xl border border-purple-500/40 bg-purple-500/20 px-2 py-1 text-[10px] font-black uppercase text-purple-300 hover:bg-purple-500/30 transition"
-                      title="Open Full Roster (10 Legends & AI Photo Forge)"
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/20 px-2.5 py-1 text-[10px] font-black uppercase text-purple-300 hover:bg-purple-500/30 transition shadow-sm"
+                      title="Open Full Character Studio & Customizer"
                     >
-                      + All 10
+                      ⚡ Studio
                     </button>
                   </div>
 

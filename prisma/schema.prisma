@@ -1,0 +1,212 @@
+// Prisma Schema for Life RPG Web Application
+// Database: PostgreSQL with Anti-Cheat Constraints
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum TaskCategory {
+  STRENGTH
+  INTELLIGENCE
+  VITALITY
+  AGILITY
+  CHARISMA
+  WILLPOWER
+}
+
+enum TaskDifficulty {
+  TRIVIAL
+  EASY
+  MEDIUM
+  HARD
+  EPIC
+}
+
+enum TaskType {
+  HABIT
+  DAILY
+  TODO
+  BOSS_RAID
+}
+
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ItemSlot {
+  HEAD
+  CHEST
+  WEAPON
+  SHIELD
+  ACCESSORY
+  CONSUMABLE
+}
+
+enum AuditAction {
+  TASK_COMPLETION
+  SHOP_PURCHASE
+  STAT_UPDATE
+  LEVEL_UP
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  username     String   @unique
+  role         Role     @default(USER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  stats           CharacterStats?
+  profile         CharacterProfile?
+  tasks           Task[]
+  inventory       Inventory[]
+  auditLogs       ProgressionAuditLedger[]
+
+  @@map("users")
+}
+
+model CharacterStats {
+  userId             String   @id
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level              Int      @default(1)
+  currentXP          BigInt   @default(0)
+  nextLevelXP        BigInt   @default(150)
+  gold               BigInt   @default(100)
+  health             Int      @default(100)
+  maxHealth          Int      @default(100)
+  mana               Int      @default(50)
+  maxMana            Int      @default(50)
+  
+  // Attributes
+  strength           Int      @default(10)
+  intellect          Int      @default(10)
+  vitality           Int      @default(10)
+  agility            Int      @default(10)
+  charisma           Int      @default(10)
+  willpower          Int      @default(10)
+  
+  totalTasksCompleted Int     @default(0)
+  streakFreezeTokens  Int     @default(1)
+  
+  // Anti-cheat daily cap tracking
+  dailyXpEarned      Int      @default(0)
+  dailyGoldEarned    Int      @default(0)
+  lastDailyResetDate DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("character_stats")
+}
+
+model CharacterProfile {
+  userId         String   @id
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterName  String
+  classType      String
+  gender         String   @default("NON_BINARY")
+  title          String
+  avatarUrl      String
+  avatarType     String   @default("SPRITE")
+  gameOrigin     String   @default("FREE_FIRE")
+  abilityName    String?
+  abilityBuff    String?
+  spriteParts    Json?
+  createdAt      DateTime @default(now())
+
+  @@map("character_profile")
+}
+
+model Task {
+  id               String         @id @default(uuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  category         TaskCategory
+  difficulty       TaskDifficulty
+  taskType         TaskType       @default(DAILY)
+  baseXP           Int
+  baseGold         Int
+  streakCount      Int            @default(0)
+  maxStreak        Int            @default(0)
+  isCompletedToday Boolean        @default(false)
+  lastCompletedAt  DateTime?
+  createdAt        DateTime       @default(now())
+
+  auditLogs        ProgressionAuditLedger[]
+
+  @@index([userId, isCompletedToday])
+  @@map("tasks")
+}
+
+model ItemCatalog {
+  id               String      @id
+  name             String
+  description      String
+  rarity           ItemRarity
+  slot             ItemSlot
+  buyPrice         Int
+  sellPrice        Int
+  icon             String
+  statModifiers    Json
+  isActive         Boolean     @default(true)
+
+  inventory        Inventory[]
+
+  @@map("items_catalog")
+}
+
+model Inventory {
+  id               String      @id @default(uuid())
+  userId           String
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId           String
+  item             ItemCatalog @relation(fields: [itemId], references: [id])
+  quantity         Int         @default(1)
+  isEquipped       Boolean     @default(false)
+  enhancementLevel Int         @default(0)
+  acquiredAt       DateTime    @default(now())
+
+  @@unique([userId, itemId])
+  @@map("inventory")
+}
+
+model ProgressionAuditLedger {
+  id               String      @id @default(uuid())
+  userId           String
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId           String?
+  task             Task?       @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actionType       AuditAction
+  deltaXP          Int
+  deltaGold        Int
+  finalLevel       Int
+  finalXP          BigInt
+  finalGold        BigInt
+  timestamp        DateTime    @default(now())
+  previousHash     String
+  currentHash      String
+  clientIp         String?
+  isFlaggedAnomaly Boolean     @default(false)
+  anomalyReason    String?
+
+  @@index([userId, timestamp(sort: Desc)])
+  @@map("progression_audit_ledger")
+}
