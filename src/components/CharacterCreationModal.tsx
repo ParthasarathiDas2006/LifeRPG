@@ -33,6 +33,11 @@ import {
   Dices,
 } from 'lucide-react';
 import { getRandomNameAndTitle, HERO_RANDOM_NAMES } from '@/lib/nameGenerator';
+import {
+  FAMOUS_GAME_PROMPTS,
+  generateCharacterFromPrompt,
+  PromptHeroPreset,
+} from '@/lib/promptCharacterGenerator';
 
 interface CharacterCreationModalProps {
   isOpen: boolean;
@@ -47,14 +52,33 @@ export function CharacterCreationModal({
   currentCharacter,
   onCharacterSaved,
 }: CharacterCreationModalProps) {
-  const [activeTab, setActiveTab] = useState<'ROSTER' | 'PHOTO' | 'STUDIO'>('ROSTER');
+  const [activeTab, setActiveTab] = useState<'ROSTER' | 'PROMPT' | 'PHOTO' | 'STUDIO'>('ROSTER');
   const [rosterFilter, setRosterFilter] = useState<'ALL' | 'FREE_FIRE' | 'PUBG' | 'SOLO_LEVELING' | 'FEMALE' | 'MALE'>('ALL');
+
+  // Prompt Generator State
+  const [promptInput, setPromptInput] = useState('Kelly from Free Fire with golden phoenix wings');
+  const [selectedPromptPreset, setSelectedPromptPreset] = useState<PromptHeroPreset | null>(FAMOUS_GAME_PROMPTS[0]);
+  const [promptGeneratedAvatar, setPromptGeneratedAvatar] = useState<string | null>(null);
 
   // Character Details
   const [name, setName] = useState(currentCharacter.name);
   const [charClass, setCharClass] = useState<CharacterClass>(currentCharacter.class);
   const [gender, setGender] = useState<CharacterGender>(currentCharacter.gender || 'FEMALE');
   const [title, setTitle] = useState(currentCharacter.title);
+
+  const handleGenerateFromPrompt = (customQuery?: string) => {
+    soundEngine.playCritStrike();
+    const query = customQuery || promptInput;
+    const { config, presetMatch } = generateCharacterFromPrompt(query);
+    setName(config.name);
+    setCharClass(config.class);
+    setGender(config.gender || 'FEMALE');
+    setTitle(config.title);
+    setSelectedPromptPreset(presetMatch);
+    setPromptGeneratedAvatar(config.avatarUrl);
+    setGeneratedPhotoAvatar(config.avatarUrl);
+    if (config.spriteParts) setSpriteParts(config.spriteParts);
+  };
 
   // Photo Generator State
   const [photoSrc, setPhotoSrc] = useState<string | null>(currentCharacter.sourcePhotoUrl || null);
@@ -163,10 +187,15 @@ export function CharacterCreationModal({
   const handleSaveCharacter = async () => {
     try {
       setIsSaving(true);
-      const avatarType = activeTab === 'PHOTO' && generatedPhotoAvatar ? 'PHOTO_GENERATED' : 'SPRITE';
+      const avatarType =
+        (activeTab === 'PROMPT' && promptGeneratedAvatar) || (activeTab === 'PHOTO' && generatedPhotoAvatar)
+          ? 'PHOTO_GENERATED'
+          : 'SPRITE';
       const activePreset = HERO_PRESETS.find((p) => p.name === name);
       const avatarUrl =
-        activeTab === 'PHOTO' && generatedPhotoAvatar
+        activeTab === 'PROMPT' && promptGeneratedAvatar
+          ? promptGeneratedAvatar
+          : activeTab === 'PHOTO' && generatedPhotoAvatar
           ? generatedPhotoAvatar!
           : activePreset?.portraitUrl || generatedSpriteAvatar;
 
@@ -181,11 +210,29 @@ export function CharacterCreationModal({
         sourcePhotoUrl: avatarType === 'PHOTO_GENERATED' ? photoSrc || undefined : undefined,
         generationStyle: avatarType === 'PHOTO_GENERATED' ? selectedStyle : undefined,
         generationSeed: avatarType === 'PHOTO_GENERATED' ? seed : undefined,
-        uniqueHeroId: uniqueHeroData?.heroId,
-        gameOrigin: activePreset ? activePreset.gameInspiration : undefined,
-        abilityName: activePreset ? activePreset.ability.name : undefined,
-        abilityBuff: activePreset ? activePreset.ability.buffText : undefined,
-        humanSpecs: activePreset ? activePreset.humanSpecs : undefined,
+        uniqueHeroId: uniqueHeroData?.heroId || selectedPromptPreset?.id,
+        gameOrigin: selectedPromptPreset
+          ? (selectedPromptPreset.game.includes('FREE FIRE')
+              ? 'FREE_FIRE'
+              : selectedPromptPreset.game.includes('PUBG')
+              ? 'PUBG'
+              : 'SOLO_LEVELING')
+          : activePreset
+          ? activePreset.gameInspiration
+          : undefined,
+        abilityName: selectedPromptPreset?.abilityName || activePreset?.ability.name,
+        abilityBuff: selectedPromptPreset?.abilityBuff || activePreset?.ability.buffText,
+        humanSpecs: selectedPromptPreset
+          ? {
+              physique: selectedPromptPreset.physique,
+              faceAndEyes: selectedPromptPreset.faceAndEyes,
+              torsoAndOutfit: selectedPromptPreset.torsoAndOutfit,
+              armsAndGloves: `Muscular arms wielding ${selectedPromptPreset.weapon}`,
+              legsAndBoots: 'Reinforced combat trousers and tactical assault boots',
+            }
+          : activePreset
+          ? activePreset.humanSpecs
+          : undefined,
       };
 
       const res = await fetch('/api/character', {
@@ -273,6 +320,22 @@ export function CharacterCreationModal({
             >
               <Crown className="h-4 w-4" />
               Battle Royale Roster (10 Legends)
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('PROMPT');
+                if (!promptGeneratedAvatar) {
+                  handleGenerateFromPrompt();
+                }
+              }}
+              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
+                activeTab === 'PROMPT'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.5)]'
+                  : 'bg-slate-800/80 text-emerald-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Wand2 className="h-4 w-4 text-emerald-400 animate-pulse" />
+              ✨ AI Prompt Studio (Famous Games)
             </button>
             <button
               onClick={() => setActiveTab('PHOTO')}
@@ -564,7 +627,195 @@ export function CharacterCreationModal({
             </div>
           )}
 
-          {/* TAB 2: UPLOAD PHOTO & BATTLE ROYALE AI FORGE */}
+          {/* TAB 2: AI PROMPT STUDIO (FAMOUS GAME CHARACTERS) */}
+          {activeTab === 'PROMPT' && (
+            <div className="space-y-6">
+              {/* Banner */}
+              <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-teal-950/40 p-4 flex items-center justify-between gap-4 backdrop-blur-md shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-glow-xp">
+                    <Wand2 className="h-6 w-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white flex items-center gap-2">
+                      AI Prompt Studio: Famous Game Characters
+                      <span className="rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 border border-emerald-500/40">
+                        12 Famous Games Built-In
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Type any custom prompt or select famous heroes from Free Fire, PUBG Mobile, Solo Leveling, Call of Duty, Valorant, or League of Legends to generate high-fidelity game character art!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prompt Bar Input */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 shadow-xl">
+                <label className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-2">
+                  Enter Natural Language Prompt:
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={promptInput}
+                      onChange={(e) => setPromptInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleGenerateFromPrompt();
+                      }}
+                      placeholder="e.g. Free Fire Kelly golden phoenix, PUBG Level 3 Spetsnaz with M416, or Solo Leveling Jinwoo..."
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-xs font-semibold text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateFromPrompt()}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3 text-xs font-black uppercase text-slate-950 shadow-glow-xp hover:from-emerald-400 hover:to-teal-500 transition active:scale-95"
+                  >
+                    <Zap className="h-4 w-4 fill-slate-950" />
+                    <span>Forge Hero</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const randomPreset = FAMOUS_GAME_PROMPTS[Math.floor(Math.random() * FAMOUS_GAME_PROMPTS.length)];
+                      setPromptInput(randomPreset.promptText);
+                      handleGenerateFromPrompt(randomPreset.promptText);
+                    }}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-xs font-bold text-amber-300 hover:border-amber-400 hover:bg-amber-500/20 transition"
+                    title="Load random famous prompt"
+                  >
+                    <Dices className="h-4 w-4 text-amber-400 animate-spin" />
+                    <span>Surprise Prompt</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Main 2-Column Display: Left 12 Famous Prompts, Right Live Preview */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left: Famous Game Prompt Cards (7 cols) */}
+                <div className="lg:col-span-7 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                      Select Famous Game Prompt Presets:
+                    </h4>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      12 Character Cards Available
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-1 scrollbar-thin">
+                    {FAMOUS_GAME_PROMPTS.map((preset) => {
+                      const isSelected = selectedPromptPreset?.id === preset.id;
+                      return (
+                        <div
+                          key={preset.id}
+                          onClick={() => {
+                            setPromptInput(preset.promptText);
+                            handleGenerateFromPrompt(preset.promptText);
+                          }}
+                          className={`cursor-pointer rounded-2xl border p-3.5 transition duration-200 text-left flex flex-col justify-between ${
+                            isSelected
+                              ? 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-[1.01]'
+                              : 'border-slate-800 bg-slate-950/60 hover:border-slate-700 hover:bg-slate-900/60'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="rounded-full bg-slate-900 border border-slate-700 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300">
+                                {preset.game}
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-400 font-mono">
+                                CP {preset.combatPower}
+                              </span>
+                            </div>
+                            <h5 className="text-xs font-black text-white">{preset.characterName}</h5>
+                            <p className="text-[10px] text-purple-300 font-mono mt-0.5">{preset.title}</p>
+                            <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 italic">
+                              "{preset.promptText}"
+                            </p>
+                          </div>
+
+                          <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-800/80">
+                            <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1">
+                              {preset.abilityIcon} {preset.abilityName}
+                            </span>
+                            <span className="text-[9px] font-extrabold text-emerald-400">
+                              {isSelected ? '✓ Active' : 'Select →'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right: Live Generated Character Preview (5 cols) */}
+                <div className="lg:col-span-5 flex flex-col items-center">
+                  <div className="w-full rounded-3xl border border-emerald-500/40 bg-slate-950 p-5 shadow-2xl text-center space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                        {selectedPromptPreset?.game || 'AI GENERATED'}
+                      </span>
+                      <span className="text-xs font-mono font-black text-amber-400">
+                        K/D {selectedPromptPreset?.kdRatio || 5.0}
+                      </span>
+                    </div>
+
+                    {/* Character High-Res Portrait Canvas */}
+                    <div className="relative mx-auto h-72 w-full overflow-hidden rounded-2xl border-2 border-emerald-500/60 bg-slate-950 shadow-[0_0_25px_rgba(16,185,129,0.25)]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={promptGeneratedAvatar || currentCharacter.avatarUrl}
+                        alt={name}
+                        className="h-full w-full object-cover object-top"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                        <span className="rounded-full bg-slate-950/85 border border-slate-700 px-2.5 py-0.5 text-[10px] font-black text-white">
+                          LVL 5 • {charClass}
+                        </span>
+                        <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2.5 py-0.5 text-[10px] font-black text-amber-300">
+                          CP {selectedPromptPreset?.combatPower || 3500}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Callsign & Ability */}
+                    <div>
+                      <h3 className="text-lg font-black text-white">{name}</h3>
+                      <p className="text-xs font-bold text-amber-400 font-mono mt-0.5">{title}</p>
+                      
+                      {selectedPromptPreset && (
+                        <div className="mt-2.5 rounded-xl bg-slate-900/90 border border-purple-500/30 p-2.5 text-left text-xs">
+                          <div className="flex items-center gap-1.5 font-black text-purple-300">
+                            <span>{selectedPromptPreset.abilityIcon}</span>
+                            <span>{selectedPromptPreset.abilityName}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300 mt-0.5 font-medium">
+                            {selectedPromptPreset.abilityBuff}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Equip Button */}
+                    <button
+                      type="button"
+                      onClick={handleSaveCharacter}
+                      disabled={isSaving}
+                      className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-xs font-black uppercase tracking-wider text-slate-950 shadow-glow-xp hover:from-emerald-400 hover:to-teal-500 transition active:scale-95"
+                    >
+                      {isSaving ? 'Equipping Hero...' : '✓ Equip This Prompt Hero'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: UPLOAD PHOTO & BATTLE ROYALE AI FORGE */}
           {activeTab === 'PHOTO' && (
             <div className="space-y-6">
               {/* Unique Guarantee Banner */}
