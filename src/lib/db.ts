@@ -71,9 +71,13 @@ function getDefaultCharacter(): CharacterConfig {
     class: preset.class,
     gender: preset.gender,
     title: preset.title,
-    avatarUrl: generateProceduralSprite(preset.parts, preset.class),
+    avatarUrl: preset.portraitUrl || generateProceduralSprite(preset.parts, preset.class),
     avatarType: 'SPRITE',
     spriteParts: preset.parts,
+    gameOrigin: preset.gameInspiration,
+    abilityName: preset.ability.name,
+    abilityBuff: preset.ability.buffText,
+    humanSpecs: preset.humanSpecs,
   };
 }
 
@@ -86,10 +90,17 @@ function readDb(): DatabaseSchema {
       parsed.character = getDefaultCharacter();
       writeDb(parsed);
     } else if (parsed.character.avatarType === 'SPRITE' && parsed.character.spriteParts) {
-      parsed.character.avatarUrl = generateProceduralSprite(
-        parsed.character.spriteParts,
-        parsed.character.class
+      const matchingPreset = HERO_PRESETS.find(
+        (p) => p.name.toLowerCase() === parsed.character.name.toLowerCase()
       );
+      if (matchingPreset && matchingPreset.portraitUrl) {
+        parsed.character.avatarUrl = matchingPreset.portraitUrl;
+      } else if (!parsed.character.avatarUrl || parsed.character.avatarUrl.startsWith('data:image/svg')) {
+        parsed.character.avatarUrl = generateProceduralSprite(
+          parsed.character.spriteParts,
+          parsed.character.class
+        );
+      }
     }
     return parsed;
   } catch (err) {

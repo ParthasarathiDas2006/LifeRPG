@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     const updated = dbService.updateCharacter({
       ...(body.name ? { name: body.name.trim() } : {}),
       ...(body.class ? { class: body.class } : {}),
+      ...(body.gender ? { gender: body.gender } : {}),
       ...(body.title ? { title: body.title.trim() } : {}),
       ...(body.avatarUrl ? { avatarUrl: body.avatarUrl } : {}),
       ...(body.avatarType ? { avatarType: body.avatarType } : {}),
@@ -37,6 +38,11 @@ export async function POST(request: Request) {
       ...(body.sourcePhotoUrl ? { sourcePhotoUrl: body.sourcePhotoUrl } : {}),
       ...(body.generationStyle ? { generationStyle: body.generationStyle } : {}),
       ...(body.generationSeed !== undefined ? { generationSeed: body.generationSeed } : {}),
+      ...(body.uniqueHeroId ? { uniqueHeroId: body.uniqueHeroId } : {}),
+      ...(body.gameOrigin ? { gameOrigin: body.gameOrigin } : {}),
+      ...(body.abilityName ? { abilityName: body.abilityName } : {}),
+      ...(body.abilityBuff ? { abilityBuff: body.abilityBuff } : {}),
+      ...(body.humanSpecs ? { humanSpecs: body.humanSpecs } : {}),
     });
 
     return NextResponse.json({ success: true, character: updated });
