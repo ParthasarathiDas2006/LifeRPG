@@ -128,34 +128,46 @@ export interface LeaderboardEntry {
   avatar: string;
 }
 
+export type CharacterGender = 'FEMALE' | 'MALE' | 'NON_BINARY';
+
 export type CharacterClass =
   | 'WARRIOR'
+  | 'VALKYRIE'
   | 'MAGE'
+  | 'SORCERESS'
   | 'ROGUE'
+  | 'KUNOICHI'
   | 'PALADIN'
   | 'RANGER'
-  | 'CYBER_HERO';
+  | 'HUNTRESS'
+  | 'CYBER_HERO'
+  | 'CYBER_VALKYRIE'
+  | 'PHOTO_AVATAR';
 
 export type AvatarStyle =
   | 'PIXEL_HERO'
   | 'MYSTIC_ARCANE'
   | 'CYBER_ROGUE'
   | 'HOLY_PALADIN'
-  | 'SHADOW_ASSASSIN';
+  | 'SHADOW_ASSASSIN'
+  | 'ANIME_LEGEND'
+  | 'CELESTIAL_ASTRAL';
 
 export interface SpritePartsConfig {
-  body: string; // e.g. 'fair', 'tanned', 'dark', 'elf'
-  hair: string; // e.g. 'short', 'spiky', 'long', 'ponytail', 'bald'
+  gender?: CharacterGender;
+  body: string; // e.g. 'fair', 'tanned', 'dark', 'elf', 'cyber', 'ivory'
+  hair: string; // e.g. 'short', 'spiky', 'long', 'ponytail', 'twin_braids', 'odango_buns', 'flowing_waves', 'side_bob'
   hairColor: string; // hex or name
-  outfit: string; // 'plate', 'robe', 'tunic', 'cyber', 'leather'
+  outfit: string; // 'plate', 'robe', 'tunic', 'cyber', 'valkyrie_plate', 'sorceress_dress', 'huntress_leather', 'kunoichi_suit'
   outfitColor: string;
-  weapon: string; // 'sword', 'staff', 'daggers', 'bow', 'katana', 'unarmed'
-  aura: string; // 'none', 'fire', 'arcane', 'holy', 'shadow', 'lightning'
+  weapon: string; // 'sword', 'staff', 'daggers', 'bow', 'katana', 'spear', 'scythe', 'dual_sabers'
+  aura: string; // 'none', 'fire', 'arcane', 'holy', 'shadow', 'lightning', 'sakura', 'celestial'
 }
 
 export interface CharacterConfig {
   name: string;
   class: CharacterClass;
+  gender?: CharacterGender;
   title: string;
   avatarUrl: string; // data URI or sprite SVG
   avatarType: 'SPRITE' | 'PHOTO_GENERATED';
@@ -163,6 +175,7 @@ export interface CharacterConfig {
   sourcePhotoUrl?: string;
   generationStyle?: AvatarStyle;
   generationSeed?: number;
+  uniqueHeroId?: string;
 }
 
 // --- Free Fire Style Ranked Tier System ---
