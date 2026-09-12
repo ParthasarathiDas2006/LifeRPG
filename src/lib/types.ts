@@ -69,6 +69,7 @@ export interface Item {
   buyPrice: number;
   sellPrice: number;
   icon: string;
+  enhancementLevel?: number; // 0 to 10 (+1, +2, ..., +10)
 }
 
 export interface InventoryItem {
@@ -162,5 +163,84 @@ export interface CharacterConfig {
   sourcePhotoUrl?: string;
   generationStyle?: AvatarStyle;
   generationSeed?: number;
+}
+
+// --- Free Fire Style Ranked Tier System ---
+export type RankedTier =
+  | 'BRONZE'
+  | 'SILVER'
+  | 'GOLD'
+  | 'PLATINUM'
+  | 'DIAMOND'
+  | 'HEROIC'
+  | 'GRANDMASTER';
+
+export interface BossRaidData {
+  bossName: string;
+  bossTitle: string;
+  bossAvatar: string;
+  currentHp: number;
+  maxHp: number;
+  phase: number;
+  rewards: {
+    xp: number;
+    gold: number;
+    guaranteedLoot: string;
+    titleUnlock?: string;
+  };
+  participantsCount?: number;
+}
+
+export interface TalentNode {
+  id: string;
+  name: string;
+  tree: 'BODY' | 'MIND' | 'SOUL';
+  description: string;
+  icon: string;
+  currentRank: number;
+  maxRank: number;
+  requiredLevel: number;
+  statBonus: {
+    xpPct?: number;
+    goldPct?: number;
+    critPct?: number;
+    hpBonus?: number;
+    pomodoroXpBonus?: number;
+  };
+}
+
+export interface ArenaOpponent {
+  id: string;
+  name: string;
+  title: string;
+  level: number;
+  combatPower: number;
+  class: CharacterClass;
+  tier: RankedTier;
+  avatar: string;
+  str: number;
+  vit: number;
+  agi: number;
+  int: number;
+  winRewardGold: number;
+  winRewardXP: number;
+}
+
+export interface ArenaBattleLog {
+  turn: number;
+  attacker: string;
+  defender: string;
+  damage: number;
+  isCrit: boolean;
+  message: string;
+}
+
+export interface DailyWheelSlice {
+  id: string;
+  label: string;
+  icon: string;
+  type: 'GOLD' | 'XP' | 'SHIELD' | 'CRATE' | 'JACKPOT';
+  amount: number;
+  color: string;
 }
 

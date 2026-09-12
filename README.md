@@ -1,8 +1,8 @@
 # Life RPG ⚔️
 
-> **Gamify Real-World Productivity & Habit Progression**
+> **Gamify Real-World Productivity, Habit Progression & Battle Royale Experience**
 
-Life RPG is a full-stack gamified productivity platform that transforms real-life tasks and habits into RPG-style quests. Complete tasks, earn XP and rewards, build character attributes, maintain streaks, and level up your real life.
+Life RPG is a full-stack gamified productivity platform inspired by AAA mobile titles like **Free Fire** and classic RPGs. It transforms everyday tasks and habits into RPG-style quests, boss raids, ranked arena duels, and lucky gacha unboxings while incorporating real-time dopamine-boosting Web Audio sound synthesis.
 
 ---
 
@@ -32,29 +32,70 @@ npm run start
 
 ---
 
-## 🏰 Core Mechanics
+## 🏰 The 6 Distributed Game Zones
 
-### 1. The 6 Core Attributes
-- **Strength (STR)**: Workouts, lifting, athletic stamina.
-- **Intelligence (INT)**: Deep work, coding, reading books, courses.
-- **Vitality (VIT)**: Sleep hygiene, hydration, nutrition, recovery.
-- **Agility (AGI)**: Rapid chores, inbox zero, high-speed errands.
-- **Charisma (CHA)**: Fellowship, social outreach, public speaking.
-- **Willpower (WIL)**: Fasting, focus blocks, resisting vices.
+Rather than a single crowded dashboard, Life RPG divides player progression into **6 high-energy game zones**:
 
-### 2. Instant Feedback Loops
-- **Audio Synthesis**: Retro 8-bit sound effects generated on the fly via the Web Audio API.
-- **Floating Combat Text**: Real-time damage numbers (`+160 XP`, `+100 GP`, `💥 CRIT!`).
-- **Dynamic Leveling**: Exponential leveling curve $XP_{req}(L) = \lfloor 100 \times L^{1.6} + 50 \times L \rfloor$.
-- **Loot Drop RNG**: Guaranteed Rare+ drops via a 10-task pity-timer system.
-- **Streak Multipliers**: Up to $+50\%$ bonus rewards for maintaining consecutive daily habits.
+### 1. 🏰 Lobby Sanctuary (Command HQ)
+- **3D Hero Stage Podium**: Character avatar framed by dynamic radiant class auras, displaying Level, Title, HP/MP orbs, and real-time **Combat Power (CP)**.
+- **Daily Supply Airdrop Wheel**: Free Fire-style daily fortune wheel granting free Gold, XP, Streak Shields, or Mystery Crates.
+- **Streak Inferno Multiplier**: Visual flame tier scaling from Bronze to Infernal Dragon Flame with up to $+50\%$ bonus rewards.
+- **One-Tap IRL Habit Quick-Taps**: Instant one-click buttons for Water Hydration (+VIT), Posture Stretch (+AGI), and 10-Minute Reading (+INT).
+
+### 2. ⚔️ Operations Hub (IRL Battle Pass & Focus Terminal)
+- **Active Quests**: Dailies and habits filterable by attribute with streak multipliers and real-time floating combat text (`+160 XP`, `💥 CRIT!`).
+- **Boss Raids (IRL Mega-Feats)**:
+  - *The Iron Colossus* (STR/VIT): 5km run or 100 pushups.
+  - *The Void Overlord* (INT/WIL): 3-hour zero-distraction deep work sprint.
+  - *Hydra of Restlessness* (VIT): 8-hour sleep tracking.
+  - Interactive boss integrity HP bars and victory bounties.
+- **Focus Hyperdrive (IRL Pomodoro Combat Engine)**:
+  - 25-minute deep focus sprint with sound alerts and instant XP/Willpower rewards.
+
+### 3. 🛡️ Armory & Blacksmith Forge
+- **Full Equipment Grid**: Manage Head, Chest, Weapon, Shield, Relic, and Wings loadouts.
+- **The Blacksmith's Anvil (+1 to +10 Enhancement)**:
+  - Forge weapons and armor using Gold.
+  - Risk/reward success probabilities with dramatic anvil sound effects and +20% stat multipliers per level.
+- **Character Studio & AI Style Transformer**:
+  - Switch between procedural 16-bit sprite customizer and Canvas photo-to-RPG generator.
+
+### 4. 🎰 Lucky Royale & Black Market Bazaar
+- **Lucky Royale Supply Crate**:
+  - Free Fire-style animated mystery crate unboxing with radiant beam effects, chest rattle animations, and dopamine-packed fanfare chords.
+  - Guaranteed Rare+ drop pity counter (10-spin pity ceiling).
+- **Black Market Vendor**:
+  - Buy rotating high-tier weapons, armor, streak freeze shields, and XP elixirs.
+
+### 5. 🏆 Battle Arena & Ranked Tiers (PvP)
+- **Free Fire-Style Ranked Tier Hierarchy**:
+  - **Bronze ➔ Silver ➔ Gold ➔ Platinum ➔ Diamond ➔ Heroic ➔ Grandmaster** based on Level, Combat Power, and Streaks.
+- **Phantom Arena Duels**:
+  - Asynchronous simulated PvP battles against leaderboard rivals with turn-by-turn combat logs, crits, and bounty rewards.
+- **Global Hall of Legends**:
+  - Dynamic ranking leaderboard showcasing top heroes and player standing.
+
+### 6. 🌌 Talent Matrix (IRL Skill Tree)
+- **Interactive Branching Skill Tree**:
+  - **Body Tree (Physical Prowess)**: Iron Constitution, Kinetic Surge (+HP & workout adrenaline).
+  - **Mind Tree (Cognitive Focus)**: Deep Flow State (+25% Pomodoro XP), Hyper Retention.
+  - **Soul Tree (Discipline & Luck)**: Unbreakable Will (+8% Crit Chance), Fortune's Favor (+Drop Rates).
+- **Attribute Radar Hexagon**:
+  - Live visual radar diagram displaying your STR, INT, VIT, AGI, CHA, and WIL distribution.
 
 ---
 
-## 🛡️ Architecture & Security
-- **Server-Authoritative State**: All XP, stat modifiers, gold drops, and level advancements are validated server-side.
-- **Atomic Persistence**: ACID-guaranteed transactional file persistence in `.data/liferpg_db.json`.
-- **Anti-Cheat Measures**: Completion velocity rate-limiting, HMAC audit hashing, and soft daily XP ceilings.
+## 🎵 Dynamic Dopamine-Boosting Audio Engine
+
+Life RPG features a Web Audio API procedural polyphonic synthesizer with zero external asset dependencies:
+- **3 Dynamic BGM Soundtracks**:
+  1. **"Cyber Surge"** (132 BPM): Adrenaline synthwave battle beat with pulsing sub-bass, hi-hats, and saw leads.
+  2. **"Hero's Triumph"** (116 BPM): Triumphant brass RPG chiptune anthem.
+  3. **"Zen Hyperdrive"** (80 BPM): Warm lo-fi ambient focus chords for deep IRL work and study sessions.
+- **Interactive Audio HUD**:
+  - Live animated equalizer visualizer bars, track selector, BGM volume slider, and SFX mute toggle.
+- **Hype SFX Suite**:
+  - Crate unlock fanfare, Blacksmith hammer clank & shimmer chord, arena clash, level-up fanfare, and streak flame ignition.
 
 ---
 
@@ -72,20 +113,31 @@ liferpg/
 │   │   │   ├── inventory/equip/route.ts
 │   │   │   ├── shop/route.ts
 │   │   │   ├── shop/buy/route.ts
-│   │   │   └── leaderboard/route.ts
+│   │   │   ├── leaderboard/route.ts
+│   │   │   └── game/
+│   │   │       ├── forge/route.ts
+│   │   │       ├── lucky-crate/route.ts
+│   │   │       ├── daily-spin/route.ts
+│   │   │       ├── boss-raids/route.ts
+│   │   │       ├── arena/route.ts
+│   │   │       ├── talents/route.ts
+│   │   │       └── quick-habit/route.ts
 │   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/
 │   │   ├── Navbar.tsx
-│   │   ├── HeroHUD.tsx
-│   │   ├── CharacterCreationModal.tsx
+│   │   ├── AudioPlayerHUD.tsx
+│   │   ├── LobbySection.tsx
+│   │   ├── OperationsSection.tsx
+│   │   ├── ArmorySection.tsx
+│   │   ├── LuckyRoyaleSection.tsx
+│   │   ├── ArenaSection.tsx
+│   │   ├── TalentMatrixSection.tsx
 │   │   ├── AttributeRadar.tsx
 │   │   ├── QuestList.tsx
 │   │   ├── CreateQuestModal.tsx
-│   │   ├── InventoryModal.tsx
-│   │   ├── ShopModal.tsx
-│   │   ├── LeaderboardModal.tsx
+│   │   ├── CharacterCreationModal.tsx
 │   │   └── LevelUpModal.tsx
 │   └── lib/
 │       ├── db.ts
@@ -99,16 +151,3 @@ liferpg/
 ├── tsconfig.json
 └── package.json
 ```
-
----
-
-## 🎨 Character Studio & AI-Style Photo Generator
-
-- **Procedural Sprite Builder**: Customize class (Warrior, Mage, Rogue, Paladin, Ranger, Cyber Hero), hairstyle, outfit, weapon, and radiant aura.
-- **Photo-to-RPG Generator**: Upload any portrait photo and convert it into 5 distinct game art styles:
-  - 👾 *16-Bit Retro Pixel Art*
-  - ⚔️ *High Fantasy Oil Portrait*
-  - 🤖 *Cyberpunk Neon Hologram*
-  - 📜 *Dark Souls Eldritch Sketch*
-  - ✨ *Anime Mana Shimmer*
-- **Instant Random Variations**: Tap **✨ Generate New Variation** to generate fresh artistic seeds and palette combinations on the fly.

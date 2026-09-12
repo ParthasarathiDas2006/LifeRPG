@@ -9,6 +9,12 @@ import {
   TaskCompletionResult,
   LeaderboardEntry,
   CharacterConfig,
+  RankedTier,
+  BossRaidData,
+  TalentNode,
+  ArenaOpponent,
+  ArenaBattleLog,
+  DailyWheelSlice,
 } from './types';
 import { generateProceduralSprite } from './photoGenerator';
 import {
@@ -37,6 +43,10 @@ interface DatabaseSchema {
     validationHash: string;
   }>;
   pityCounter: number;
+  bossRaids?: BossRaidData[];
+  talentPoints?: number;
+  unlockedTalents?: Record<string, number>;
+  lastDailySpin?: string;
 }
 
 const DATA_DIR = path.join(process.cwd(), '.data');
@@ -777,5 +787,533 @@ export const dbService = {
     baseEntries.sort((a, b) => b.totalXP - a.totalXP);
     // Reassign ranks
     return baseEntries.map((e, idx) => ({ ...e, rank: idx + 1 }));
+  },
+
+  // --- Free Fire Style Ranked Tier Calculator ---
+  getRankedTier(level: number, totalStats: number, streak: number): RankedTier {
+    const score = level * 100 + totalStats * 5 + streak * 50;
+    if (score >= 8000) return 'GRANDMASTER';
+    if (score >= 5500) return 'HEROIC';
+    if (score >= 3800) return 'DIAMOND';
+    if (score >= 2400) return 'PLATINUM';
+    if (score >= 1200) return 'GOLD';
+    if (score >= 500) return 'SILVER';
+    return 'BRONZE';
+  },
+
+  // --- Blacksmith Forge Enhancement System (+1 to +10) ---
+  enhanceItem(invId: string): { success: boolean; enhancedLevel: number; message: string; item: Item } {
+    const db = readDb();
+    const inv = db.inventory.find((i) => i.id === invId);
+    if (!inv) throw new Error('Inventory item not found');
+
+    const currentLevel = inv.item.enhancementLevel || 0;
+    if (currentLevel >= 10) {
+      throw new Error('Item has already achieved MAX Enhancement (+10)!');
+    }
+
+    const cost = (currentLevel + 1) * 120;
+    if (db.userStats.gold < cost) {
+      throw new Error(`Insufficient gold! You need ${cost} GP to forge this item.`);
+    }
+
+    db.userStats.gold -= cost;
+
+    // Success probabilities: +1 (95%) down to +10 (15%)
+    const successRates = [0.95, 0.9, 0.85, 0.75, 0.65, 0.5, 0.4, 0.3, 0.2, 0.15];
+    const rate = successRates[currentLevel] ?? 0.2;
+    const roll = Math.random();
+
+    if (roll <= rate) {
+      const nextLevel = currentLevel + 1;
+      inv.item.enhancementLevel = nextLevel;
+
+      // Boost item stat modifiers by +20% per enhancement level
+      const multiplier = 1.2;
+      const mods = inv.item.statModifiers;
+      if (mods.str) mods.str = Math.round(mods.str * multiplier + 1);
+      if (mods.int) mods.int = Math.round(mods.int * multiplier + 1);
+      if (mods.vit) mods.vit = Math.round(mods.vit * multiplier + 1);
+      if (mods.agi) mods.agi = Math.round(mods.agi * multiplier + 1);
+      if (mods.cha) mods.cha = Math.round(mods.cha * multiplier + 1);
+      if (mods.wil) mods.wil = Math.round(mods.wil * multiplier + 1);
+      if (mods.xpBonusPct) mods.xpBonusPct = Math.round(mods.xpBonusPct + 1);
+      if (mods.goldBonusPct) mods.goldBonusPct = Math.round(mods.goldBonusPct + 1);
+
+      writeDb(db);
+      return {
+        success: true,
+        enhancedLevel: nextLevel,
+        message: `FORGE SUCCESS! ${inv.item.name} ascended to +${nextLevel}!`,
+        item: inv.item,
+      };
+    } else {
+      writeDb(db);
+      return {
+        success: false,
+        enhancedLevel: currentLevel,
+        message: `FORGE FAILED! The hammer slipped, but the item survived at +${currentLevel}.`,
+        item: inv.item,
+      };
+    }
+  },
+
+  // --- Lucky Royale Gacha Crate Opening ---
+  openLuckyCrate(): { item: Item; pityCount: number; isRareOrBetter: boolean } {
+    const db = readDb();
+    const crateCost = 150;
+    if (db.userStats.gold < crateCost) {
+      throw new Error(`Insufficient gold! Lucky Crate costs ${crateCost} GP.`);
+    }
+
+    db.userStats.gold -= crateCost;
+    db.pityCounter += 1;
+
+    // Roll loot
+    const drop = rollLootDrop('EPIC', db.itemsCatalog, db.pityCounter);
+    let item = drop.item;
+    if (!item) {
+      // Fallback to random item from catalog
+      item = db.itemsCatalog[Math.floor(Math.random() * db.itemsCatalog.length)];
+    }
+
+    const isRareOrBetter = ['RARE', 'EPIC', 'LEGENDARY'].includes(item.rarity);
+    if (isRareOrBetter) {
+      db.pityCounter = 0;
+    }
+
+    // Add to inventory
+    const existing = db.inventory.find((i) => i.itemId === item!.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      db.inventory.push({
+        id: `inv-${Date.now()}`,
+        itemId: item.id,
+        item,
+        quantity: 1,
+        isEquipped: false,
+        acquiredAt: new Date().toISOString(),
+      });
+    }
+
+    writeDb(db);
+    return {
+      item,
+      pityCount: db.pityCounter,
+      isRareOrBetter,
+    };
+  },
+
+  // --- Daily Fortune Spin Wheel ---
+  spinDailyWheel(): { slice: DailyWheelSlice; message: string } {
+    const db = readDb();
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+
+    const wheelSlices: DailyWheelSlice[] = [
+      { id: '1', label: '100 Gold', icon: '💰', type: 'GOLD', amount: 100, color: '#f59e0b' },
+      { id: '2', label: '150 XP', icon: '⚡', type: 'XP', amount: 150, color: '#a855f7' },
+      { id: '3', label: '1 Streak Shield', icon: '🛡️', type: 'SHIELD', amount: 1, color: '#06b6d4' },
+      { id: '4', label: '250 Gold', icon: '💎', type: 'GOLD', amount: 250, color: '#eab308' },
+      { id: '5', label: 'Lucky Crate', icon: '🎁', type: 'CRATE', amount: 1, color: '#ec4899' },
+      { id: '6', label: 'JACKPOT 500 GP', icon: '🔥', type: 'JACKPOT', amount: 500, color: '#ef4444' },
+    ];
+
+    const selected = wheelSlices[Math.floor(Math.random() * wheelSlices.length)];
+
+    if (selected.type === 'GOLD' || selected.type === 'JACKPOT') {
+      db.userStats.gold += selected.amount;
+    } else if (selected.type === 'XP') {
+      db.userStats.currentXP += selected.amount;
+      while (db.userStats.currentXP >= db.userStats.nextLevelXP) {
+        db.userStats.currentXP -= db.userStats.nextLevelXP;
+        db.userStats.level += 1;
+        db.userStats.nextLevelXP = getRequiredXPForLevel(db.userStats.level);
+      }
+    } else if (selected.type === 'SHIELD') {
+      db.userStats.streakFreezeTokens += selected.amount;
+    } else if (selected.type === 'CRATE') {
+      // Award random item directly
+      const randomItem = db.itemsCatalog[Math.floor(Math.random() * db.itemsCatalog.length)];
+      db.inventory.push({
+        id: `inv-${Date.now()}`,
+        itemId: randomItem.id,
+        item: randomItem,
+        quantity: 1,
+        isEquipped: false,
+        acquiredAt: new Date().toISOString(),
+      });
+    }
+
+    db.lastDailySpin = todayStr;
+    writeDb(db);
+
+    return {
+      slice: selected,
+      message: `Daily Supply Drop Awarded: ${selected.label}!`,
+    };
+  },
+
+  // --- Boss Raids (IRL Mega-Challenges) ---
+  getBossRaids(): BossRaidData[] {
+    const db = readDb();
+    if (!db.bossRaids || db.bossRaids.length === 0) {
+      db.bossRaids = [
+        {
+          bossName: 'The Iron Colossus',
+          bossTitle: 'Overlord of Physical Stagnation',
+          bossAvatar: '👹',
+          currentHp: 640,
+          maxHp: 1000,
+          phase: 2,
+          rewards: {
+            xp: 800,
+            gold: 500,
+            guaranteedLoot: "Colossus's Adamantine Aegis",
+            titleUnlock: 'Iron Titan Breaker',
+          },
+          participantsCount: 142,
+        },
+        {
+          bossName: 'The Void Overlord',
+          bossTitle: 'Devourer of Human Attention Span',
+          bossAvatar: '👁️',
+          currentHp: 890,
+          maxHp: 1200,
+          phase: 1,
+          rewards: {
+            xp: 1200,
+            gold: 750,
+            guaranteedLoot: 'Singularity Focus Diadem',
+            titleUnlock: 'Void Mind Slayer',
+          },
+          participantsCount: 88,
+        },
+        {
+          bossName: 'Hydra of Restlessness',
+          bossTitle: 'Sleep Deprivation Fiend',
+          bossAvatar: '🐉',
+          currentHp: 420,
+          maxHp: 800,
+          phase: 3,
+          rewards: {
+            xp: 600,
+            gold: 400,
+            guaranteedLoot: 'Pillow of Eternal Solace',
+            titleUnlock: 'Slumber Sovereign',
+          },
+          participantsCount: 215,
+        },
+      ];
+      writeDb(db);
+    }
+    return db.bossRaids;
+  },
+
+  strikeBossRaid(
+    bossName: string,
+    damage: number
+  ): { boss: BossRaidData; defeated: boolean; rewards?: BossRaidData['rewards'] } {
+    const db = readDb();
+    const raids = this.getBossRaids();
+    const boss = raids.find((b) => b.bossName === bossName) || raids[0];
+
+    boss.currentHp = Math.max(0, boss.currentHp - damage);
+    let defeated = false;
+    let rewards;
+
+    if (boss.currentHp === 0) {
+      defeated = true;
+      rewards = boss.rewards;
+      db.userStats.gold += rewards.gold;
+      db.userStats.currentXP += rewards.xp;
+      // Reset boss to next phase with higher HP
+      boss.phase += 1;
+      boss.maxHp = Math.round(boss.maxHp * 1.3);
+      boss.currentHp = boss.maxHp;
+    }
+
+    writeDb(db);
+    return { boss, defeated, rewards };
+  },
+
+  // --- IRL Skill Tree (Talent Matrix) ---
+  getTalents(): { points: number; talents: TalentNode[] } {
+    const db = readDb();
+    const points = db.talentPoints !== undefined ? db.talentPoints : Math.max(0, db.userStats.level - 1);
+    const unlocked = db.unlockedTalents || {};
+
+    const talentNodes: TalentNode[] = [
+      {
+        id: 't-iron-constitution',
+        name: 'Iron Constitution',
+        tree: 'BODY',
+        description: 'Hardens physical endurance; boosts maximum health by +50.',
+        icon: '🛡️',
+        currentRank: unlocked['t-iron-constitution'] || 0,
+        maxRank: 3,
+        requiredLevel: 2,
+        statBonus: { hpBonus: 50 },
+      },
+      {
+        id: 't-kinetic-surge',
+        name: 'Kinetic Surge',
+        tree: 'BODY',
+        description: 'Physical workouts trigger a rush of adrenaline; +10% STR gain.',
+        icon: '⚡',
+        currentRank: unlocked['t-kinetic-surge'] || 0,
+        maxRank: 3,
+        requiredLevel: 4,
+        statBonus: { xpPct: 10 },
+      },
+      {
+        id: 't-deep-flow',
+        name: 'Deep Flow State',
+        tree: 'MIND',
+        description: 'Each completed 25-minute Pomodoro focus block grants +25% bonus XP.',
+        icon: '🧠',
+        currentRank: unlocked['t-deep-flow'] || 0,
+        maxRank: 3,
+        requiredLevel: 2,
+        statBonus: { pomodoroXpBonus: 25 },
+      },
+      {
+        id: 't-hyper-retention',
+        name: 'Hyper Retention',
+        tree: 'MIND',
+        description: 'Reading courses and coding tasks grant +15% more gold.',
+        icon: '📚',
+        currentRank: unlocked['t-hyper-retention'] || 0,
+        maxRank: 3,
+        requiredLevel: 3,
+        statBonus: { goldPct: 15 },
+      },
+      {
+        id: 't-unbreakable-will',
+        name: 'Unbreakable Will',
+        tree: 'SOUL',
+        description: 'Steels focus against distraction; raises Critical Hit chance by +8%.',
+        icon: '🔥',
+        currentRank: unlocked['t-unbreakable-will'] || 0,
+        maxRank: 3,
+        requiredLevel: 2,
+        statBonus: { critPct: 8 },
+      },
+      {
+        id: 't-fortunes-favor',
+        name: "Fortune's Favor",
+        tree: 'SOUL',
+        description: 'Increases Rare and Legendary item drop rates from all activities.',
+        icon: '🍀',
+        currentRank: unlocked['t-fortunes-favor'] || 0,
+        maxRank: 3,
+        requiredLevel: 5,
+        statBonus: { goldPct: 20 },
+      },
+    ];
+
+    return { points, talents: talentNodes };
+  },
+
+  upgradeTalent(talentId: string): { success: boolean; talent?: TalentNode; remainingPoints: number } {
+    const db = readDb();
+    let points = db.talentPoints !== undefined ? db.talentPoints : Math.max(0, db.userStats.level - 1);
+    if (!db.unlockedTalents) db.unlockedTalents = {};
+
+    if (points <= 0) {
+      throw new Error('No Talent Points available! Level up your character to earn points.');
+    }
+
+    const { talents } = this.getTalents();
+    const node = talents.find((t) => t.id === talentId);
+    if (!node) throw new Error('Talent node not found');
+
+    if (node.currentRank >= node.maxRank) {
+      throw new Error('Talent already at maximum rank!');
+    }
+
+    if (db.userStats.level < node.requiredLevel) {
+      throw new Error(`Requires Character Level ${node.requiredLevel}!`);
+    }
+
+    points -= 1;
+    db.talentPoints = points;
+    db.unlockedTalents[talentId] = (db.unlockedTalents[talentId] || 0) + 1;
+    node.currentRank = db.unlockedTalents[talentId];
+
+    writeDb(db);
+    return { success: true, talent: node, remainingPoints: points };
+  },
+
+  // --- Asynchronous Arena Duels (PvP Simulation) ---
+  getArenaOpponents(): ArenaOpponent[] {
+    return [
+      {
+        id: 'opp-1',
+        name: 'Shadow Viper',
+        title: 'Cyber Assassin',
+        level: 8,
+        combatPower: 420,
+        class: 'CYBER_HERO',
+        tier: 'GOLD',
+        avatar: '🤖',
+        str: 18,
+        vit: 14,
+        agi: 24,
+        int: 16,
+        winRewardGold: 120,
+        winRewardXP: 180,
+      },
+      {
+        id: 'opp-2',
+        name: 'Valkyrie Freya',
+        title: 'Iron Shieldmaiden',
+        level: 12,
+        combatPower: 680,
+        class: 'PALADIN',
+        tier: 'PLATINUM',
+        avatar: '🛡️',
+        str: 26,
+        vit: 32,
+        agi: 14,
+        int: 20,
+        winRewardGold: 220,
+        winRewardXP: 320,
+      },
+      {
+        id: 'opp-3',
+        name: 'Archon Ignis',
+        title: 'Flame Overlord',
+        level: 16,
+        combatPower: 990,
+        class: 'MAGE',
+        tier: 'DIAMOND',
+        avatar: '🧙‍♂️',
+        str: 12,
+        vit: 20,
+        agi: 22,
+        int: 48,
+        winRewardGold: 380,
+        winRewardXP: 550,
+      },
+    ];
+  },
+
+  simulateArenaBattle(
+    opponentId: string
+  ): { victory: boolean; logs: ArenaBattleLog[]; xpGained: number; goldGained: number } {
+    const db = readDb();
+    const opp = this.getArenaOpponents().find((o) => o.id === opponentId);
+    if (!opp) throw new Error('Opponent not found in Arena');
+
+    const profile = this.getProfile();
+    const playerStats = profile.effectiveStats;
+    let playerHp = db.userStats.maxHealth;
+    let oppHp = opp.vit * 20;
+
+    const logs: ArenaBattleLog[] = [];
+    let turn = 1;
+    let victory = false;
+
+    while (playerHp > 0 && oppHp > 0 && turn <= 10) {
+      // Player turn
+      const playerCrit = Math.random() < (playerStats.wil * 0.02 + 0.1);
+      const playerDamage = Math.round((playerStats.str * 3 + playerStats.agi * 2) * (playerCrit ? 1.8 : 1.0));
+      oppHp -= playerDamage;
+      logs.push({
+        turn,
+        attacker: db.character.name,
+        defender: opp.name,
+        damage: playerDamage,
+        isCrit: playerCrit,
+        message: `${db.character.name} strikes with full fury for ${playerDamage} DMG!${playerCrit ? ' 💥 CRITICAL HIT!' : ''}`,
+      });
+
+      if (oppHp <= 0) {
+        victory = true;
+        break;
+      }
+
+      // Opponent turn
+      const oppCrit = Math.random() < 0.15;
+      const oppDamage = Math.round((opp.str * 2.5 + opp.agi * 1.5) * (oppCrit ? 1.6 : 1.0));
+      playerHp -= oppDamage;
+      logs.push({
+        turn,
+        attacker: opp.name,
+        defender: db.character.name,
+        damage: oppDamage,
+        isCrit: oppCrit,
+        message: `${opp.name} counters aggressively dealing ${oppDamage} DMG!`,
+      });
+
+      turn++;
+    }
+
+    if (oppHp <= 0) victory = true;
+
+    const xpGained = victory ? opp.winRewardXP : Math.round(opp.winRewardXP * 0.25);
+    const goldGained = victory ? opp.winRewardGold : Math.round(opp.winRewardGold * 0.2);
+
+    db.userStats.currentXP += xpGained;
+    db.userStats.gold += goldGained;
+
+    while (db.userStats.currentXP >= db.userStats.nextLevelXP) {
+      db.userStats.currentXP -= db.userStats.nextLevelXP;
+      db.userStats.level += 1;
+      db.userStats.nextLevelXP = getRequiredXPForLevel(db.userStats.level);
+    }
+
+    writeDb(db);
+    return { victory, logs, xpGained, goldGained };
+  },
+
+  // --- One-Tap IRL Quick Actions (Immediate Dopamine Feedback) ---
+  claimQuickHabit(
+    habitType: 'HYDRATE' | 'STRETCH' | 'READ' | 'FOCUS'
+  ): { xp: number; gold: number; statGained: string; message: string } {
+    const db = readDb();
+    let xp = 40;
+    let gold = 25;
+    let statGained = 'vit';
+    let message = 'Hydration boost applied! +1 VIT';
+
+    if (habitType === 'HYDRATE') {
+      db.userStats.vit += 1;
+      statGained = 'Vitality';
+      message = 'Gulp of Fresh Water logged! +1 VIT';
+    } else if (habitType === 'STRETCH') {
+      xp = 50;
+      gold = 30;
+      db.userStats.agi += 1;
+      statGained = 'Agility';
+      message = 'High-Speed Posture Stretch completed! +1 AGI';
+    } else if (habitType === 'READ') {
+      xp = 65;
+      gold = 40;
+      db.userStats.int += 1;
+      statGained = 'Intelligence';
+      message = '10-Minute Knowledge Deep Dive recorded! +1 INT';
+    } else if (habitType === 'FOCUS') {
+      xp = 120;
+      gold = 75;
+      db.userStats.wil += 2;
+      statGained = 'Willpower';
+      message = '25-Minute Focus Hyperdrive sprint finished! +2 WIL';
+    }
+
+    db.userStats.currentXP += xp;
+    db.userStats.gold += gold;
+    db.userStats.totalTasksCompleted += 1;
+
+    while (db.userStats.currentXP >= db.userStats.nextLevelXP) {
+      db.userStats.currentXP -= db.userStats.nextLevelXP;
+      db.userStats.level += 1;
+      db.userStats.nextLevelXP = getRequiredXPForLevel(db.userStats.level);
+    }
+
+    writeDb(db);
+    return { xp, gold, statGained, message };
   },
 };
