@@ -119,12 +119,20 @@ export function CreateQuestModal({ isOpen, onClose, onQuestCreated }: CreateQues
                 onChange={(e) => setCategory(e.target.value as TaskCategory)}
                 className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white focus:border-purple-500 focus:outline-none"
               >
-                <option value="STRENGTH">Strength (Workouts/Fitness)</option>
-                <option value="INTELLIGENCE">Intelligence (Study/Coding)</option>
-                <option value="VITALITY">Vitality (Sleep/Nutrition)</option>
-                <option value="AGILITY">Agility (Speed/Errands)</option>
-                <option value="CHARISMA">Charisma (Social/Networking)</option>
-                <option value="WILLPOWER">Willpower (Discipline/Focus)</option>
+                <optgroup label="4 Cardinal Moral Virtues">
+                  <option value="INTEGRITY">Integrity (Truth, Honor, Honesty)</option>
+                  <option value="COMPASSION">Compassion (Kindness, Empathy)</option>
+                  <option value="DISCIPLINE">Discipline (Fortitude, Fasting)</option>
+                  <option value="WISDOM">Wisdom (Equanimity, Reflection)</option>
+                </optgroup>
+                <optgroup label="Physical & Mental Attributes">
+                  <option value="STRENGTH">Strength (Workouts/Fitness)</option>
+                  <option value="INTELLIGENCE">Intelligence (Study/Coding)</option>
+                  <option value="VITALITY">Vitality (Sleep/Nutrition)</option>
+                  <option value="AGILITY">Agility (Speed/Errands)</option>
+                  <option value="CHARISMA">Charisma (Social/Networking)</option>
+                  <option value="WILLPOWER">Willpower (Focus/Resilience)</option>
+                </optgroup>
               </select>
             </div>
 
@@ -146,6 +154,24 @@ export function CreateQuestModal({ isOpen, onClose, onQuestCreated }: CreateQues
             </div>
           </div>
 
+          {/* Quest Type */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+              Quest Protocol Type
+            </label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as TaskType)}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white focus:border-purple-500 focus:outline-none"
+            >
+              <option value="DAILY">Daily Habit (Resets each day)</option>
+              <option value="NEGATIVE_RESTRAINT">Negative Restraint (e.g. No Anger Day, Screen Fast)</option>
+              <option value="REFLECTION">Evening Reflection (Micro-journaling)</option>
+              <option value="TODO">Single Task (One-time bounty)</option>
+              <option value="BOSS_RAID">Boss Raid (IRL Mega-challenge)</option>
+            </select>
+          </div>
+
           {/* Reward Preview Badge */}
           <div className="rounded-xl border border-purple-500/30 bg-purple-950/20 p-3 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-300">Base Completion Yield:</span>
@@ -157,6 +183,10 @@ export function CreateQuestModal({ isOpen, onClose, onQuestCreated }: CreateQues
               <span className="flex items-center gap-1 text-amber-400">
                 <Coins className="h-4 w-4" />
                 +{currentRewards.gold} Gold
+              </span>
+              <span className="flex items-center gap-1 text-emerald-400">
+                <Sparkles className="h-4 w-4" />
+                +{currentRewards.virtueCoins || 5} VC
               </span>
             </div>
           </div>

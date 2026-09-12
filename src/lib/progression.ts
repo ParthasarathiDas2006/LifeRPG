@@ -1,4 +1,4 @@
-import { TaskDifficulty, TaskCategory, Item, ItemRarity } from './types';
+import { TaskDifficulty, TaskCategory, MoralAttribute, Item, ItemRarity } from './types';
 
 /**
  * Calculates XP required to advance from `level` to `level + 1`.
@@ -10,14 +10,14 @@ export function getRequiredXPForLevel(level: number): number {
 }
 
 /**
- * Base XP and Gold rewards by task difficulty tier.
+ * Base XP, Gold, and Virtue Coin rewards by task difficulty tier.
  */
-export const DIFFICULTY_CONFIG: Record<TaskDifficulty, { xp: number; gold: number; multiplier: number }> = {
-  TRIVIAL: { xp: 15, gold: 8, multiplier: 1.0 },
-  EASY: { xp: 35, gold: 20, multiplier: 1.2 },
-  MEDIUM: { xp: 75, gold: 45, multiplier: 1.5 },
-  HARD: { xp: 160, gold: 100, multiplier: 2.0 },
-  EPIC: { xp: 350, gold: 250, multiplier: 3.0 },
+export const DIFFICULTY_CONFIG: Record<TaskDifficulty, { xp: number; gold: number; virtueCoins: number; multiplier: number }> = {
+  TRIVIAL: { xp: 15, gold: 8, virtueCoins: 2, multiplier: 1.0 },
+  EASY: { xp: 35, gold: 20, virtueCoins: 5, multiplier: 1.2 },
+  MEDIUM: { xp: 75, gold: 45, virtueCoins: 12, multiplier: 1.5 },
+  HARD: { xp: 160, gold: 100, virtueCoins: 25, multiplier: 2.0 },
+  EPIC: { xp: 350, gold: 250, virtueCoins: 60, multiplier: 3.0 },
 };
 
 /**
@@ -101,8 +101,18 @@ export function rollLootDrop(
 /**
  * Maps task category to the primary attribute gained
  */
-export function getAttributeGained(category: TaskCategory): 'str' | 'int' | 'vit' | 'agi' | 'cha' | 'wil' {
+export function getAttributeGained(
+  category: TaskCategory
+): 'str' | 'int' | 'vit' | 'agi' | 'cha' | 'wil' | 'integrity' | 'compassion' | 'discipline' | 'wisdom' {
   switch (category) {
+    case 'INTEGRITY':
+      return 'integrity';
+    case 'COMPASSION':
+      return 'compassion';
+    case 'DISCIPLINE':
+      return 'discipline';
+    case 'WISDOM':
+      return 'wisdom';
     case 'STRENGTH':
       return 'str';
     case 'INTELLIGENCE':
@@ -114,6 +124,26 @@ export function getAttributeGained(category: TaskCategory): 'str' | 'int' | 'vit
     case 'CHARISMA':
       return 'cha';
     case 'WILLPOWER':
+    default:
       return 'wil';
   }
 }
+
+/**
+ * Returns an inspiring philosophical rank title based on level and moral virtue focus.
+ */
+export function getVirtueRankTitle(level: number, dominantVirtue?: string): string {
+  if (level >= 25) return 'Transcendent Sage of the Sanctuary';
+  if (level >= 20) return 'Grand Master of Equanimity';
+  if (level >= 15) return 'Adept of the Cardinal Virtues';
+  if (level >= 10) {
+    if (dominantVirtue === 'COMPASSION') return 'Beacon of Lovingkindness';
+    if (dominantVirtue === 'INTEGRITY') return 'Pillar of Unyielding Truth';
+    if (dominantVirtue === 'DISCIPLINE') return 'Master of Iron Resolve';
+    if (dominantVirtue === 'WISDOM') return 'Keeper of Tranquil Insight';
+    return 'Guardian of the Moral Path';
+  }
+  if (level >= 5) return 'Practitioner of Inner Peace';
+  return 'Seeker of the Four Virtues';
+}
+

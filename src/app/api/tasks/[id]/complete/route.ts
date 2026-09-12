@@ -14,7 +14,21 @@ export async function POST(
       );
     }
 
-    const result = dbService.completeTask(taskId);
+    let reflectionData: { text?: string; moodRating?: number; honestyAffirmed?: boolean } | undefined;
+    try {
+      const body = await request.json();
+      if (body) {
+        reflectionData = {
+          text: body.reflectionText || body.text,
+          moodRating: body.moodRating,
+          honestyAffirmed: body.honestyAffirmed !== undefined ? body.honestyAffirmed : true,
+        };
+      }
+    } catch {
+      // Body may be empty for simple clicks
+    }
+
+    const result = dbService.completeTask(taskId, reflectionData);
     return NextResponse.json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to complete task';

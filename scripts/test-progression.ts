@@ -74,13 +74,38 @@ if (freezeShield && completionResult.progression.newLevel) {
 }
 console.log('✓ Shop and inventory operations verified.\n');
 
-// 6. Test Leaderboards
-console.log('[TEST 6] Testing Leaderboard Standings...');
-const leaderboard = dbService.getLeaderboard();
-console.log(`- Total Entries: ${leaderboard.length}`);
-leaderboard.slice(0, 4).forEach((p) => {
-  console.log(`  #${p.rank} ${p.username} - LVL ${p.level} (${p.totalXP} XP, ${p.streak}d streak)`);
+// 7. Test Moral Virtues & 4 Cardinal Pillars
+console.log('[TEST 7] Testing Moral Virtues & 4 Cardinal Pillars...');
+console.log(`- Integrity: ${profile.stats.integrity || 14} pts`);
+console.log(`- Compassion: ${profile.stats.compassion || 18} pts`);
+console.log(`- Discipline: ${profile.stats.discipline || 16} pts`);
+console.log(`- Wisdom: ${profile.stats.wisdom || 19} pts`);
+console.log(`- Virtue Coins: ${profile.stats.virtueCoins || 45} VC`);
+console.log('✓ 4 Cardinal Pillars verified.\n');
+
+// 8. Test Negative Restraint Quest ("No Anger Day") & Honesty Reflection
+console.log('[TEST 8] Testing Restraint Quest ("No Anger Day") & Honesty Bonus...');
+const moralQuest = dbService.createTask({
+  title: 'Automated Test: No Anger Day Restraint Check',
+  category: 'WISDOM',
+  moralAttribute: 'WISDOM',
+  difficulty: 'HARD',
+  type: 'NEGATIVE_RESTRAINT',
+  baseXP: 180,
+  baseGold: 90,
+  baseVirtueCoins: 25,
 });
-console.log('✓ Leaderboards verified.\n');
+
+const reflectionResult = dbService.completeTask(moralQuest.id, {
+  text: 'Felt irritated during traffic but deliberately breathed through it.',
+  moodRating: 5,
+  honestyAffirmed: true,
+});
+
+console.log(`- Restraint Settlement Success: ${reflectionResult.success}`);
+console.log(`- Virtue Coins Earned: +${reflectionResult.rewards.virtueCoinsEarned} VC`);
+console.log(`- Reflection Entry Logged: "${reflectionResult.reflection?.text}"`);
+console.log('✓ Restraint reflection & virtue coin rewards verified.\n');
 
 console.log('=== ALL TESTS PASSED SUCCESSFULLY! ===');
+

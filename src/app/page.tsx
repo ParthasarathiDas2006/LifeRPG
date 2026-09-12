@@ -11,6 +11,8 @@ import { TalentMatrixSection } from '@/components/TalentMatrixSection';
 import { CreateQuestModal } from '@/components/CreateQuestModal';
 import { LevelUpModal } from '@/components/LevelUpModal';
 import { CharacterCreationModal } from '@/components/CharacterCreationModal';
+import { VirtueSanctuarySection } from '@/components/VirtueSanctuarySection';
+import { EveningReflectionModal } from '@/components/EveningReflectionModal';
 import {
   UserStats,
   Task,
@@ -121,6 +123,54 @@ export default function LifeRPGApp() {
     loadData();
   };
 
+  const [reflectionModalData, setReflectionModalData] = useState<{
+    isOpen: boolean;
+    task: Task | null;
+  }>({
+    isOpen: false,
+    task: null,
+  });
+
+  const handleOpenReflection = (task: Task) => {
+    setReflectionModalData({
+      isOpen: true,
+      task,
+    });
+  };
+
+  const handleMoralTaskComplete = async (taskId: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/complete`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        handleCompleteTask(data);
+      }
+    } catch (err) {
+      console.error('Failed to complete moral task', err);
+    }
+  };
+
+  const handleSubmitReflection = async (
+    taskId: string,
+    reflectionData: { text: string; moodRating: number; honestyAffirmed: boolean }
+  ) => {
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reflectionData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        handleCompleteTask(data);
+      }
+    } catch (err) {
+      console.error('Failed to submit reflection', err);
+    }
+  };
+
   const handleDeleteTask = async (taskId: string) => {
     try {
       const res = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
@@ -163,6 +213,7 @@ export default function LifeRPGApp() {
       {/* Top Header & Section Navigation */}
       <Navbar
         gold={profile.stats.gold}
+        virtueCoins={profile.stats.virtueCoins}
         streakFreezeTokens={profile.stats.streakFreezeTokens}
         character={profile.character}
         activeTab={activeTab}
@@ -202,6 +253,17 @@ export default function LifeRPGApp() {
             onEditCharacter={() => setIsCharacterOpen(true)}
             onRefreshData={loadData}
             onNavigateToTab={(tabId) => setActiveTab(tabId as GameTab)}
+          />
+        )}
+
+        {/* Section: Sanctuary of Virtues (Moral & Behavioral Training) */}
+        {activeTab === 'sanctuary' && (
+          <VirtueSanctuarySection
+            stats={profile.stats}
+            tasks={tasks}
+            onCompleteTask={handleMoralTaskComplete}
+            onOpenReflectionModal={handleOpenReflection}
+            onThemeChanged={loadData}
           />
         )}
 
@@ -258,7 +320,7 @@ export default function LifeRPGApp() {
 
       {/* Global Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/60 py-6 text-center text-xs text-slate-500">
-        <p>Life RPG ⚔️ • Next-Gen Gamified Habit Engine &amp; Battle Royale Productivity System</p>
+        <p>Life RPG Sanctuary 🏛️ • Behavior &amp; Moral Training Gamification Platform • 4 Cardinal Virtues</p>
       </footer>
 
       {/* Persistent Modals */}
@@ -280,6 +342,13 @@ export default function LifeRPGApp() {
         onClose={() => setLevelUpData((prev) => ({ ...prev, isOpen: false }))}
         newLevel={levelUpData.level}
         unlockedAchievements={levelUpData.achievements}
+      />
+
+      <EveningReflectionModal
+        isOpen={reflectionModalData.isOpen}
+        task={reflectionModalData.task}
+        onClose={() => setReflectionModalData({ isOpen: false, task: null })}
+        onSubmit={handleSubmitReflection}
       />
     </div>
   );

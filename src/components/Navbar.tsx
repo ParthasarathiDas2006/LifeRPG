@@ -19,10 +19,11 @@ import { soundEngine } from '@/lib/sound';
 import { CharacterConfig } from '@/lib/types';
 import { AudioPlayerHUD } from '@/components/AudioPlayerHUD';
 
-export type GameTab = 'lobby' | 'operations' | 'armory' | 'lucky' | 'arena' | 'talents';
+export type GameTab = 'lobby' | 'sanctuary' | 'operations' | 'armory' | 'lucky' | 'arena' | 'talents';
 
 interface NavbarProps {
   gold: number;
+  virtueCoins?: number;
   streakFreezeTokens: number;
   character?: CharacterConfig;
   activeTab: GameTab;
@@ -33,6 +34,7 @@ interface NavbarProps {
 
 export function Navbar({
   gold,
+  virtueCoins = 45,
   streakFreezeTokens,
   character,
   activeTab,
@@ -42,6 +44,7 @@ export function Navbar({
 }: NavbarProps) {
   const navItems: Array<{ id: GameTab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
     { id: 'lobby', label: 'Lobby HQ', icon: Compass },
+    { id: 'sanctuary', label: 'Sanctuary of Virtues', icon: Sparkles },
     { id: 'operations', label: 'Operations', icon: Swords },
     { id: 'armory', label: 'Armory & Forge', icon: Hammer },
     { id: 'lucky', label: 'Lucky Royale', icon: Gift },
@@ -86,6 +89,16 @@ export function Navbar({
             <Coins className="h-4 w-4 text-amber-400 animate-pulse" />
             <span>{gold.toLocaleString()}</span>
             <span className="hidden sm:inline text-[10px] text-amber-400/80">GP</span>
+          </div>
+
+          {/* Virtue Coins */}
+          <div
+            className="flex items-center gap-1.5 rounded-full border border-purple-500/40 bg-purple-500/10 px-3 py-1 text-xs font-black text-purple-300"
+            title="Virtue Coins for Sanctuary Attunement"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-purple-400" />
+            <span>{virtueCoins}</span>
+            <span className="hidden sm:inline text-[10px] text-purple-400/80">VC</span>
           </div>
 
           {/* Streak Shields */}

@@ -285,6 +285,89 @@ function getInitialDatabase(): DatabaseSchema {
       isCompletedToday: false,
       createdAt: new Date().toISOString(),
     },
+    // 4 Cardinal Moral Virtue Tasks
+    {
+      id: 'task-moral-1',
+      title: 'No Anger Day: Respond to irritation with calm composure',
+      description: 'Observe triggers with mindful detachment. Cultivate patience over reactive anger.',
+      category: 'WISDOM',
+      moralAttribute: 'WISDOM',
+      difficulty: 'HARD',
+      type: 'NEGATIVE_RESTRAINT',
+      baseXP: 180,
+      baseGold: 90,
+      baseVirtueCoins: 25,
+      streakCount: 6,
+      maxStreak: 12,
+      isCompletedToday: false,
+      requiresReflection: true,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'task-moral-2',
+      title: 'Random Act of Kindness: Encourage someone unexpectedly',
+      description: 'Brighten someone’s day through genuine praise, practical help, or a thoughtful message.',
+      category: 'COMPASSION',
+      moralAttribute: 'COMPASSION',
+      difficulty: 'MEDIUM',
+      type: 'DAILY',
+      baseXP: 95,
+      baseGold: 50,
+      baseVirtueCoins: 15,
+      streakCount: 5,
+      maxStreak: 9,
+      isCompletedToday: false,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'task-moral-3',
+      title: 'Integrity Mirror: Acknowledge an error without excuses',
+      description: 'Take radical ownership of a mistake or keep a tough commitment with complete honesty.',
+      category: 'INTEGRITY',
+      moralAttribute: 'INTEGRITY',
+      difficulty: 'MEDIUM',
+      type: 'HABIT',
+      baseXP: 90,
+      baseGold: 45,
+      baseVirtueCoins: 15,
+      streakCount: 3,
+      maxStreak: 7,
+      isCompletedToday: false,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'task-moral-4',
+      title: 'Digital Fast: 2 hours screen-free disciplined focus',
+      description: 'Discipline the senses and mind by disconnecting from algorithm feeds and notifications.',
+      category: 'DISCIPLINE',
+      moralAttribute: 'DISCIPLINE',
+      difficulty: 'HARD',
+      type: 'DAILY',
+      baseXP: 150,
+      baseGold: 80,
+      baseVirtueCoins: 20,
+      streakCount: 4,
+      maxStreak: 10,
+      isCompletedToday: false,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'task-moral-5',
+      title: 'Evening Sanctuary: 5-minute gratitude & virtue reflection',
+      description: 'Review your conduct, celebrate inner victories, and note areas of tomorrow’s growth.',
+      category: 'WISDOM',
+      moralAttribute: 'WISDOM',
+      difficulty: 'EASY',
+      type: 'REFLECTION',
+      baseXP: 60,
+      baseGold: 30,
+      baseVirtueCoins: 10,
+      streakCount: 7,
+      maxStreak: 14,
+      isCompletedToday: false,
+      requiresReflection: true,
+      createdAt: new Date().toISOString(),
+    },
   ];
 
   const userStats: UserStats = {
@@ -292,6 +375,7 @@ function getInitialDatabase(): DatabaseSchema {
     currentXP: 240,
     nextLevelXP: getRequiredXPForLevel(3),
     gold: 145,
+    virtueCoins: 45,
     health: 100,
     maxHealth: 100,
     mana: 50,
@@ -302,8 +386,13 @@ function getInitialDatabase(): DatabaseSchema {
     agi: 11,
     cha: 10,
     wil: 15,
-    totalTasksCompleted: 18,
-    streakFreezeTokens: 1,
+    integrity: 14,
+    compassion: 18,
+    discipline: 16,
+    wisdom: 19,
+    totalTasksCompleted: 23,
+    streakFreezeTokens: 2,
+    activeTheme: 'theme_mind_garden',
   };
 
   const inventory: InventoryItem[] = [
@@ -461,14 +550,17 @@ export const dbService = {
       id: `task-${Date.now()}`,
       title: data.title || 'Untitled Quest',
       description: data.description || '',
-      category: data.category || 'INTELLIGENCE',
+      category: data.category || 'WISDOM',
+      moralAttribute: data.moralAttribute,
       difficulty,
       type: data.type || 'DAILY',
-      baseXP: config.xp,
-      baseGold: config.gold,
+      baseXP: data.baseXP || config.xp,
+      baseGold: data.baseGold || config.gold,
+      baseVirtueCoins: data.baseVirtueCoins || config.virtueCoins || 5,
       streakCount: 0,
       maxStreak: 0,
       isCompletedToday: false,
+      requiresReflection: Boolean(data.requiresReflection || data.type === 'NEGATIVE_RESTRAINT' || data.type === 'REFLECTION'),
       createdAt: new Date().toISOString(),
     };
 
@@ -488,7 +580,10 @@ export const dbService = {
     return false;
   },
 
-  completeTask(taskId: string): TaskCompletionResult {
+  completeTask(
+    taskId: string,
+    reflectionData?: { text?: string; moodRating?: number; honestyAffirmed?: boolean }
+  ): TaskCompletionResult {
     const db = readDb();
     const taskIndex = db.tasks.findIndex((t) => t.id === taskId);
     if (taskIndex === -1) {
@@ -513,15 +608,42 @@ export const dbService = {
     const gearGoldMult = 1.0 + goldBonusPct / 100;
 
     // 2. Compute final rewards
-    const finalXP = Math.round(task.baseXP * streakMult * critInfo.critMultiplier * gearXpMult);
-    const finalGold = Math.round(task.baseGold * streakMult * critInfo.critMultiplier * gearGoldMult);
+    let finalXP = Math.round(task.baseXP * streakMult * critInfo.critMultiplier * gearXpMult);
+    let finalGold = Math.round(task.baseGold * streakMult * critInfo.critMultiplier * gearGoldMult);
+    const baseCoins = task.baseVirtueCoins || 5;
+    let finalCoins = Math.round(baseCoins * streakMult);
 
-    // 3. Roll for loot drop
+    let reflectionEntry: any = null;
+
+    // 3. Process Reflection / Restraint Logic
+    if (reflectionData || task.requiresReflection) {
+      const isHonestAdmission = reflectionData?.honestyAffirmed === false;
+      if (isHonestAdmission) {
+        // Honesty Bonus: User admitted stumbling today. Reward Integrity!
+        finalXP = Math.max(30, Math.round(finalXP * 0.5));
+        finalCoins = Math.max(5, Math.round(finalCoins * 0.5));
+        db.userStats.integrity = (db.userStats.integrity || 10) + 2;
+      }
+
+      reflectionEntry = {
+        id: `ref-${Date.now()}`,
+        taskId: task.id,
+        taskTitle: task.title,
+        attribute: (task.moralAttribute || task.category) as any,
+        text: reflectionData?.text || 'Completed daily mindful reflection.',
+        moodRating: reflectionData?.moodRating || 4,
+        honestyAffirmed: !isHonestAdmission,
+        xpEarned: finalXP,
+        virtueCoinsEarned: finalCoins,
+        completedAt: new Date().toISOString(),
+      };
+    }
+
+    // 4. Roll for loot drop
     db.pityCounter += 1;
     const lootResult = rollLootDrop(task.difficulty, db.itemsCatalog, db.pityCounter);
     if (lootResult.item) {
       db.pityCounter = 0; // reset pity timer
-      // Add to inventory
       const existingInv = db.inventory.find((i) => i.itemId === lootResult.item!.id);
       if (existingInv) {
         existingInv.quantity += 1;
@@ -537,7 +659,7 @@ export const dbService = {
       }
     }
 
-    // 4. Update Task State
+    // 5. Update Task State
     task.isCompletedToday = true;
     task.streakCount += 1;
     if (task.streakCount > task.maxStreak) {
@@ -545,14 +667,17 @@ export const dbService = {
     }
     task.lastCompletedAt = new Date().toISOString();
 
-    // 5. Update User Stats & Primary Attribute
+    // 6. Update User Stats & Primary Attribute
     const attr = getAttributeGained(task.category);
-    db.userStats[attr] += 1; // +1 attribute point on task completion
+    if (typeof (db.userStats as any)[attr] === 'number') {
+      (db.userStats as any)[attr] += 1;
+    }
     db.userStats.totalTasksCompleted += 1;
     db.userStats.gold += finalGold;
+    db.userStats.virtueCoins = (db.userStats.virtueCoins || 0) + finalCoins;
     db.userStats.currentXP += finalXP;
 
-    // 6. Check for Level Up (handles multiple levels if huge XP earned)
+    // 7. Check for Level Up
     const previousLevel = db.userStats.level;
     let leveledUp = false;
 
@@ -560,12 +685,13 @@ export const dbService = {
       db.userStats.currentXP -= db.userStats.nextLevelXP;
       db.userStats.level += 1;
       db.userStats.nextLevelXP = getRequiredXPForLevel(db.userStats.level);
-      db.userStats.health = db.userStats.maxHealth; // Restore health on level up!
+      db.userStats.health = db.userStats.maxHealth;
       db.userStats.mana = db.userStats.maxMana;
+      db.userStats.virtueCoins += db.userStats.level * 5; // Level up virtue coin grant
       leveledUp = true;
     }
 
-    // 7. Check for Achievements
+    // 8. Check for Achievements
     const unlockedAchievements: Achievement[] = [];
     for (const ach of db.achievements) {
       if (db.userAchievements.includes(ach.code)) continue;
@@ -587,7 +713,7 @@ export const dbService = {
       }
     }
 
-    // 8. Log Completion Audit
+    // 9. Log Completion Audit
     db.completionsLog.push({
       id: `comp-${Date.now()}`,
       taskId: task.id,
@@ -605,11 +731,17 @@ export const dbService = {
       rewards: {
         xpEarned: finalXP,
         goldEarned: finalGold,
+        virtueCoinsEarned: finalCoins,
+        attributeXpEarned: {
+          attribute: task.category,
+          amount: 1,
+        },
         streakMultiplier: streakMult,
         critMultiplier: critInfo.critMultiplier,
         isCrit: critInfo.isCrit,
         lootDrop: lootResult.item,
       },
+      reflection: reflectionEntry,
       progression: {
         leveledUp,
         previousLevel,
@@ -619,6 +751,48 @@ export const dbService = {
         unlockedAchievements,
       },
     };
+  },
+
+  // --- Virtue Themes & Sanctuary ---
+  getVirtueThemes(): VirtueTheme[] {
+    const db = readDb();
+    const active = db.userStats.activeTheme || 'theme_mind_garden';
+    return [
+      {
+        id: 'theme_mind_garden',
+        name: 'Mind Garden',
+        description: 'A tranquil dark jade sanctuary for deep mindfulness and clarity.',
+        previewBg: 'from-emerald-950/80 via-slate-900 to-slate-950',
+        accentColor: '#10b981',
+        costCoins: 0,
+        isUnlocked: true,
+      },
+      {
+        id: 'theme_astral_monastery',
+        name: 'Astral Monastery',
+        description: 'High celestial temple with ethereal violet stars and amber dawn aura.',
+        previewBg: 'from-indigo-950/80 via-slate-900 to-slate-950',
+        accentColor: '#8b5cf6',
+        costCoins: 35,
+        isUnlocked: (db.userStats.virtueCoins || 0) >= 35 || active === 'theme_astral_monastery',
+      },
+      {
+        id: 'theme_solitary_ember',
+        name: 'Sanctum of the Sun',
+        description: 'Radiant golden pillars evoking unshakable fortitude and warm light.',
+        previewBg: 'from-amber-950/80 via-slate-900 to-slate-950',
+        accentColor: '#f59e0b',
+        costCoins: 60,
+        isUnlocked: active === 'theme_solitary_ember',
+      },
+    ];
+  },
+
+  setVirtueTheme(themeId: string) {
+    const db = readDb();
+    db.userStats.activeTheme = themeId;
+    writeDb(db);
+    return { success: true, activeTheme: themeId };
   },
 
   getInventory() {
