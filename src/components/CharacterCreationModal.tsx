@@ -25,7 +25,19 @@ import {
   Palette,
   Wand2,
   Check,
+  Shield,
+  Zap,
+  Flame,
+  Target,
+  Crosshair,
+  Dices,
 } from 'lucide-react';
+import { getRandomNameAndTitle, HERO_RANDOM_NAMES } from '@/lib/nameGenerator';
+import {
+  FAMOUS_GAME_PROMPTS,
+  generateCharacterFromPrompt,
+  PromptHeroPreset,
+} from '@/lib/promptCharacterGenerator';
 
 interface CharacterCreationModalProps {
   isOpen: boolean;
@@ -40,14 +52,33 @@ export function CharacterCreationModal({
   currentCharacter,
   onCharacterSaved,
 }: CharacterCreationModalProps) {
-  const [activeTab, setActiveTab] = useState<'ROSTER' | 'PHOTO' | 'STUDIO'>('ROSTER');
-  const [rosterFilter, setRosterFilter] = useState<'ALL' | 'FREE_FIRE' | 'SOLO_LEVELING' | 'GENSHIN_STAR_RAIL' | 'FEMALE' | 'MALE'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ROSTER' | 'PROMPT' | 'PHOTO' | 'STUDIO'>('ROSTER');
+  const [rosterFilter, setRosterFilter] = useState<'ALL' | 'FREE_FIRE' | 'PUBG' | 'SOLO_LEVELING' | 'FEMALE' | 'MALE'>('ALL');
+
+  // Prompt Generator State
+  const [promptInput, setPromptInput] = useState('Kelly from Free Fire with golden phoenix wings');
+  const [selectedPromptPreset, setSelectedPromptPreset] = useState<PromptHeroPreset | null>(FAMOUS_GAME_PROMPTS[0]);
+  const [promptGeneratedAvatar, setPromptGeneratedAvatar] = useState<string | null>(null);
 
   // Character Details
   const [name, setName] = useState(currentCharacter.name);
   const [charClass, setCharClass] = useState<CharacterClass>(currentCharacter.class);
   const [gender, setGender] = useState<CharacterGender>(currentCharacter.gender || 'FEMALE');
   const [title, setTitle] = useState(currentCharacter.title);
+
+  const handleGenerateFromPrompt = (customQuery?: string) => {
+    soundEngine.playCritStrike();
+    const query = customQuery || promptInput;
+    const { config, presetMatch } = generateCharacterFromPrompt(query);
+    setName(config.name);
+    setCharClass(config.class);
+    setGender(config.gender || 'FEMALE');
+    setTitle(config.title);
+    setSelectedPromptPreset(presetMatch);
+    setPromptGeneratedAvatar(config.avatarUrl);
+    setGeneratedPhotoAvatar(config.avatarUrl);
+    if (config.spriteParts) setSpriteParts(config.spriteParts);
+  };
 
   // Photo Generator State
   const [photoSrc, setPhotoSrc] = useState<string | null>(currentCharacter.sourcePhotoUrl || null);
@@ -68,9 +99,9 @@ export function CharacterCreationModal({
     currentCharacter.spriteParts || {
       gender: 'FEMALE',
       body: 'fair',
-      hair: 'kelly_bob',
+      hair: 'kelly_freefire',
       hairColor: '#fbbf24',
-      outfit: 'kelly_track',
+      outfit: 'kelly_tracksuit',
       outfitColor: '#eab308',
       weapon: 'dual_sabers',
       aura: 'phoenix_blaze',
@@ -122,26 +153,51 @@ export function CharacterCreationModal({
       const src = event.target?.result as string;
       setPhotoSrc(src);
       runPhotoGeneration(src, selectedStyle, seed);
-      soundEngine.playCrit();
+      soundEngine.playCritStrike();
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSelectPreset = (preset: HeroPreset) => {
+  const handleSelectPreset = (preset: HeroPreset, rollRandom: boolean = false) => {
     soundEngine.playEquip();
-    setName(preset.name);
+    if (rollRandom) {
+      const generated = getRandomNameAndTitle(preset.id, preset.class);
+      setName(generated.name);
+      setTitle(generated.title);
+    } else {
+      setName(preset.name);
+      setTitle(preset.title);
+    }
     setCharClass(preset.class);
     setGender(preset.gender);
-    setTitle(preset.title);
     setSpriteParts(preset.parts);
     setGeneratedPhotoAvatar(null);
+  };
+
+  const handleRandomizeCurrentName = () => {
+    soundEngine.playEquip();
+    const activePreset = HERO_PRESETS.find(
+      (p) => p.name.toLowerCase() === name.toLowerCase() || p.class === charClass
+    );
+    const generated = getRandomNameAndTitle(activePreset?.id, charClass, name);
+    setName(generated.name);
+    setTitle(generated.title);
   };
 
   const handleSaveCharacter = async () => {
     try {
       setIsSaving(true);
-      const avatarType = activeTab === 'PHOTO' && generatedPhotoAvatar ? 'PHOTO_GENERATED' : 'SPRITE';
-      const avatarUrl = avatarType === 'PHOTO_GENERATED' ? generatedPhotoAvatar! : generatedSpriteAvatar;
+      const avatarType =
+        (activeTab === 'PROMPT' && promptGeneratedAvatar) || (activeTab === 'PHOTO' && generatedPhotoAvatar)
+          ? 'PHOTO_GENERATED'
+          : 'SPRITE';
+      const activePreset = HERO_PRESETS.find((p) => p.name === name);
+      const avatarUrl =
+        activeTab === 'PROMPT' && promptGeneratedAvatar
+          ? promptGeneratedAvatar
+          : activeTab === 'PHOTO' && generatedPhotoAvatar
+          ? generatedPhotoAvatar!
+          : activePreset?.portraitUrl || generatedSpriteAvatar;
 
       const payload: CharacterConfig = {
         name,
@@ -154,7 +210,29 @@ export function CharacterCreationModal({
         sourcePhotoUrl: avatarType === 'PHOTO_GENERATED' ? photoSrc || undefined : undefined,
         generationStyle: avatarType === 'PHOTO_GENERATED' ? selectedStyle : undefined,
         generationSeed: avatarType === 'PHOTO_GENERATED' ? seed : undefined,
-        uniqueHeroId: uniqueHeroData?.heroId,
+        uniqueHeroId: uniqueHeroData?.heroId || selectedPromptPreset?.id,
+        gameOrigin: selectedPromptPreset
+          ? (selectedPromptPreset.game.includes('FREE FIRE')
+              ? 'FREE_FIRE'
+              : selectedPromptPreset.game.includes('PUBG')
+              ? 'PUBG'
+              : 'SOLO_LEVELING')
+          : activePreset
+          ? activePreset.gameInspiration
+          : undefined,
+        abilityName: selectedPromptPreset?.abilityName || activePreset?.ability.name,
+        abilityBuff: selectedPromptPreset?.abilityBuff || activePreset?.ability.buffText,
+        humanSpecs: selectedPromptPreset
+          ? {
+              physique: selectedPromptPreset.physique,
+              faceAndEyes: selectedPromptPreset.faceAndEyes,
+              torsoAndOutfit: selectedPromptPreset.torsoAndOutfit,
+              armsAndGloves: `Muscular arms wielding ${selectedPromptPreset.weapon}`,
+              legsAndBoots: 'Reinforced combat trousers and tactical assault boots',
+            }
+          : activePreset
+          ? activePreset.humanSpecs
+          : undefined,
       };
 
       const res = await fetch('/api/character', {
@@ -180,19 +258,20 @@ export function CharacterCreationModal({
   if (!isOpen) return null;
 
   const stylesList: Array<{ id: AvatarStyle; label: string; icon: string; tag: string }> = [
-    { id: 'ANIME_LEGEND', label: 'Genshin Cel-Shaded Anime', icon: '🌸', tag: 'Genshin Style' },
-    { id: 'SHADOW_ASSASSIN', label: 'Solo Leveling Shadow Noir', icon: '🌑', tag: 'Monarch Mode' },
-    { id: 'CYBER_ROGUE', label: 'Free Fire Cyber Matrix', icon: '⚡', tag: 'Neon Hacker' },
-    { id: 'HOLY_PALADIN', label: 'Gilded Sun Paladin', icon: '👑', tag: 'Holy Radiance' },
-    { id: 'CELESTIAL_ASTRAL', label: 'Star Rail Astral Sovereign', icon: '✨', tag: 'Cosmic Gold' },
-    { id: 'MYSTIC_ARCANE', label: 'Kafka Arcane Starlight', icon: '🔮', tag: 'Destiny Velvet' },
-    { id: 'PIXEL_HERO', label: '16-Bit Retro Pixel RPG', icon: '👾', tag: 'Classic Pixel' },
+    { id: 'ANIME_LEGEND', label: 'Free Fire Cel-Shaded', icon: '🔥', tag: 'Battle Royale' },
+    { id: 'SHADOW_ASSASSIN', label: 'PUBG Tactical Noir', icon: '🪖', tag: 'Military Camo' },
+    { id: 'CYBER_ROGUE', label: 'Cyberpunk 2077 Neon', icon: '⚡', tag: 'Neon Hacker' },
+    { id: 'HOLY_PALADIN', label: 'Golden Pharaoh X-Suit', icon: '👑', tag: 'Mythic Gold' },
+    { id: 'CELESTIAL_ASTRAL', label: 'Astral Apex God', icon: '✨', tag: 'Cosmic Sky' },
+    { id: 'MYSTIC_ARCANE', label: 'Soundwave Cyber Beat', icon: '🎧', tag: 'Audio Wave' },
+    { id: 'PIXEL_HERO', label: '16-Bit Retro Shooter', icon: '👾', tag: 'Classic 16-Bit' },
   ];
 
   const demoPhotos = [
-    { label: 'Cyber Valkyrie', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=360&auto=format&fit=crop&q=80' },
-    { label: 'Shadow Monarch', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&auto=format&fit=crop&q=80' },
-    { label: 'Solar Guardian', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Free Fire Kelly', desc: 'Awakened Phoenix', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=360&auto=format&fit=crop&q=80' },
+    { label: 'PUBG Lone Survivor', desc: 'Level 3 Spetsnaz', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&auto=format&fit=crop&q=80' },
+    { label: 'DJ Alok Beat', desc: 'Soundwave Maestro', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Valkyrie Sniper', desc: 'AWM Ghost Queen', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=360&auto=format&fit=crop&q=80' },
   ];
 
   const filteredPresets = HERO_PRESETS.filter((preset) => {
@@ -216,15 +295,15 @@ export function CharacterCreationModal({
         {/* Modal Header */}
         <div className="border-b border-slate-800 bg-slate-950/80 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-purple-600 text-slate-950 shadow-glow-gold">
-              <Sparkles className="h-6 w-6 text-slate-950" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 text-slate-950 shadow-glow-gold">
+              <Crosshair className="h-6 w-6 text-slate-950 animate-spin" />
             </div>
             <div>
               <h2 className="text-xl font-black text-white flex items-center gap-2">
-                Hero Sanctum &amp; AI Character Studio
+                Battle Royale Hero Sanctum (Free Fire &amp; PUBG Legends)
               </h2>
               <p className="text-xs text-slate-400">
-                Play as iconic heroes inspired by Free Fire, Solo Leveling, and Genshin Impact, or forge your photo into a 100% unique RPG avatar!
+                Play as famous heroes inspired by Free Fire, PUBG Mobile, and Solo Leveling with unique combat abilities, or forge your photo into a unique warrior!
               </p>
             </div>
           </div>
@@ -240,7 +319,23 @@ export function CharacterCreationModal({
               }`}
             >
               <Crown className="h-4 w-4" />
-              Legendary Roster (AAA Heroes)
+              Battle Royale Roster (10 Legends)
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('PROMPT');
+                if (!promptGeneratedAvatar) {
+                  handleGenerateFromPrompt();
+                }
+              }}
+              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
+                activeTab === 'PROMPT'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.5)]'
+                  : 'bg-slate-800/80 text-emerald-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Wand2 className="h-4 w-4 text-emerald-400 animate-pulse" />
+              ✨ AI Prompt Studio (Famous Games)
             </button>
             <button
               onClick={() => setActiveTab('PHOTO')}
@@ -251,7 +346,7 @@ export function CharacterCreationModal({
               }`}
             >
               <Camera className="h-4 w-4" />
-              Upload Photo &amp; RPG AI
+              Upload Photo &amp; Battle AI
             </button>
             <button
               onClick={() => setActiveTab('STUDIO')}
@@ -262,7 +357,7 @@ export function CharacterCreationModal({
               }`}
             >
               <Palette className="h-4 w-4" />
-              Custom Sprite Builder
+              Tactical Gear Studio
             </button>
           </div>
         </div>
@@ -272,19 +367,59 @@ export function CharacterCreationModal({
           {/* Identity Bar (Hero Name, Title, Archetype) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl border border-slate-800 bg-slate-950/60 shadow-inner">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                Active Hero Name
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Active Callsign / Hero Name
+                </label>
+                <button
+                  type="button"
+                  onClick={handleRandomizeCurrentName}
+                  className="flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase text-amber-300 hover:bg-amber-500/30 transition shadow-sm"
+                  title="Roll Random Gaming Callsign"
+                >
+                  <Dices className="h-3 w-3 animate-spin" />
+                  <span>Random</span>
+                </button>
+              </div>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-bold text-white focus:border-purple-500 focus:outline-none"
               />
+              {/* Quick Random Callsign Suggestion Chips */}
+              {(() => {
+                const currentPreset = HERO_PRESETS.find(
+                  (p) => p.name.toLowerCase() === name.toLowerCase() || p.class === charClass
+                );
+                const suggested = currentPreset && HERO_RANDOM_NAMES[currentPreset.id] ? HERO_RANDOM_NAMES[currentPreset.id] : [];
+                if (suggested.length === 0) return null;
+                return (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {suggested.slice(0, 3).map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => {
+                          soundEngine.playEquip();
+                          setName(n);
+                        }}
+                        className={`rounded-md border px-1.5 py-0.5 text-[8.5px] font-bold transition ${
+                          name === n
+                            ? 'border-amber-400 bg-amber-500/20 text-amber-300'
+                            : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {n.split('"')[1] || n.split(' ')[0]}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                Active Title
+                Battle Royale Title
               </label>
               <input
                 type="text"
@@ -295,7 +430,7 @@ export function CharacterCreationModal({
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                Class Archetype
+                Combat Class
               </label>
               <input
                 type="text"
@@ -306,18 +441,18 @@ export function CharacterCreationModal({
             </div>
           </div>
 
-          {/* TAB 1: HERO ROSTER */}
+          {/* TAB 1: BATTLE ROYALE ROSTER */}
           {activeTab === 'ROSTER' && (
             <div className="space-y-4">
               {/* Filter Strip */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {[
-                    { id: 'ALL', label: 'All 8 Legends' },
-                    { id: 'FREE_FIRE', label: '🔥 Free Fire' },
+                    { id: 'ALL', label: 'All 10 Legends' },
+                    { id: 'FREE_FIRE', label: '🔥 Free Fire Icons' },
+                    { id: 'PUBG', label: '🪖 PUBG Legends' },
                     { id: 'SOLO_LEVELING', label: '🌑 Solo Leveling' },
-                    { id: 'GENSHIN_STAR_RAIL', label: '⚡ Genshin / Star Rail' },
-                    { id: 'FEMALE', label: '🌸 Female Icons' },
+                    { id: 'FEMALE', label: '🌸 Female Warriors' },
                     { id: 'MALE', label: '⚔️ Male Icons' },
                   ].map((filter) => (
                     <button
@@ -339,99 +474,145 @@ export function CharacterCreationModal({
 
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
-                    High-Res Vector Art ✓
+                    High-Res Battle Art ✓
                   </span>
                 </div>
               </div>
 
               {/* Character Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredPresets.map((preset) => {
                   const isSelected = name === preset.name;
                   const previewSvg = generateProceduralSprite(preset.parts, preset.class);
 
-                  // Theme pills
+                  // Origin Badge colors
                   let badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-                  if (preset.gameInspiration === 'SOLO_LEVELING') {
+                  if (preset.gameInspiration === 'PUBG') {
+                    badgeBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+                  } else if (preset.gameInspiration === 'SOLO_LEVELING') {
                     badgeBg = 'bg-sky-500/20 text-sky-300 border-sky-500/40';
-                  } else if (preset.gameInspiration === 'GENSHIN_STAR_RAIL') {
-                    badgeBg = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
                   }
 
                   return (
                     <div
                       key={preset.id}
                       onClick={() => handleSelectPreset(preset)}
-                      className={`cursor-pointer flex flex-col justify-between rounded-2xl border p-4 transition duration-300 group ${
+                      className={`cursor-pointer flex flex-col justify-between rounded-3xl border p-4 transition duration-300 group ${
                         isSelected
                           ? 'border-amber-400 bg-gradient-to-b from-amber-500/20 via-slate-900 to-slate-950 shadow-glow-gold scale-[1.02]'
                           : 'border-slate-800 bg-slate-950/70 hover:border-slate-700 hover:bg-slate-900/80 hover:scale-[1.01]'
                       }`}
                     >
                       <div className="flex flex-col items-center text-center">
-                        {/* Inspiration Tag & Stars */}
+                        {/* Inspiration Tag & Rarity */}
                         <div className="w-full flex items-center justify-between mb-2">
-                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border ${badgeBg}`}>
+                          <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider border ${badgeBg}`}>
                             {preset.inspirationLabel}
                           </span>
-                          <span className="text-[10px] font-black text-amber-400">
-                            ★★★★★
-                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectPreset(preset, true);
+                            }}
+                            className="flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900/90 px-2 py-0.5 text-[9px] font-bold text-amber-300 hover:border-amber-400 hover:bg-amber-500/20 transition shadow-sm"
+                            title={`Select ${preset.name} with a random callsign`}
+                          >
+                            <Dices className="h-3 w-3" />
+                            <span>Random</span>
+                          </button>
                         </div>
 
-                        {/* High-Definition Character Illustration Canvas */}
-                        <div className="relative h-44 w-44 overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-950 shadow-lg group-hover:scale-105 group-hover:border-amber-400/80 transition duration-300">
+                        {/* High-Definition Human Character Portrait & Canvas */}
+                        <div className="relative h-56 w-full overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-950 shadow-lg group-hover:scale-102 group-hover:border-amber-400/80 transition duration-300">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={previewSvg} alt={preset.name} className="h-full w-full object-cover" />
-                          <span className={`absolute bottom-1.5 right-1.5 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
-                            preset.gender === 'FEMALE' ? 'bg-pink-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
+                          <img
+                            src={preset.portraitUrl || previewSvg}
+                            alt={preset.name}
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = previewSvg;
+                            }}
+                            className="h-full w-full object-cover object-top"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
+                          <span className={`absolute bottom-2 right-2 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-md ${
+                            preset.gender === 'FEMALE' ? 'bg-pink-600 text-white' : 'bg-blue-600 text-white'
                           }`}>
                             {preset.gender}
                           </span>
-                          <span className="absolute top-1.5 left-1.5 rounded-full bg-slate-950/80 border border-amber-400/60 px-1.5 py-0.5 text-[9px] font-black text-amber-300">
+                          <span className="absolute top-2 left-2 rounded-full bg-slate-950/85 border border-amber-400/70 px-2 py-0.5 text-[9px] font-black text-amber-300 shadow-md">
                             {preset.rarity}
                           </span>
+                          <div className="absolute bottom-2 left-2 text-left">
+                            <span className="rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-slate-300 backdrop-blur-xs">
+                              {preset.humanSpecs.physique.split(' ')[0]} Body
+                            </span>
+                          </div>
                         </div>
 
                         {/* Name & Class */}
-                        <h4 className="text-sm font-black text-white mt-3">{preset.name}</h4>
+                        <h4 className="text-sm font-black text-white mt-2.5">{preset.name}</h4>
                         <span className="text-[11px] font-bold text-amber-400 font-mono">{preset.class}</span>
 
+                        {/* Human Anatomy & Realistic Body Breakdown */}
+                        <div className="w-full mt-2 rounded-xl bg-slate-900/90 p-2.5 border border-amber-500/20 text-left space-y-1 text-[9px]">
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-amber-400 font-bold">👤 Face:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.faceAndEyes}</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-cyan-400 font-bold">👕 Torso:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.torsoAndOutfit}</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-emerald-400 font-bold">🥊 Arms:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.armsAndGloves}</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-purple-400 font-bold">👖 Legs:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.legsAndBoots}</span>
+                          </div>
+                        </div>
+
+                        {/* Battle Royale Special Ability Pill */}
+                        <div className="w-full mt-2 rounded-xl bg-slate-900/90 p-2 border border-purple-500/30 text-left">
+                          <div className="flex items-center gap-1.5 text-[10px] font-black text-purple-300">
+                            <span>{preset.ability.icon}</span>
+                            <span>{preset.ability.name}</span>
+                          </div>
+                          <p className="text-[9px] text-slate-300 mt-0.5 font-medium">
+                            {preset.ability.buffText}
+                          </p>
+                        </div>
+
                         {/* Voice Quote */}
-                        <p className="text-[10px] italic text-slate-300 mt-1 line-clamp-2 px-1">
+                        <p className="text-[10px] italic text-slate-400 mt-2 line-clamp-2 px-1">
                           "{preset.quote}"
                         </p>
 
-                        {/* Mini RPG Stat Bars */}
-                        <div className="w-full mt-3 space-y-1 text-left bg-slate-900/90 rounded-xl p-2 border border-slate-800">
-                          <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
-                            <span>ATK</span>
-                            <span className="text-rose-400 font-bold">{preset.stats.atk}</span>
+                        {/* Battle Stats Grid */}
+                        <div className="w-full mt-2.5 grid grid-cols-2 gap-1.5 text-[9px] font-mono bg-slate-900/60 p-2 rounded-xl border border-slate-800/80">
+                          <div className="flex items-center justify-between text-slate-400">
+                            <span>WIN RATE</span>
+                            <span className="text-emerald-400 font-bold">{preset.battleStats.winRate}%</span>
                           </div>
-                          <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
-                            <div className="h-full bg-rose-500" style={{ width: `${preset.stats.atk}%` }} />
+                          <div className="flex items-center justify-between text-slate-400">
+                            <span>K/D RATIO</span>
+                            <span className="text-amber-400 font-bold">{preset.battleStats.kdRatio}</span>
                           </div>
-
-                          <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
-                            <span>SPD</span>
-                            <span className="text-amber-400 font-bold">{preset.stats.spd}</span>
+                          <div className="flex items-center justify-between text-slate-400">
+                            <span>AGILITY</span>
+                            <span className="text-cyan-400 font-bold">{preset.battleStats.agility}</span>
                           </div>
-                          <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
-                            <div className="h-full bg-amber-400" style={{ width: `${preset.stats.spd}%` }} />
-                          </div>
-
-                          <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
-                            <span>ARC</span>
-                            <span className="text-purple-400 font-bold">{preset.stats.arc}</span>
-                          </div>
-                          <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
-                            <div className="h-full bg-purple-400" style={{ width: `${preset.stats.arc}%` }} />
+                          <div className="flex items-center justify-between text-slate-400">
+                            <span>POWER</span>
+                            <span className="text-rose-400 font-bold">{preset.battleStats.combatPower} CP</span>
                           </div>
                         </div>
                       </div>
 
                       <button
-                        className={`w-full mt-3 rounded-xl py-1.5 text-xs font-black uppercase tracking-wider transition ${
+                        className={`w-full mt-3.5 rounded-xl py-2 text-xs font-black uppercase tracking-wider transition ${
                           isSelected
                             ? 'bg-amber-400 text-slate-950 shadow-glow-gold'
                             : 'bg-slate-800 text-slate-300 group-hover:bg-slate-700'
@@ -446,23 +627,211 @@ export function CharacterCreationModal({
             </div>
           )}
 
-          {/* TAB 2: UPLOAD PHOTO & RPG AI FORGE */}
+          {/* TAB 2: AI PROMPT STUDIO (FAMOUS GAME CHARACTERS) */}
+          {activeTab === 'PROMPT' && (
+            <div className="space-y-6">
+              {/* Banner */}
+              <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-teal-950/40 p-4 flex items-center justify-between gap-4 backdrop-blur-md shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-glow-xp">
+                    <Wand2 className="h-6 w-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white flex items-center gap-2">
+                      AI Prompt Studio: Famous Game Characters
+                      <span className="rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 border border-emerald-500/40">
+                        12 Famous Games Built-In
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Type any custom prompt or select famous heroes from Free Fire, PUBG Mobile, Solo Leveling, Call of Duty, Valorant, or League of Legends to generate high-fidelity game character art!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prompt Bar Input */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4 shadow-xl">
+                <label className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-2">
+                  Enter Natural Language Prompt:
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={promptInput}
+                      onChange={(e) => setPromptInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleGenerateFromPrompt();
+                      }}
+                      placeholder="e.g. Free Fire Kelly golden phoenix, PUBG Level 3 Spetsnaz with M416, or Solo Leveling Jinwoo..."
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-xs font-semibold text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateFromPrompt()}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-3 text-xs font-black uppercase text-slate-950 shadow-glow-xp hover:from-emerald-400 hover:to-teal-500 transition active:scale-95"
+                  >
+                    <Zap className="h-4 w-4 fill-slate-950" />
+                    <span>Forge Hero</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const randomPreset = FAMOUS_GAME_PROMPTS[Math.floor(Math.random() * FAMOUS_GAME_PROMPTS.length)];
+                      setPromptInput(randomPreset.promptText);
+                      handleGenerateFromPrompt(randomPreset.promptText);
+                    }}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-xs font-bold text-amber-300 hover:border-amber-400 hover:bg-amber-500/20 transition"
+                    title="Load random famous prompt"
+                  >
+                    <Dices className="h-4 w-4 text-amber-400 animate-spin" />
+                    <span>Surprise Prompt</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Main 2-Column Display: Left 12 Famous Prompts, Right Live Preview */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left: Famous Game Prompt Cards (7 cols) */}
+                <div className="lg:col-span-7 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
+                      Select Famous Game Prompt Presets:
+                    </h4>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      12 Character Cards Available
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[520px] overflow-y-auto pr-1 scrollbar-thin">
+                    {FAMOUS_GAME_PROMPTS.map((preset) => {
+                      const isSelected = selectedPromptPreset?.id === preset.id;
+                      return (
+                        <div
+                          key={preset.id}
+                          onClick={() => {
+                            setPromptInput(preset.promptText);
+                            handleGenerateFromPrompt(preset.promptText);
+                          }}
+                          className={`cursor-pointer rounded-2xl border p-3.5 transition duration-200 text-left flex flex-col justify-between ${
+                            isSelected
+                              ? 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-[1.01]'
+                              : 'border-slate-800 bg-slate-950/60 hover:border-slate-700 hover:bg-slate-900/60'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="rounded-full bg-slate-900 border border-slate-700 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300">
+                                {preset.game}
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-400 font-mono">
+                                CP {preset.combatPower}
+                              </span>
+                            </div>
+                            <h5 className="text-xs font-black text-white">{preset.characterName}</h5>
+                            <p className="text-[10px] text-purple-300 font-mono mt-0.5">{preset.title}</p>
+                            <p className="text-[10px] text-slate-400 mt-1.5 line-clamp-2 italic">
+                              "{preset.promptText}"
+                            </p>
+                          </div>
+
+                          <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-800/80">
+                            <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1">
+                              {preset.abilityIcon} {preset.abilityName}
+                            </span>
+                            <span className="text-[9px] font-extrabold text-emerald-400">
+                              {isSelected ? '✓ Active' : 'Select →'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right: Live Generated Character Preview (5 cols) */}
+                <div className="lg:col-span-5 flex flex-col items-center">
+                  <div className="w-full rounded-3xl border border-emerald-500/40 bg-slate-950 p-5 shadow-2xl text-center space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                        {selectedPromptPreset?.game || 'AI GENERATED'}
+                      </span>
+                      <span className="text-xs font-mono font-black text-amber-400">
+                        K/D {selectedPromptPreset?.kdRatio || 5.0}
+                      </span>
+                    </div>
+
+                    {/* Character High-Res Portrait Canvas */}
+                    <div className="relative mx-auto h-72 w-full overflow-hidden rounded-2xl border-2 border-emerald-500/60 bg-slate-950 shadow-[0_0_25px_rgba(16,185,129,0.25)]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={promptGeneratedAvatar || currentCharacter.avatarUrl}
+                        alt={name}
+                        className="h-full w-full object-cover object-top"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                        <span className="rounded-full bg-slate-950/85 border border-slate-700 px-2.5 py-0.5 text-[10px] font-black text-white">
+                          LVL 5 • {charClass}
+                        </span>
+                        <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2.5 py-0.5 text-[10px] font-black text-amber-300">
+                          CP {selectedPromptPreset?.combatPower || 3500}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Callsign & Ability */}
+                    <div>
+                      <h3 className="text-lg font-black text-white">{name}</h3>
+                      <p className="text-xs font-bold text-amber-400 font-mono mt-0.5">{title}</p>
+                      
+                      {selectedPromptPreset && (
+                        <div className="mt-2.5 rounded-xl bg-slate-900/90 border border-purple-500/30 p-2.5 text-left text-xs">
+                          <div className="flex items-center gap-1.5 font-black text-purple-300">
+                            <span>{selectedPromptPreset.abilityIcon}</span>
+                            <span>{selectedPromptPreset.abilityName}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-300 mt-0.5 font-medium">
+                            {selectedPromptPreset.abilityBuff}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Equip Button */}
+                    <button
+                      type="button"
+                      onClick={handleSaveCharacter}
+                      disabled={isSaving}
+                      className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-xs font-black uppercase tracking-wider text-slate-950 shadow-glow-xp hover:from-emerald-400 hover:to-teal-500 transition active:scale-95"
+                    >
+                      {isSaving ? 'Equipping Hero...' : '✓ Equip This Prompt Hero'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: UPLOAD PHOTO & BATTLE ROYALE AI FORGE */}
           {activeTab === 'PHOTO' && (
             <div className="space-y-6">
               {/* Unique Guarantee Banner */}
               <div className="rounded-2xl border border-purple-500/40 bg-purple-950/30 p-4 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600/30 text-purple-300">
-                  <Wand2 className="h-5 w-5" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-600/30 text-purple-300">
+                  <Wand2 className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="text-xs font-black text-white flex items-center gap-2">
-                    100% Unique Character Guarantee
+                    100% Unique Battle Royale Character Guarantee
                     <span className="rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 border border-emerald-500/40">
-                      Cryptographic Stamp
+                      Cryptographic Verified
                     </span>
                   </h4>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Your photo is converted through our neural pixel quantization engine. It produces a bespoke RPG portrait stamped with a unique cryptographic hash—guaranteed to never match default game characters!
+                    Your photo is analyzed and converted through our neural pixel quantization engine. It produces a bespoke Battle Royale character card stamped with a unique cryptographic hash—guaranteed to never match default game characters!
                   </p>
                 </div>
               </div>
@@ -490,9 +859,9 @@ export function CharacterCreationModal({
                   {/* 1-Click Quick Demo Photos */}
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                      Or Try Instant Demo Portrait
+                      Or Try 1-Click Demo Portraits
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {demoPhotos.map((demo) => (
                         <button
                           key={demo.label}
@@ -503,8 +872,8 @@ export function CharacterCreationModal({
                           }}
                           className="rounded-xl border border-slate-800 bg-slate-950/60 p-2 text-center text-xs font-bold text-slate-300 hover:border-purple-500 hover:text-white transition"
                         >
-                          <span className="block text-[11px] font-bold">{demo.label}</span>
-                          <span className="text-[9px] text-purple-400">1-Click Test</span>
+                          <span className="block text-[11px] font-bold truncate">{demo.label}</span>
+                          <span className="text-[9px] text-purple-400 block truncate">{demo.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -513,7 +882,7 @@ export function CharacterCreationModal({
                   {/* Art Styles Grid */}
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                      Select Popular Game Transformation Style
+                      Select Battle Royale Transformation Style
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {stylesList.map((st) => (
@@ -550,10 +919,10 @@ export function CharacterCreationModal({
                       soundEngine.playCoin();
                     }}
                     disabled={!photoSrc || isGenerating}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition disabled:opacity-50"
                   >
                     <RefreshCw className={`h-3.5 w-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
-                    <span>Re-Roll Unique RPG Variations &amp; Gear</span>
+                    <span>Re-Roll Unique Battle Attributes &amp; Gear</span>
                   </button>
                 </div>
 
@@ -563,7 +932,7 @@ export function CharacterCreationModal({
                     {isGenerating ? (
                       <div className="flex flex-col items-center gap-2">
                         <div className="h-10 w-10 animate-spin rounded-full border-3 border-purple-400 border-t-transparent" />
-                        <span className="text-xs font-bold text-purple-300">Forging RPG Likeness...</span>
+                        <span className="text-xs font-bold text-purple-300">Forging Battle Avatar...</span>
                       </div>
                     ) : generatedPhotoAvatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -593,7 +962,7 @@ export function CharacterCreationModal({
             </div>
           )}
 
-          {/* TAB 3: CUSTOM SPRITE BUILDER */}
+          {/* TAB 3: CUSTOM TACTICAL GEAR STUDIO */}
           {activeTab === 'STUDIO' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Controls (7 cols) */}
@@ -624,21 +993,21 @@ export function CharacterCreationModal({
                   </div>
                 </div>
 
-                {/* Hairstyle */}
+                {/* Hairstyle / Helmet */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Hairstyle (Famous Game Styles)
+                    Hairstyle / Headgear (Free Fire &amp; PUBG)
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'kelly_bob', label: 'Kelly Bob (FF)' },
-                      { id: 'jinwoo_shadow', label: 'Jin-Woo Swept (SL)' },
-                      { id: 'raiden_braid', label: 'Raiden Braid (GI)' },
+                      { id: 'kelly_freefire', label: 'Kelly Bob (FF)' },
+                      { id: 'pubg_spetsnaz', label: 'Spetsnaz Lvl 3 (PUBG)' },
+                      { id: 'alok_hair', label: 'Alok Undercut (FF)' },
+                      { id: 'pubg_tactical_pony', label: 'Sniper Comms (PUBG)' },
                       { id: 'moco_dreads', label: 'Moco Dreads (FF)' },
-                      { id: 'cha_blonde', label: 'Cha Waves (SL)' },
+                      { id: 'pubg_pharaoh_headdress', label: 'Pharaoh Crown (PUBG)' },
                       { id: 'hayato_ponytail', label: 'Hayato Samurai' },
-                      { id: 'kafka_waves', label: 'Kafka Velvet (HSR)' },
-                      { id: 'zhongli_tail', label: 'Zhongli Tail (GI)' },
+                      { id: 'chrono_hair', label: 'Chrono Cyber (FF)' },
                     ].map((h) => (
                       <button
                         key={h.id}
@@ -655,21 +1024,21 @@ export function CharacterCreationModal({
                   </div>
                 </div>
 
-                {/* Outfit */}
+                {/* Tactical Outfit */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Battle Armor &amp; Outfit
+                    Tactical Outfit &amp; Armor
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'kelly_track', label: 'Speed Track (FF)' },
+                      { id: 'kelly_tracksuit', label: 'Yellow Track (FF)' },
+                      { id: 'pubg_suit', label: 'Tie & Harness (PUBG)' },
+                      { id: 'alok_coat', label: 'DJ Coat (FF)' },
+                      { id: 'pubg_tactical_vest', label: 'Ammo Vest (PUBG)' },
+                      { id: 'pubg_pharaoh_armor', label: 'Pharaoh Gold (PUBG)' },
+                      { id: 'chrono_suit', label: 'Chrono Armor (FF)' },
+                      { id: 'hayato_haori', label: 'Bushido Haori (FF)' },
                       { id: 'jinwoo_duster', label: 'Shadow Duster (SL)' },
-                      { id: 'raiden_kimono', label: 'Kimono Plate (GI)' },
-                      { id: 'moco_cyber', label: 'Hacker Vest (FF)' },
-                      { id: 'cha_armor', label: 'Duelist Plate (SL)' },
-                      { id: 'hayato_haori', label: 'Samurai Haori (FF)' },
-                      { id: 'kafka_coat', label: 'Spider Velvet (HSR)' },
-                      { id: 'zhongli_coat', label: 'Archon Coat (GI)' },
                     ].map((o) => (
                       <button
                         key={o.id}
@@ -689,15 +1058,15 @@ export function CharacterCreationModal({
                 {/* Signature Weapon */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Signature Weapon
+                    Signature Battle Weapon
                   </label>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {[
-                      { id: 'shadow_daggers', label: 'Shadow Daggers' },
+                      { id: 'pubg_m416', label: 'PUBG M416' },
                       { id: 'dual_sabers', label: 'Dual Sabers' },
-                      { id: 'katana', label: 'Tachi Katana' },
-                      { id: 'spear', label: 'Dragon Spear' },
-                      { id: 'staff', label: 'Arcane Staff' },
+                      { id: 'katana', label: 'Flame Katana' },
+                      { id: 'shadow_daggers', label: 'Shadow Daggers' },
+                      { id: 'spear', label: 'Pharaoh Spear' },
                     ].map((w) => (
                       <button
                         key={w.id}
@@ -714,21 +1083,21 @@ export function CharacterCreationModal({
                   </div>
                 </div>
 
-                {/* Elemental Aura */}
+                {/* Elemental / Tactical Aura */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Elemental Aura
+                    Tactical Aura / Atmosphere
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'phoenix_blaze', label: 'Phoenix Blaze' },
-                      { id: 'shadow_monarch', label: 'Shadow Monarch' },
-                      { id: 'electro_storm', label: 'Electro Storm' },
-                      { id: 'cyber_matrix', label: 'Cyber Matrix' },
-                      { id: 'holy_radiance', label: 'Holy Radiance' },
-                      { id: 'fire', label: 'Flame Bushido' },
-                      { id: 'arcane', label: 'Arcane Web' },
-                      { id: 'celestial', label: 'Celestial Jade' },
+                      { id: 'phoenix_blaze', label: 'Phoenix Blaze (FF)' },
+                      { id: 'airdrop_smoke', label: 'Airdrop Flare (PUBG)' },
+                      { id: 'soundwave_beat', label: 'Soundwave Beat (FF)' },
+                      { id: 'desert_storm', label: 'Miramar Storm (PUBG)' },
+                      { id: 'pharaoh_gold', label: 'Pharaoh Wings (PUBG)' },
+                      { id: 'chrono_shield', label: 'Chrono Barrier (FF)' },
+                      { id: 'shadow_monarch', label: 'Shadow Mist (SL)' },
+                      { id: 'fire', label: 'Flame Bushido (FF)' },
                     ].map((a) => (
                       <button
                         key={a.id}
@@ -774,14 +1143,14 @@ export function CharacterCreationModal({
           <button
             onClick={handleSaveCharacter}
             disabled={isSaving}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-glow-gold hover:from-amber-400 hover:to-yellow-400 transition disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-glow-gold hover:from-amber-400 hover:to-yellow-400 transition disabled:opacity-50"
           >
             {isSaving ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
             ) : (
               <Check className="h-4 w-4" />
             )}
-            <span>Lock In &amp; Save Hero</span>
+            <span>Lock In &amp; Deploy Hero</span>
           </button>
         </div>
       </div>

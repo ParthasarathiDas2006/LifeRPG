@@ -20,9 +20,14 @@ import {
   Gift,
   Crosshair,
   TrendingUp,
+  Edit3,
+  Check,
+  X,
+  Dices,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/sound';
-import { HERO_PRESETS } from '@/lib/photoGenerator';
+import { HERO_PRESETS, generateProceduralSprite } from '@/lib/photoGenerator';
+import { getRandomNameAndTitle, HERO_RANDOM_NAMES } from '@/lib/nameGenerator';
 
 interface LobbySectionProps {
   stats: UserStats;
@@ -63,6 +68,47 @@ export function LobbySection({
   const [spinResult, setSpinResult] = useState<DailyWheelSlice | null>(null);
   const [spinMessage, setSpinMessage] = useState<string | null>(null);
   const [quickActionNotice, setQuickActionNotice] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(character.name);
+  const [isSavingName, setIsSavingName] = useState(false);
+
+  const handleSaveName = async (newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || isSavingName) return;
+    try {
+      setIsSavingName(true);
+      soundEngine.playEquip();
+      const payload = {
+        ...character,
+        name: trimmed,
+      };
+      const res = await fetch('/api/character', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setIsEditingName(false);
+        setQuickActionNotice(`Callsign changed: "${trimmed}"!`);
+        setTimeout(() => setQuickActionNotice(null), 3500);
+        onRefreshData();
+      }
+    } catch (err) {
+      soundEngine.playError();
+      console.error(err);
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handleRollRandomName = async () => {
+    const activePreset = HERO_PRESETS.find(
+      (p) => p.name.toLowerCase() === character.name.toLowerCase() || p.class === character.class
+    );
+    const { name: randomName } = getRandomNameAndTitle(activePreset?.id, character.class, character.name);
+    setEditedName(randomName);
+    await handleSaveName(randomName);
+  };
 
   // Compute Combat Power (CP)
   const totalStats =
@@ -186,26 +232,34 @@ export function LobbySection({
                     {/* Outer Aura Rings */}
                     <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-amber-500/30 via-purple-500/30 to-cyan-500/30 blur-xl group-hover:blur-2xl transition duration-500" />
 
-                    <div className="relative flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold transition-transform duration-300 group-hover:scale-105">
-                      {character.avatarUrl ? (
+                    <div className="relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold transition-transform duration-300 group-hover:scale-105">
+                      {character.avatarUrl || activePreset?.portraitUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={character.avatarUrl}
+                          src={character.avatarUrl || activePreset?.portraitUrl}
                           alt={character.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover object-top"
+                          onError={(e) => {
+                            if (activePreset) {
+                              (e.currentTarget as HTMLImageElement).src = generateProceduralSprite(activePreset.parts, activePreset.class);
+                            }
+                          }}
                         />
                       ) : (
                         <span className="text-6xl">⚔️</span>
                       )}
 
+                      {/* Full Human Body Vignette */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20 pointer-events-none" />
+
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity p-4">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/85 opacity-0 group-hover:opacity-100 transition-opacity p-4">
                         <Sparkles className="h-8 w-8 text-amber-300 animate-pulse mb-1" />
                         <span className="text-xs font-black uppercase tracking-wider text-amber-300">
                           Switch / Customize Hero
                         </span>
-                        <span className="text-[10px] text-slate-300 mt-1 text-center">
-                          Free Fire • Solo Leveling • AI Photo
+                        <span className="text-[10px] text-slate-300 mt-1 text-center font-semibold">
+                          Free Fire • PUBG Mobile • AI Photo Forge
                         </span>
                       </div>
 
@@ -213,6 +267,13 @@ export function LobbySection({
                       {activePreset && (
                         <div className="absolute top-2.5 left-2.5 rounded-full bg-slate-950/90 border border-amber-400/60 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 backdrop-blur-sm shadow-sm">
                           {activePreset.inspirationLabel}
+                        </div>
+                      )}
+
+                      {/* Rarity Tag */}
+                      {activePreset && (
+                        <div className="absolute top-2.5 right-2.5 rounded-full bg-slate-950/90 border border-amber-400/60 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 backdrop-blur-sm shadow-sm">
+                          {activePreset.rarity}
                         </div>
                       )}
                     </div>
@@ -223,12 +284,117 @@ export function LobbySection({
                     </div>
                   </div>
 
-                  <h2 className="mt-6 text-2xl font-black text-white sm:text-3xl tracking-wide flex items-center justify-center gap-2">
-                    {character.name}
-                  </h2>
-                  <p className="text-xs font-medium text-slate-400 mt-0.5">
-                    {character.title} • Tier {Math.floor(stats.level / 5) + 1} Champion
-                  </p>
+                  {isEditingName ? (
+                    <div className="mt-5 flex items-center justify-center gap-2">
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="rounded-xl border border-amber-400 bg-slate-900 px-3 py-1.5 text-center text-lg font-black text-white focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner max-w-[220px]"
+                        autoFocus
+                        disabled={isSavingName}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveName(editedName);
+                          if (e.key === 'Escape') setIsEditingName(false);
+                        }}
+                      />
+                      <button
+                        onClick={() => handleSaveName(editedName)}
+                        disabled={isSavingName}
+                        className="rounded-xl bg-emerald-600 p-2 text-white hover:bg-emerald-500 shadow-md transition"
+                        title="Save Callsign"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setIsEditingName(false)}
+                        className="rounded-xl bg-slate-800 p-2 text-slate-400 hover:text-white transition"
+                        title="Cancel"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-5 flex flex-col items-center justify-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <h2 className="text-2xl font-black text-white sm:text-3xl tracking-wide">
+                          {character.name}
+                        </h2>
+                        <button
+                          onClick={() => {
+                            setEditedName(character.name);
+                            setIsEditingName(true);
+                          }}
+                          className="rounded-xl border border-slate-800 bg-slate-900/80 p-1.5 text-slate-400 hover:border-slate-700 hover:text-white transition"
+                          title="Edit Hero Callsign"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={handleRollRandomName}
+                          disabled={isSavingName}
+                          className="flex items-center gap-1.5 rounded-xl border border-amber-500/50 bg-amber-500/20 px-2.5 py-1 text-xs font-black uppercase text-amber-300 hover:bg-amber-500/30 transition shadow-glow-gold active:scale-95"
+                          title="Roll Random Gaming Callsign"
+                        >
+                          <Dices className="h-3.5 w-3.5 text-amber-400 animate-spin" />
+                          <span>Random</span>
+                        </button>
+                      </div>
+
+                      {/* Quick Name Suggestions for Active Hero */}
+                      {activePreset && HERO_RANDOM_NAMES[activePreset.id] && (
+                        <div className="mt-2 flex flex-wrap items-center justify-center gap-1 max-w-sm">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mr-0.5">
+                            Random:
+                          </span>
+                          {HERO_RANDOM_NAMES[activePreset.id].slice(0, 4).map((suggestedName) => (
+                            <button
+                              key={suggestedName}
+                              onClick={() => handleSaveName(suggestedName)}
+                              disabled={isSavingName}
+                              className={`rounded-full border px-2 py-0.5 text-[9px] font-bold transition ${
+                                character.name === suggestedName
+                                  ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-sm'
+                                  : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white hover:border-slate-700'
+                              }`}
+                              title={`Switch callsign to ${suggestedName}`}
+                            >
+                              {suggestedName.split('"')[1] || suggestedName.split(' ')[0]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Human Body & Attractive Specs Summary */}
+                  {activePreset && (
+                    <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 max-w-sm">
+                      <span className="rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
+                        🏃 {activePreset.humanSpecs.physique}
+                      </span>
+                      <span className="rounded-full bg-cyan-500/20 border border-cyan-500/30 px-2.5 py-0.5 text-[10px] font-bold text-cyan-300">
+                        ✨ Realistic Human Model
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Battle Royale Origin & Ability Pill */}
+                  {activePreset && (
+                    <div className="mt-3 rounded-2xl border border-purple-500/40 bg-purple-950/30 p-2.5 max-w-xs text-left backdrop-blur-sm shadow-md">
+                      <div className="flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-amber-400 font-bold">{activePreset.inspirationLabel}</span>
+                        <span className="text-emerald-400 font-bold">K/D {activePreset.battleStats.kdRatio}</span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-1.5 text-xs font-black text-white">
+                        <span>{activePreset.ability.icon}</span>
+                        <span>{activePreset.ability.name}</span>
+                      </div>
+                      <p className="text-[10px] text-purple-200 mt-0.5 font-medium">
+                        {activePreset.ability.buffText}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Character Quote Banner */}
                   {activePreset && (
@@ -237,14 +403,56 @@ export function LobbySection({
                     </p>
                   )}
 
-                  {/* Switch Hero Quick Action */}
-                  <button
-                    onClick={onEditCharacter}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/30 transition shadow-sm"
-                  >
-                    <Crown className="h-3.5 w-3.5 text-amber-400" />
-                    <span>Switch Hero (8 Legends &amp; AI Photo)</span>
-                  </button>
+                  {/* 1-Click Battle Royale Hero Quick Switcher */}
+                  <div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
+                    {HERO_PRESETS.map((preset) => (
+                      <button
+                        key={preset.id}
+                        onClick={async () => {
+                          soundEngine.playEquip();
+                          const payload = {
+                            name: preset.name,
+                            class: preset.class,
+                            gender: preset.gender,
+                            title: preset.title,
+                            avatarUrl: preset.portraitUrl,
+                            avatarType: 'SPRITE',
+                            spriteParts: preset.parts,
+                            gameOrigin: preset.gameInspiration,
+                            abilityName: preset.ability.name,
+                            abilityBuff: preset.ability.buffText,
+                            humanSpecs: preset.humanSpecs,
+                          };
+                          await fetch('/api/character', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                          });
+                          onRefreshData();
+                        }}
+                        className={`flex items-center gap-1.5 rounded-xl border px-2 py-1 text-[10px] font-black uppercase tracking-wider transition ${
+                          character.name === preset.name
+                            ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-glow-gold'
+                            : 'border-slate-800 bg-slate-900/70 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                        title={preset.name}
+                      >
+                        {/* Mini game art avatar icon */}
+                        <div className="h-4 w-4 rounded-full overflow-hidden border border-slate-700">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={preset.portraitUrl} alt={preset.name} className="h-full w-full object-cover" />
+                        </div>
+                        <span>{preset.name.split(' ')[0]}</span>
+                      </button>
+                    ))}
+                    <button
+                      onClick={onEditCharacter}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/20 px-2.5 py-1 text-[10px] font-black uppercase text-purple-300 hover:bg-purple-500/30 transition shadow-sm"
+                      title="Open Full Character Studio & Customizer"
+                    >
+                      ⚡ Studio
+                    </button>
+                  </div>
 
                   {/* Combat Power (CP) Banner */}
                   <div className="mt-3 flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 shadow-glow-gold">

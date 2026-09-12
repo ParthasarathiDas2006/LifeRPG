@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Heart,
   Compass,
+  ShieldAlert,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/sound';
 
@@ -29,6 +30,8 @@ interface QuestListProps {
 export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [optimisticCompletedIds, setOptimisticCompletedIds] = useState<Set<string>>(new Set());
+  const [antiCheatAlert, setAntiCheatAlert] = useState<{ title: string; message: string; rollback: boolean } | null>(null);
   const [combatText, setCombatText] = useState<{
     id: string;
     text: string;
@@ -55,8 +58,11 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
   });
 
   const handleComplete = async (taskId: string) => {
+    // 1. Optimistic UI Update: immediately mark as completed on client
+    setCompletingId(taskId);
+    setOptimisticCompletedIds((prev) => new Set([...Array.from(prev), taskId]));
+
     try {
-      setCompletingId(taskId);
       const res = await fetch(`/api/tasks/${taskId}/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -64,12 +70,25 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
 
       const data: TaskCompletionResult = await res.json();
       if (!res.ok) {
+        // 2. Anti-Cheat Backend Rejection: Perform immediate ROLLBACK
+        setOptimisticCompletedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(taskId);
+          return next;
+        });
+
         soundEngine.playError();
-        alert((data as unknown as { error: string }).error || 'Failed to complete task');
+        const errMessage = (data as unknown as { error: string }).error || 'Verification failed';
+        setAntiCheatAlert({
+          title: res.status === 429 ? '🛡️ Rate Limit (Anti-Cheat Safeguard)' : '🛡️ Anti-Cheat Validation Rejection',
+          message: `${errMessage} (Optimistic UI state rolled back).`,
+          rollback: true,
+        });
+        setTimeout(() => setAntiCheatAlert(null), 5000);
         return;
       }
 
-      // Play audio feedback
+      // 3. Backend Approved: Play success effects & commit state
       if (data.rewards.isCrit) {
         soundEngine.playCritStrike();
       } else {
@@ -86,7 +105,19 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
       onCompleteTask(data);
     } catch (err) {
       console.error(err);
+      // Rollback on network failure
+      setOptimisticCompletedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      });
       soundEngine.playError();
+      setAntiCheatAlert({
+        title: 'Connection Failure',
+        message: 'Could not connect to validation server. Optimistic state rolled back.',
+        rollback: true,
+      });
+      setTimeout(() => setAntiCheatAlert(null), 4000);
     } finally {
       setCompletingId(null);
     }
@@ -111,6 +142,25 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
 
   return (
     <div className="space-y-4">
+      {/* Anti-Cheat Notification Banner */}
+      {antiCheatAlert && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-500/80 bg-rose-950/90 px-4 py-3 text-xs text-rose-200 shadow-glow-combat backdrop-blur-md animate-in slide-in-from-top-2">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="h-5 w-5 text-rose-400 shrink-0 animate-bounce" />
+            <div>
+              <p className="font-black text-white">{antiCheatAlert.title}</p>
+              <p className="text-[11px] text-rose-300/90">{antiCheatAlert.message}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setAntiCheatAlert(null)}
+            className="rounded-lg bg-rose-900/60 px-2 py-1 text-[10px] font-bold text-rose-300 hover:bg-rose-800 transition"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Category Filter Pills */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
         {categories.map((cat) => {
@@ -147,7 +197,7 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
           </div>
         ) : (
           filteredTasks.map((task) => {
-            const isCompleted = task.isCompletedToday;
+            const isCompleted = task.isCompletedToday || optimisticCompletedIds.has(task.id);
             const isPending = completingId === task.id;
 
             return (

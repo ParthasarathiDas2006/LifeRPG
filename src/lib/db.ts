@@ -25,6 +25,13 @@ import {
   rollLootDrop,
   getAttributeGained,
 } from './progression';
+import {
+  checkRateLimit,
+  recordCompletionTimestamp,
+  validateDailyCaps,
+  recordDailyEarnings,
+  generateAuditHash,
+} from './antiCheat';
 
 interface DatabaseSchema {
   userStats: UserStats;
@@ -71,9 +78,13 @@ function getDefaultCharacter(): CharacterConfig {
     class: preset.class,
     gender: preset.gender,
     title: preset.title,
-    avatarUrl: generateProceduralSprite(preset.parts, preset.class),
+    avatarUrl: preset.portraitUrl || generateProceduralSprite(preset.parts, preset.class),
     avatarType: 'SPRITE',
     spriteParts: preset.parts,
+    gameOrigin: preset.gameInspiration,
+    abilityName: preset.ability.name,
+    abilityBuff: preset.ability.buffText,
+    humanSpecs: preset.humanSpecs,
   };
 }
 
@@ -86,10 +97,17 @@ function readDb(): DatabaseSchema {
       parsed.character = getDefaultCharacter();
       writeDb(parsed);
     } else if (parsed.character.avatarType === 'SPRITE' && parsed.character.spriteParts) {
-      parsed.character.avatarUrl = generateProceduralSprite(
-        parsed.character.spriteParts,
-        parsed.character.class
+      const matchingPreset = HERO_PRESETS.find(
+        (p) => p.name.toLowerCase() === parsed.character.name.toLowerCase()
       );
+      if (matchingPreset && matchingPreset.portraitUrl) {
+        parsed.character.avatarUrl = matchingPreset.portraitUrl;
+      } else if (!parsed.character.avatarUrl) {
+        parsed.character.avatarUrl = generateProceduralSprite(
+          parsed.character.spriteParts,
+          parsed.character.class
+        );
+      }
     }
     return parsed;
   } catch (err) {
@@ -102,9 +120,16 @@ function readDb(): DatabaseSchema {
 
 function writeDb(data: DatabaseSchema) {
   ensureDb();
-  const tempFile = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
-  fs.renameSync(tempFile, DB_FILE);
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    const tempFile = `${DB_FILE}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+      fs.copyFileSync(tempFile, DB_FILE);
+      fs.unlinkSync(tempFile);
+    } catch (_) {}
+  }
 }
 
 // Initial Starter Dataset
@@ -582,7 +607,8 @@ export const dbService = {
 
   completeTask(
     taskId: string,
-    reflectionData?: { text?: string; moodRating?: number; honestyAffirmed?: boolean }
+    reflectionData?: { text?: string; moodRating?: number; honestyAffirmed?: boolean },
+    userId: string = 'default-player'
   ): TaskCompletionResult {
     const db = readDb();
     const taskIndex = db.tasks.findIndex((t) => t.id === taskId);
@@ -593,6 +619,15 @@ export const dbService = {
     const task = db.tasks[taskIndex];
     if (task.isCompletedToday) {
       throw new Error('Task already completed today');
+    }
+
+    // 0. Anti-Cheat Rate Limiter & Cooldown Verification
+    const rateCheck = checkRateLimit(userId);
+    if (!rateCheck.allowed) {
+      const err = new Error(rateCheck.reason || 'Rate limit exceeded');
+      (err as unknown as { statusCode: number; retryAfter?: number }).statusCode = 429;
+      (err as unknown as { statusCode: number; retryAfter?: number }).retryAfter = rateCheck.retryAfterSeconds;
+      throw err;
     }
 
     // 1. Calculate Multipliers
@@ -607,11 +642,25 @@ export const dbService = {
     const gearXpMult = 1.0 + xpBonusPct / 100;
     const gearGoldMult = 1.0 + goldBonusPct / 100;
 
-    // 2. Compute final rewards
-    let finalXP = Math.round(task.baseXP * streakMult * critInfo.critMultiplier * gearXpMult);
-    let finalGold = Math.round(task.baseGold * streakMult * critInfo.critMultiplier * gearGoldMult);
+    // 2. Compute final rewards with anti-cheat daily caps & virtue coins
+    const rawXP = Math.round(task.baseXP * streakMult * critInfo.critMultiplier * gearXpMult);
+    const rawGold = Math.round(task.baseGold * streakMult * critInfo.critMultiplier * gearGoldMult);
     const baseCoins = task.baseVirtueCoins || 5;
     let finalCoins = Math.round(baseCoins * streakMult);
+
+    const capCheck = validateDailyCaps(userId, rawXP, rawGold);
+    if (!capCheck.allowed) {
+      const err = new Error(capCheck.reason || 'Daily rewards cap reached');
+      (err as unknown as { statusCode: number }).statusCode = 403;
+      throw err;
+    }
+
+    let finalXP = capCheck.clampedXP;
+    let finalGold = capCheck.clampedGold;
+
+    // Record action in rate limiter and daily tracker
+    recordCompletionTimestamp(userId);
+    recordDailyEarnings(userId, finalXP, finalGold);
 
     let reflectionEntry: any = null;
 
@@ -713,14 +762,18 @@ export const dbService = {
       }
     }
 
-    // 9. Log Completion Audit
+    // 8. Cryptographic Hash Chain Audit Ledger
+    const lastAuditEntry = db.completionsLog[db.completionsLog.length - 1];
+    const prevHash = lastAuditEntry?.validationHash || 'GENESIS_HASH_LIFERPG_0000';
+    const timestamp = new Date().toISOString();
+    const validationHash = generateAuditHash(prevHash, userId, task.id, finalXP, finalGold, timestamp);
     db.completionsLog.push({
       id: `comp-${Date.now()}`,
       taskId: task.id,
-      completedAt: new Date().toISOString(),
+      completedAt: timestamp,
       xpEarned: finalXP,
       goldEarned: finalGold,
-      validationHash: `hmac_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+      validationHash,
     });
 
     writeDb(db);

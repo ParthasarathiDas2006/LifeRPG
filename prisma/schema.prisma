@@ -1,4 +1,6 @@
-// prisma/schema.prisma
+// Prisma Schema for Life RPG Web Application
+// Comprehensive Schema: Character Optimization, Anti-Cheat, Items & Moral Virtues
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -8,25 +10,38 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum AttributeType {
-  INTEGRITY
-  COMPASSION
-  DISCIPLINE
-  WISDOM
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum TaskCategory {
   STRENGTH
   INTELLIGENCE
   VITALITY
   AGILITY
   CHARISMA
   WILLPOWER
+  INTEGRITY
+  COMPASSION
+  DISCIPLINE
+  WISDOM
+}
+
+enum MoralAttributeType {
+  INTEGRITY
+  COMPASSION
+  DISCIPLINE
+  WISDOM
 }
 
 enum TaskType {
   DAILY
   HABIT
   TODO
-  NEGATIVE_RESTRAINT // "No Anger Day", "Digital Fasting" (settled via reflection)
-  REFLECTION         // Evening introspection / gratitude journal
+  NEGATIVE_RESTRAINT
+  REFLECTION
   BOSS_RAID
   MILESTONE
 }
@@ -39,6 +54,30 @@ enum TaskDifficulty {
   EPIC
 }
 
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ItemSlot {
+  HEAD
+  CHEST
+  WEAPON
+  SHIELD
+  ACCESSORY
+  CONSUMABLE
+}
+
+enum AuditAction {
+  TASK_COMPLETION
+  SHOP_PURCHASE
+  STAT_UPDATE
+  LEVEL_UP
+}
+
 enum RewardCategory {
   THEME
   BADGE
@@ -47,64 +86,131 @@ enum RewardCategory {
 }
 
 model User {
-  id                  String           @id @default(uuid())
-  supabaseId          String?          @unique @map("supabase_id")
-  email               String           @unique
-  username            String           @unique
-  level               Int              @default(1)
-  currentXp           Int              @default(0) @map("current_xp")
-  totalXp             Int              @default(0) @map("total_xp")
-  gold                Int              @default(100)
-  virtueCoins         Int              @default(25) @map("virtue_coins")
-  activeTheme         String           @default("sanctuary_dawn") @map("active_theme")
-  streakFreezeTokens  Int              @default(2) @map("streak_freeze_tokens")
-  createdAt           DateTime         @default(now()) @map("created_at")
-  updatedAt           DateTime         @updatedAt @map("updated_at")
+  id                 String           @id @default(uuid())
+  email              String           @unique
+  passwordHash       String?          @map("password_hash")
+  username           String           @unique
+  role               Role             @default(USER)
+  isActive           Boolean          @default(true) @map("is_active")
+  level              Int              @default(1)
+  currentXp          Int              @default(0) @map("current_xp")
+  totalXp            Int              @default(0) @map("total_xp")
+  gold               Int              @default(100)
+  virtueCoins        Int              @default(25) @map("virtue_coins")
+  activeTheme        String           @default("sanctuary_dawn") @map("active_theme")
+  streakFreezeTokens Int              @default(2) @map("streak_freeze_tokens")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
 
-  attributes          UserAttribute[]
-  tasks               Task[]
-  taskLogs            TaskLog[]
-  userRewards         UserReward[]
-  userBadges          UserBadge[]
+  stats              CharacterStats?
+  profile            CharacterProfile?
+  tasks              Task[]
+  inventory          Inventory[]
+  auditLogs          ProgressionAuditLedger[]
+  attributes         UserAttribute[]
+  taskLogs           TaskLog[]
+  userRewards        UserReward[]
+  userBadges         UserBadge[]
 
   @@map("users")
 }
 
 model UserAttribute {
-  id            String        @id @default(uuid())
-  userId        String        @map("user_id")
-  attribute     AttributeType
-  level         Int           @default(1)
-  currentXp     Int           @default(0) @map("current_xp")
-  totalPoints   Int           @default(0) @map("total_points")
+  id          String             @id @default(uuid())
+  userId      String             @map("user_id")
+  attribute   MoralAttributeType
+  level       Int                @default(1)
+  currentXp   Int                @default(0) @map("current_xp")
+  totalPoints Int                @default(0) @map("total_points")
 
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, attribute])
   @@map("user_attributes")
 }
 
+model CharacterStats {
+  userId              String   @id @map("user_id")
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level               Int      @default(1)
+  currentXP           BigInt   @default(0) @map("current_xp")
+  nextLevelXP         BigInt   @default(150) @map("next_level_xp")
+  gold                BigInt   @default(100)
+  virtueCoins         Int      @default(25) @map("virtue_coins")
+  health              Int      @default(100)
+  maxHealth           Int      @default(100) @map("max_health")
+  mana                Int      @default(50)
+  maxMana             Int      @default(50) @map("max_mana")
+  
+  // Physical & Mental RPG Attributes
+  strength            Int      @default(10)
+  intellect           Int      @default(10)
+  vitality            Int      @default(10)
+  agility             Int      @default(10)
+  charisma            Int      @default(10)
+  willpower           Int      @default(10)
+  
+  // Cardinal Moral Virtues
+  integrity           Int      @default(10)
+  compassion          Int      @default(10)
+  discipline          Int      @default(10)
+  wisdom              Int      @default(10)
+
+  totalTasksCompleted Int      @default(0) @map("total_tasks_completed")
+  streakFreezeTokens  Int      @default(2) @map("streak_freeze_tokens")
+  
+  // Anti-cheat daily cap tracking
+  dailyXpEarned       Int      @default(0) @map("daily_xp_earned")
+  dailyGoldEarned     Int      @default(0) @map("daily_gold_earned")
+  lastDailyResetDate  DateTime @default(now()) @map("last_daily_reset_date")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("character_stats")
+}
+
+model CharacterProfile {
+  userId         String   @id @map("user_id")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characterName  String   @map("character_name")
+  classType      String   @map("class_type")
+  gender         String   @default("NON_BINARY")
+  title          String
+  avatarUrl      String   @map("avatar_url")
+  avatarType     String   @default("SPRITE") @map("avatar_type")
+  gameOrigin     String   @default("FREE_FIRE") @map("game_origin")
+  abilityName    String?  @map("ability_name")
+  abilityBuff    String?  @map("ability_buff")
+  spriteParts    Json?    @map("sprite_parts")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("character_profile")
+}
+
 model Task {
   id                 String          @id @default(uuid())
   userId             String          @map("user_id")
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   title              String
   description        String?
-  attribute          AttributeType
+  category           TaskCategory
+  moralAttribute     MoralAttributeType? @map("moral_attribute")
   difficulty         TaskDifficulty  @default(MEDIUM)
-  type               TaskType        @default(DAILY)
-  baseXp             Int             @default(25) @map("base_xp")
+  taskType           TaskType        @default(DAILY) @map("task_type")
+  baseXP             Int             @default(25) @map("base_xp")
   baseGold           Int             @default(10) @map("base_gold")
   baseVirtueCoins    Int             @default(5) @map("base_virtue_coins")
-  currentStreak      Int             @default(0) @map("current_streak")
-  longestStreak      Int             @default(0) @map("longest_streak")
+  streakCount        Int             @default(0) @map("streak_count")
+  maxStreak          Int             @default(0) @map("max_streak")
+  isCompletedToday   Boolean         @default(false) @map("is_completed_today")
   requiresReflection Boolean         @default(false) @map("requires_reflection")
   lastCompletedAt    DateTime?       @map("last_completed_at")
   isActive           Boolean         @default(true) @map("is_active")
   createdAt          DateTime        @default(now()) @map("created_at")
 
-  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   logs               TaskLog[]
+  auditLogs          ProgressionAuditLedger[]
 
+  @@index([userId, isCompletedToday])
   @@index([userId, isActive])
   @@map("tasks")
 }
@@ -127,6 +233,38 @@ model TaskLog {
 
   @@index([userId, completedAt])
   @@map("task_logs")
+}
+
+model ItemCatalog {
+  id               String      @id
+  name             String
+  description      String
+  rarity           ItemRarity
+  slot             ItemSlot
+  buyPrice         Int         @map("buy_price")
+  sellPrice        Int         @map("sell_price")
+  icon             String
+  statModifiers    Json        @map("stat_modifiers")
+  isActive         Boolean     @default(true) @map("is_active")
+
+  inventory        Inventory[]
+
+  @@map("items_catalog")
+}
+
+model Inventory {
+  id               String      @id @default(uuid())
+  userId           String      @map("user_id")
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId           String      @map("item_id")
+  item             ItemCatalog @relation(fields: [itemId], references: [id])
+  quantity         Int         @default(1)
+  isEquipped       Boolean     @default(false) @map("is_equipped")
+  enhancementLevel Int         @default(0) @map("enhancement_level")
+  acquiredAt       DateTime    @default(now()) @map("acquired_at")
+
+  @@unique([userId, itemId])
+  @@map("inventory")
 }
 
 model Reward {
@@ -158,12 +296,12 @@ model UserReward {
 }
 
 model Badge {
-  id                 String          @id @default(uuid())
-  code               String          @unique
+  id                 String              @id @default(uuid())
+  code               String              @unique
   title              String
   description        String
-  iconUrl            String          @map("icon_url")
-  attribute          AttributeType?
+  iconUrl            String              @map("icon_url")
+  attribute          MoralAttributeType?
 
   userBadges         UserBadge[]
 
@@ -181,4 +319,27 @@ model UserBadge {
 
   @@unique([userId, badgeId])
   @@map("user_badges")
+}
+
+model ProgressionAuditLedger {
+  id               String      @id @default(uuid())
+  userId           String      @map("user_id")
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId           String?     @map("task_id")
+  task             Task?       @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  actionType       AuditAction @map("action_type")
+  deltaXP          Int         @map("delta_xp")
+  deltaGold        Int         @map("delta_gold")
+  finalLevel       Int         @map("final_level")
+  finalXP          BigInt      @map("final_xp")
+  finalGold        BigInt      @map("final_gold")
+  timestamp        DateTime    @default(now())
+  previousHash     String      @map("previous_hash")
+  currentHash      String      @map("current_hash")
+  clientIp         String?     @map("client_ip")
+  isFlaggedAnomaly Boolean     @default(false) @map("is_flagged_anomaly")
+  anomalyReason    String?     @map("anomaly_reason")
+
+  @@index([userId, timestamp(sort: Desc)])
+  @@map("progression_audit_ledger")
 }
