@@ -42,6 +42,84 @@ export interface HeroPreset {
  * Inspired by Free Fire, PUBG Mobile, and Solo Leveling
  */
 export const HERO_PRESETS: HeroPreset[] = [
+  // 0. ORIGINAL 3D BATTLE ROYALE HERO - VANGUARD APEX
+  {
+    id: 'hero-apex-vanguard',
+    name: 'Vanguard "Apex Commander"',
+    gameInspiration: 'PUBG',
+    inspirationLabel: 'Original 3D • Vanguard Apex',
+    class: 'WARRIOR',
+    gender: 'MALE',
+    title: 'Elite Battle Royale Vanguard',
+    rarity: 'MYTHIC',
+    quote: "Gear up, lock in, and conquer the zone. Victory belongs to the disciplined.",
+    ability: {
+      name: 'Apex Tactical Overdrive',
+      description: 'Activates military cybernetic focus, granting +30% willpower and boosting daily streak XP by +25%.',
+      icon: '🛡️',
+      buffText: '+30% Willpower & Tactical XP Boost',
+    },
+    battleStats: { winRate: 91, kdRatio: 5.8, agility: 96, combatPower: 3600 },
+    portraitUrl: HERO_GAME_ART['hero-apex-vanguard'],
+    humanSpecs: {
+      physique: 'Hardened Athletic Commando Build',
+      faceAndEyes: 'Chiseled masculine jawline, focused heroic gaze with fine skin texture and realistic grooming',
+      torsoAndOutfit: 'Matte obsidian composite armor chest plate over high-collar combat jacket with glowing amber energy seams',
+      armsAndGloves: 'Toned muscular arms, carbon-reinforced fingerless combat shooting gloves',
+      legsAndBoots: 'Tactical multi-pocket cargo pants with knee armor and heavy-duty combat assault boots',
+    },
+    description: 'High-quality original 3D battle-royale legend. Equipped with cutting-edge composite body armor, survival assault backpack, and magnetic combat boots, ready for any drop zone.',
+    parts: {
+      gender: 'MALE',
+      body: 'fair',
+      hair: 'pubg_spetsnaz',
+      hairColor: '#334155',
+      outfit: 'pubg_suit',
+      outfitColor: '#1e293b',
+      weapon: 'pubg_m416',
+      aura: 'phoenix_blaze',
+    },
+  },
+
+  // 0B. ORIGINAL 3D BATTLE ROYALE HERO - NOVA VALKYRIE
+  {
+    id: 'hero-nova-valkyrie',
+    name: 'Nova "Valkyrie Prime"',
+    gameInspiration: 'FREE_FIRE',
+    inspirationLabel: 'Original 3D • Nova Valkyrie',
+    class: 'HUNTRESS',
+    gender: 'FEMALE',
+    title: 'Tactical Drop Zone Valkyrie',
+    rarity: 'MYTHIC',
+    quote: "Eyes on the horizon, trigger on the pulse. Never surrender the high ground.",
+    ability: {
+      name: 'Luminescent Extraction Sprint',
+      description: 'Overcharges tactical cybernetics with cyan energy, boosting sprint velocity and critical habit rewards by +25%.',
+      icon: '⚡',
+      buffText: '+25% Sprint Speed & Critical Task Multiplier',
+    },
+    battleStats: { winRate: 89, kdRatio: 5.5, agility: 98, combatPower: 3500 },
+    portraitUrl: HERO_GAME_ART['hero-nova-valkyrie'],
+    humanSpecs: {
+      physique: 'Toned Athletic Battle-Ready Physique',
+      faceAndEyes: 'Radiant confident human face, hazel eyes, sleek braided dark ponytail',
+      torsoAndOutfit: 'Carbon-fiber armored crop-top vest with luminescent cyan circuitry and lightweight comms backpack',
+      armsAndGloves: 'Athletic defined arms, carbon knuckle tactical gloves holding modular assault carbine',
+      legsAndBoots: 'Reinforced tactical cargo trousers with dual side holsters and high-ankle combat boots',
+    },
+    description: 'Original 3D battle-royale huntress champion. Blending high-mobility tactical speed with high-tech cyan armor and military extraction readiness.',
+    parts: {
+      gender: 'FEMALE',
+      body: 'fair',
+      hair: 'kelly_freefire',
+      hairColor: '#1e293b',
+      outfit: 'kelly_tracksuit',
+      outfitColor: '#0ea5e9',
+      weapon: 'dual_sabers',
+      aura: 'phoenix_blaze',
+    },
+  },
+
   // 1. FREE FIRE - KELLY THE SWIFT
   {
     id: 'hero-ff-kelly',

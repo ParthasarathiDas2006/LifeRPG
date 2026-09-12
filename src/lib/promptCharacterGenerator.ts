@@ -31,6 +31,54 @@ export interface PromptHeroPreset {
 }
 
 export const FAMOUS_GAME_PROMPTS: PromptHeroPreset[] = [
+  // 0. ORIGINAL 3D BATTLE ROYALE CHAMPION - VANGUARD APEX
+  {
+    id: 'prompt-apex-vanguard',
+    game: 'BATTLE ROYALE (ORIGINAL 3D)',
+    characterName: 'Vanguard "Apex Commander"',
+    promptText: 'Original 3D battle-royale hero Vanguard Apex, handsome athletic warrior, realistic human face, chiseled jawline, modern obsidian composite armor with glowing amber energy seams, tactical backpack, combat boots, extraction zone',
+    category: 'TACTICAL_SOLDIER',
+    class: 'WARRIOR',
+    gender: 'MALE',
+    title: 'Elite Battle Royale Vanguard',
+    abilityName: 'Apex Tactical Overdrive',
+    abilityBuff: '+30% Willpower & Daily Streak XP',
+    abilityIcon: '🛡️',
+    quote: "Gear up, lock in, and conquer the zone. Victory belongs to the disciplined.",
+    combatPower: 3600,
+    kdRatio: 5.8,
+    physique: 'Hardened Athletic Commando Build',
+    faceAndEyes: 'Chiseled masculine jawline, focused heroic gaze with fine skin texture',
+    torsoAndOutfit: 'Matte obsidian composite armor chest plate over high-collar combat jacket with glowing amber energy seams',
+    weapon: 'Composite Assault Carbine',
+    aura: 'Amber Tactical Grid Glow',
+    tags: ['Original', '3D', 'Battle Royale', 'Vanguard', 'Tactical Armor'],
+  },
+
+  // 0B. ORIGINAL 3D BATTLE ROYALE CHAMPION - NOVA VALKYRIE
+  {
+    id: 'prompt-nova-valkyrie',
+    game: 'BATTLE ROYALE (ORIGINAL 3D)',
+    characterName: 'Nova "Valkyrie Prime"',
+    promptText: 'Original female 3D battle-royale champion Nova Valkyrie, attractive athletic runner, realistic human face, honey-hazel eyes, braided ponytail, carbon-fiber crop armor with glowing cyan lines, tactical assault backpack with comms antenna, heavy combat boots',
+    category: 'SPEED_SPRINTER',
+    class: 'HUNTRESS',
+    gender: 'FEMALE',
+    title: 'Tactical Drop Zone Valkyrie',
+    abilityName: 'Luminescent Extraction Sprint',
+    abilityBuff: '+25% Sprint Speed & Critical Task XP',
+    abilityIcon: '⚡',
+    quote: "Eyes on the horizon, trigger on the pulse. Never surrender the high ground.",
+    combatPower: 3500,
+    kdRatio: 5.5,
+    physique: 'Toned Athletic Battle-Ready Physique',
+    faceAndEyes: 'Radiant confident human face, hazel eyes, sleek braided dark ponytail',
+    torsoAndOutfit: 'Carbon-fiber armored crop-top vest with luminescent cyan circuitry and lightweight comms backpack',
+    weapon: 'Modular Suppressed Carbine',
+    aura: 'Cyan Luminescent Energy Pulse',
+    tags: ['Original', '3D', 'Battle Royale', 'Nova', 'Valkyrie', 'Cyan Armor'],
+  },
+
   // 1. FREE FIRE - KELLY AWAKENED
   {
     id: 'prompt-ff-kelly',
@@ -590,13 +638,20 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-val-jett') || matchedPreset;
   } else if (lower.includes('yasuo') || lower.includes('hasagi')) {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-lol-yasuo') || matchedPreset;
+  } else if (lower.includes('vanguard') || lower.includes('original') || lower.includes('tactical armor') || lower.includes('apex')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-apex-vanguard') || matchedPreset;
+  } else if (lower.includes('nova') || lower.includes('valkyrie prime') || lower.includes('cyan')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-nova-valkyrie') || matchedPreset;
   }
 
   const PROMPT_PHOTO_MAP: Record<string, string> = {
+    'prompt-apex-vanguard': '/characters/vanguard.jpg',
+    'prompt-nova-valkyrie': '/characters/nova.jpg',
     'prompt-ff-kelly': '/characters/kelly.jpg',
     'prompt-pubg-survivor': '/characters/pubg_survivor.jpg',
     'prompt-sl-jinwoo': '/characters/jinwoo.jpg',
     'prompt-ff-alok': '/characters/alok.jpg',
+    'prompt-pubg-valkyrie': '/characters/nova.jpg',
   };
 
   const svgContent = generatePromptCharacterSVG(matchedPreset);

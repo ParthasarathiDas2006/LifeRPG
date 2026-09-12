@@ -5,6 +5,38 @@
  */
 
 export const HERO_RANDOM_NAMES: Record<string, string[]> = {
+  // Original Battle Royale Vanguard Apex
+  'hero-apex-vanguard': [
+    'Vanguard "Apex Commander"',
+    'Apex_Vanguard',
+    'Titan_Cross',
+    'Obsidian_Commando',
+    'ZoneBreaker_99',
+    'TacticalApex',
+    'Overdrive_Vanguard',
+    'ExtractionKing',
+    'ZeroZone_Apex',
+    'DropZoneVanguard',
+    'Ironclad_Cross',
+    'ApexStrike_Prime',
+  ],
+
+  // Original Battle Royale Nova Valkyrie
+  'hero-nova-valkyrie': [
+    'Nova "Valkyrie Prime"',
+    'Nova_CyanStrike',
+    'ValkyrieDrop',
+    'ExtractionQueen',
+    'NovaLuminescent',
+    'Apex_Valkyrie',
+    'CyanGhost_Nova',
+    'HighGroundNova',
+    'PulseValkyrie',
+    'AirfieldNova',
+    'TacticalNova_X',
+    'ApexHuntress_Nova',
+  ],
+
   // Free Fire Kelly
   'hero-ff-kelly': [
     'Kelly "The Swift"',
