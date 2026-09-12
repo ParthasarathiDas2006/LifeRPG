@@ -403,6 +403,10 @@ class SoundEngine {
     osc.stop(now + 0.35);
   }
 
+  playCrit() {
+    this.playCritStrike();
+  }
+
   playCritStrike() {
     const ctx = this.getContext();
     if (!ctx || !this.sfxGain || this.isSfxMuted) return;
@@ -477,6 +481,32 @@ class SoundEngine {
 
     osc.start(now);
     osc.stop(now + 0.3);
+  }
+
+  playClick() {
+    this.playMenuClick();
+  }
+
+  playMenuClick() {
+    const ctx = this.getContext();
+    if (!ctx || !this.sfxGain || this.isSfxMuted) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.04);
+
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+    osc.start(now);
+    osc.stop(now + 0.05);
   }
 
   playEquip() {

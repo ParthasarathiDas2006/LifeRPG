@@ -22,6 +22,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/sound';
+import { HERO_PRESETS } from '@/lib/photoGenerator';
 
 interface LobbySectionProps {
   stats: UserStats;
@@ -174,56 +175,92 @@ export function LobbySection({
           {/* Left Column: Interactive Hero Avatar Podium */}
           <div className="flex flex-col items-center justify-center lg:col-span-5 text-center">
             {/* 3D-effect Avatar Pedestal */}
-            <div className="relative group cursor-pointer" onClick={onEditCharacter}>
-              {/* Outer Aura Rings */}
-              <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-amber-500/30 via-purple-500/30 to-cyan-500/30 blur-md group-hover:blur-lg transition duration-500" />
-              
-              <div className="relative flex h-48 w-48 sm:h-56 sm:w-56 items-center justify-center overflow-hidden rounded-full border-4 border-amber-400/80 bg-slate-900 shadow-glow-gold transition-transform duration-300 group-hover:scale-105">
-                {character.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={character.avatarUrl}
-                    alt={character.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="text-6xl">⚔️</span>
-                )}
-                
-                {/* Hover overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Sparkles className="h-8 w-8 text-amber-300 animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-wider text-amber-300 mt-1">
-                    Customize Hero
-                  </span>
-                </div>
-              </div>
+            {(() => {
+              const activePreset = HERO_PRESETS.find(
+                (p) => p.name.toLowerCase() === character.name.toLowerCase() || p.class === character.class
+              );
 
-              {/* Class & Level Badge */}
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-400/80 bg-gradient-to-r from-amber-500 to-yellow-600 px-4 py-1 text-xs font-black text-slate-950 shadow-glow-gold">
-                LVL {stats.level} • {character.class}
-              </div>
-            </div>
+              return (
+                <>
+                  <div className="relative group cursor-pointer" onClick={onEditCharacter}>
+                    {/* Outer Aura Rings */}
+                    <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-amber-500/30 via-purple-500/30 to-cyan-500/30 blur-xl group-hover:blur-2xl transition duration-500" />
 
-            <h2 className="mt-6 text-2xl font-black text-white sm:text-3xl tracking-wide flex items-center gap-2">
-              {character.name}
-            </h2>
-            <p className="text-xs font-medium text-slate-400 mt-0.5">
-              {character.title} • Tier {Math.floor(stats.level / 5) + 1} Champion
-            </p>
+                    <div className="relative flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold transition-transform duration-300 group-hover:scale-105">
+                      {character.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={character.avatarUrl}
+                          alt={character.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-6xl">⚔️</span>
+                      )}
 
-            {/* Combat Power (CP) Banner */}
-            <div className="mt-4 flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 shadow-glow-gold">
-              <Crosshair className="h-4 w-4 text-amber-400 animate-spin" />
-              <div className="text-left">
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-400/80 block">
-                  Combat Power
-                </span>
-                <span className="font-mono text-base font-black text-amber-300 sm:text-lg">
-                  ⚡ {combatPower.toLocaleString()} CP
-                </span>
-              </div>
-            </div>
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity p-4">
+                        <Sparkles className="h-8 w-8 text-amber-300 animate-pulse mb-1" />
+                        <span className="text-xs font-black uppercase tracking-wider text-amber-300">
+                          Switch / Customize Hero
+                        </span>
+                        <span className="text-[10px] text-slate-300 mt-1 text-center">
+                          Free Fire • Solo Leveling • AI Photo
+                        </span>
+                      </div>
+
+                      {/* Inspiration Tag */}
+                      {activePreset && (
+                        <div className="absolute top-2.5 left-2.5 rounded-full bg-slate-950/90 border border-amber-400/60 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 backdrop-blur-sm shadow-sm">
+                          {activePreset.inspirationLabel}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Class & Level Badge */}
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-amber-400/80 bg-gradient-to-r from-amber-500 to-yellow-600 px-4 py-1 text-xs font-black text-slate-950 shadow-glow-gold">
+                      LVL {stats.level} • {character.class}
+                    </div>
+                  </div>
+
+                  <h2 className="mt-6 text-2xl font-black text-white sm:text-3xl tracking-wide flex items-center justify-center gap-2">
+                    {character.name}
+                  </h2>
+                  <p className="text-xs font-medium text-slate-400 mt-0.5">
+                    {character.title} • Tier {Math.floor(stats.level / 5) + 1} Champion
+                  </p>
+
+                  {/* Character Quote Banner */}
+                  {activePreset && (
+                    <p className="mt-2 text-xs italic text-amber-300/90 max-w-xs px-2 text-center">
+                      "{activePreset.quote}"
+                    </p>
+                  )}
+
+                  {/* Switch Hero Quick Action */}
+                  <button
+                    onClick={onEditCharacter}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/30 transition shadow-sm"
+                  >
+                    <Crown className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Switch Hero (8 Legends &amp; AI Photo)</span>
+                  </button>
+
+                  {/* Combat Power (CP) Banner */}
+                  <div className="mt-3 flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 shadow-glow-gold">
+                    <Crosshair className="h-4 w-4 text-amber-400 animate-spin" />
+                    <div className="text-left">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-amber-400/80 block">
+                        Combat Power
+                      </span>
+                      <span className="font-mono text-base font-black text-amber-300 sm:text-lg">
+                        ⚡ {combatPower.toLocaleString()} CP
+                      </span>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {/* Right Column: Hero Vitals, Ranked Tier & Supply Airdrop */}

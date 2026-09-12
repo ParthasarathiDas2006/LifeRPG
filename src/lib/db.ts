@@ -16,7 +16,7 @@ import {
   ArenaBattleLog,
   DailyWheelSlice,
 } from './types';
-import { generateProceduralSprite } from './photoGenerator';
+import { generateProceduralSprite, HERO_PRESETS } from './photoGenerator';
 import {
   getRequiredXPForLevel,
   DIFFICULTY_CONFIG,
@@ -65,32 +65,15 @@ function ensureDb() {
 }
 
 function getDefaultCharacter(): CharacterConfig {
+  const preset = HERO_PRESETS[0];
   return {
-    name: 'Player One',
-    class: 'WARRIOR',
-    title: 'Novice Adventurer',
-    avatarUrl: generateProceduralSprite(
-      {
-        body: 'fair',
-        hair: 'spiky',
-        hairColor: '#f59e0b',
-        outfit: 'plate',
-        outfitColor: '#3b82f6',
-        weapon: 'sword',
-        aura: 'fire',
-      },
-      'WARRIOR'
-    ),
+    name: preset.name,
+    class: preset.class,
+    gender: preset.gender,
+    title: preset.title,
+    avatarUrl: generateProceduralSprite(preset.parts, preset.class),
     avatarType: 'SPRITE',
-    spriteParts: {
-      body: 'fair',
-      hair: 'spiky',
-      hairColor: '#f59e0b',
-      outfit: 'plate',
-      outfitColor: '#3b82f6',
-      weapon: 'sword',
-      aura: 'fire',
-    },
+    spriteParts: preset.parts,
   };
 }
 
@@ -102,6 +85,11 @@ function readDb(): DatabaseSchema {
     if (!parsed.character) {
       parsed.character = getDefaultCharacter();
       writeDb(parsed);
+    } else if (parsed.character.avatarType === 'SPRITE' && parsed.character.spriteParts) {
+      parsed.character.avatarUrl = generateProceduralSprite(
+        parsed.character.spriteParts,
+        parsed.character.class
+      );
     }
     return parsed;
   } catch (err) {

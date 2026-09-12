@@ -21,15 +21,10 @@ import {
   Camera,
   Upload,
   RefreshCw,
-  User,
-  Shield,
+  Crown,
+  Palette,
   Wand2,
   Check,
-  Palette,
-  Crown,
-  Flame,
-  Swords,
-  ChevronRight,
 } from 'lucide-react';
 
 interface CharacterCreationModalProps {
@@ -45,7 +40,8 @@ export function CharacterCreationModal({
   currentCharacter,
   onCharacterSaved,
 }: CharacterCreationModalProps) {
-  const [activeTab, setActiveTab] = useState<'PHOTO' | 'ROSTER' | 'STUDIO'>('ROSTER');
+  const [activeTab, setActiveTab] = useState<'ROSTER' | 'PHOTO' | 'STUDIO'>('ROSTER');
+  const [rosterFilter, setRosterFilter] = useState<'ALL' | 'FREE_FIRE' | 'SOLO_LEVELING' | 'GENSHIN_STAR_RAIL' | 'FEMALE' | 'MALE'>('ALL');
 
   // Character Details
   const [name, setName] = useState(currentCharacter.name);
@@ -72,12 +68,12 @@ export function CharacterCreationModal({
     currentCharacter.spriteParts || {
       gender: 'FEMALE',
       body: 'fair',
-      hair: 'twin_braids',
-      hairColor: '#f59e0b',
-      outfit: 'valkyrie_plate',
-      outfitColor: '#cbd5e1',
-      weapon: 'spear',
-      aura: 'holy',
+      hair: 'kelly_bob',
+      hairColor: '#fbbf24',
+      outfit: 'kelly_track',
+      outfitColor: '#eab308',
+      weapon: 'dual_sabers',
+      aura: 'phoenix_blaze',
     }
   );
   const [generatedSpriteAvatar, setGeneratedSpriteAvatar] = useState<string>('');
@@ -85,7 +81,7 @@ export function CharacterCreationModal({
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Re-generate sprite
+  // Re-generate sprite preview
   useEffect(() => {
     const svgUrl = generateProceduralSprite({ ...spriteParts, gender }, charClass);
     setGeneratedSpriteAvatar(svgUrl);
@@ -123,10 +119,10 @@ export function CharacterCreationModal({
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      setPhotoSrc(dataUrl);
-      runPhotoGeneration(dataUrl, selectedStyle, seed);
-      soundEngine.playTaskComplete();
+      const src = event.target?.result as string;
+      setPhotoSrc(src);
+      runPhotoGeneration(src, selectedStyle, seed);
+      soundEngine.playCrit();
     };
     reader.readAsDataURL(file);
   };
@@ -183,62 +179,75 @@ export function CharacterCreationModal({
 
   if (!isOpen) return null;
 
-  const stylesList: Array<{ id: AvatarStyle; label: string; icon: string }> = [
-    { id: 'ANIME_LEGEND', label: 'Anime Cel-Shaded', icon: '🌸' },
-    { id: 'PIXEL_HERO', label: '16-Bit Retro Pixel', icon: '👾' },
-    { id: 'CYBER_ROGUE', label: 'Cyberpunk 2077', icon: '🤖' },
-    { id: 'HOLY_PALADIN', label: 'Gilded Paladin', icon: '⚔️' },
-    { id: 'MYSTIC_ARCANE', label: 'Mystic Arcane', icon: '🔮' },
-    { id: 'CELESTIAL_ASTRAL', label: 'Celestial Astral', icon: '✨' },
-    { id: 'SHADOW_ASSASSIN', label: 'Dark Souls Noir', icon: '📜' },
+  const stylesList: Array<{ id: AvatarStyle; label: string; icon: string; tag: string }> = [
+    { id: 'ANIME_LEGEND', label: 'Genshin Cel-Shaded Anime', icon: '🌸', tag: 'Genshin Style' },
+    { id: 'SHADOW_ASSASSIN', label: 'Solo Leveling Shadow Noir', icon: '🌑', tag: 'Monarch Mode' },
+    { id: 'CYBER_ROGUE', label: 'Free Fire Cyber Matrix', icon: '⚡', tag: 'Neon Hacker' },
+    { id: 'HOLY_PALADIN', label: 'Gilded Sun Paladin', icon: '👑', tag: 'Holy Radiance' },
+    { id: 'CELESTIAL_ASTRAL', label: 'Star Rail Astral Sovereign', icon: '✨', tag: 'Cosmic Gold' },
+    { id: 'MYSTIC_ARCANE', label: 'Kafka Arcane Starlight', icon: '🔮', tag: 'Destiny Velvet' },
+    { id: 'PIXEL_HERO', label: '16-Bit Retro Pixel RPG', icon: '👾', tag: 'Classic Pixel' },
   ];
+
+  const demoPhotos = [
+    { label: 'Cyber Valkyrie', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Shadow Monarch', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Solar Guardian', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=360&auto=format&fit=crop&q=80' },
+  ];
+
+  const filteredPresets = HERO_PRESETS.filter((preset) => {
+    if (rosterFilter === 'ALL') return true;
+    if (rosterFilter === 'FEMALE') return preset.gender === 'FEMALE';
+    if (rosterFilter === 'MALE') return preset.gender === 'MALE';
+    return preset.gameInspiration === rosterFilter;
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md animate-in fade-in">
-      <div className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl">
+      <div className="relative flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-20 rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+          className="absolute right-4 top-4 z-20 rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition"
         >
           <X className="h-5 w-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="border-b border-slate-800 bg-slate-950/60 px-6 py-4">
+        <div className="border-b border-slate-800 bg-slate-950/80 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
-              <Sparkles className="h-5 w-5" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-purple-600 text-slate-950 shadow-glow-gold">
+              <Sparkles className="h-6 w-6 text-slate-950" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
-                Character Studio &amp; AI Photo Forge
+              <h2 className="text-xl font-black text-white flex items-center gap-2">
+                Hero Sanctum &amp; AI Character Studio
               </h2>
               <p className="text-xs text-slate-400">
-                Choose from female &amp; male legendary heroes, or transform your photo into a 100% unique RPG warrior!
+                Play as iconic heroes inspired by Free Fire, Solo Leveling, and Genshin Impact, or forge your photo into a 100% unique RPG avatar!
               </p>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center gap-2 mt-4">
+          <div className="flex flex-wrap items-center gap-2 mt-4">
             <button
               onClick={() => setActiveTab('ROSTER')}
-              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 ${
+              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
                 activeTab === 'ROSTER'
                   ? 'bg-amber-500 text-slate-950 shadow-glow-gold'
-                  : 'bg-slate-800/80 text-slate-300 hover:text-white'
+                  : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Crown className="h-4 w-4" />
-              Hero Roster (Female &amp; Male)
+              Legendary Roster (AAA Heroes)
             </button>
             <button
               onClick={() => setActiveTab('PHOTO')}
-              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 ${
+              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
                 activeTab === 'PHOTO'
                   ? 'bg-purple-600 text-white shadow-glow-xp'
-                  : 'bg-slate-800/80 text-slate-300 hover:text-white'
+                  : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Camera className="h-4 w-4" />
@@ -246,10 +255,10 @@ export function CharacterCreationModal({
             </button>
             <button
               onClick={() => setActiveTab('STUDIO')}
-              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 ${
+              className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition flex items-center gap-2 ${
                 activeTab === 'STUDIO'
                   ? 'bg-cyan-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]'
-                  : 'bg-slate-800/80 text-slate-300 hover:text-white'
+                  : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
               <Palette className="h-4 w-4" />
@@ -260,11 +269,11 @@ export function CharacterCreationModal({
 
         {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Identity Bar (Name, Title, Class) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl border border-slate-800 bg-slate-950/50">
+          {/* Identity Bar (Hero Name, Title, Archetype) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl border border-slate-800 bg-slate-950/60 shadow-inner">
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                Hero Name
+                Active Hero Name
               </label>
               <input
                 type="text"
@@ -275,7 +284,7 @@ export function CharacterCreationModal({
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                Hero Title
+                Active Title
               </label>
               <input
                 type="text"
@@ -297,59 +306,138 @@ export function CharacterCreationModal({
             </div>
           </div>
 
-          {/* TAB 1: HERO ROSTER (FEMALE & MALE PRESETS) */}
+          {/* TAB 1: HERO ROSTER */}
           {activeTab === 'ROSTER' && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-amber-400" />
-                  Select a Pre-Forged Hero (8 Archetypes)
-                </h3>
-                <span className="text-[11px] font-bold text-emerald-400">
-                  Female Warriors Included ✓
-                </span>
+              {/* Filter Strip */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { id: 'ALL', label: 'All 8 Legends' },
+                    { id: 'FREE_FIRE', label: '🔥 Free Fire' },
+                    { id: 'SOLO_LEVELING', label: '🌑 Solo Leveling' },
+                    { id: 'GENSHIN_STAR_RAIL', label: '⚡ Genshin / Star Rail' },
+                    { id: 'FEMALE', label: '🌸 Female Icons' },
+                    { id: 'MALE', label: '⚔️ Male Icons' },
+                  ].map((filter) => (
+                    <button
+                      key={filter.id}
+                      onClick={() => {
+                        setRosterFilter(filter.id as any);
+                        soundEngine.playMenuClick();
+                      }}
+                      className={`rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-wider transition ${
+                        rosterFilter === filter.id
+                          ? 'bg-amber-500 text-slate-950 shadow-glow-gold'
+                          : 'bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
+                    High-Res Vector Art ✓
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {HERO_PRESETS.map((preset) => {
+              {/* Character Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {filteredPresets.map((preset) => {
                   const isSelected = name === preset.name;
                   const previewSvg = generateProceduralSprite(preset.parts, preset.class);
+
+                  // Theme pills
+                  let badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+                  if (preset.gameInspiration === 'SOLO_LEVELING') {
+                    badgeBg = 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+                  } else if (preset.gameInspiration === 'GENSHIN_STAR_RAIL') {
+                    badgeBg = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+                  }
 
                   return (
                     <div
                       key={preset.id}
                       onClick={() => handleSelectPreset(preset)}
-                      className={`cursor-pointer flex flex-col justify-between rounded-2xl border p-3.5 transition group ${
+                      className={`cursor-pointer flex flex-col justify-between rounded-2xl border p-4 transition duration-300 group ${
                         isSelected
-                          ? 'border-amber-400 bg-amber-500/15 shadow-glow-gold scale-[1.02]'
-                          : 'border-slate-800 bg-slate-950/60 hover:border-slate-700 hover:bg-slate-900/60'
+                          ? 'border-amber-400 bg-gradient-to-b from-amber-500/20 via-slate-900 to-slate-950 shadow-glow-gold scale-[1.02]'
+                          : 'border-slate-800 bg-slate-950/70 hover:border-slate-700 hover:bg-slate-900/80 hover:scale-[1.01]'
                       }`}
                     >
                       <div className="flex flex-col items-center text-center">
-                        {/* Avatar Image */}
-                        <div className="relative h-28 w-28 overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-950 shadow-md group-hover:scale-105 transition">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={previewSvg} alt={preset.name} className="h-full w-full object-cover" />
-                          <span className={`absolute bottom-1 right-1 rounded-full px-1.5 py-0.2 text-[8px] font-black uppercase tracking-wider ${
-                            preset.gender === 'FEMALE' ? 'bg-pink-600 text-white' : 'bg-blue-600 text-white'
-                          }`}>
-                            {preset.gender}
+                        {/* Inspiration Tag & Stars */}
+                        <div className="w-full flex items-center justify-between mb-2">
+                          <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider border ${badgeBg}`}>
+                            {preset.inspirationLabel}
+                          </span>
+                          <span className="text-[10px] font-black text-amber-400">
+                            ★★★★★
                           </span>
                         </div>
 
-                        <h4 className="text-xs font-black text-white mt-2.5">{preset.name}</h4>
-                        <span className="text-[10px] font-bold text-amber-400 font-mono">{preset.class}</span>
-                        <p className="text-[10px] text-slate-400 mt-1 line-clamp-2">{preset.description}</p>
+                        {/* High-Definition Character Illustration Canvas */}
+                        <div className="relative h-44 w-44 overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-950 shadow-lg group-hover:scale-105 group-hover:border-amber-400/80 transition duration-300">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={previewSvg} alt={preset.name} className="h-full w-full object-cover" />
+                          <span className={`absolute bottom-1.5 right-1.5 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
+                            preset.gender === 'FEMALE' ? 'bg-pink-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
+                          }`}>
+                            {preset.gender}
+                          </span>
+                          <span className="absolute top-1.5 left-1.5 rounded-full bg-slate-950/80 border border-amber-400/60 px-1.5 py-0.5 text-[9px] font-black text-amber-300">
+                            {preset.rarity}
+                          </span>
+                        </div>
+
+                        {/* Name & Class */}
+                        <h4 className="text-sm font-black text-white mt-3">{preset.name}</h4>
+                        <span className="text-[11px] font-bold text-amber-400 font-mono">{preset.class}</span>
+
+                        {/* Voice Quote */}
+                        <p className="text-[10px] italic text-slate-300 mt-1 line-clamp-2 px-1">
+                          "{preset.quote}"
+                        </p>
+
+                        {/* Mini RPG Stat Bars */}
+                        <div className="w-full mt-3 space-y-1 text-left bg-slate-900/90 rounded-xl p-2 border border-slate-800">
+                          <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
+                            <span>ATK</span>
+                            <span className="text-rose-400 font-bold">{preset.stats.atk}</span>
+                          </div>
+                          <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-rose-500" style={{ width: `${preset.stats.atk}%` }} />
+                          </div>
+
+                          <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
+                            <span>SPD</span>
+                            <span className="text-amber-400 font-bold">{preset.stats.spd}</span>
+                          </div>
+                          <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-amber-400" style={{ width: `${preset.stats.spd}%` }} />
+                          </div>
+
+                          <div className="flex items-center justify-between text-[9px] font-mono text-slate-400">
+                            <span>ARC</span>
+                            <span className="text-purple-400 font-bold">{preset.stats.arc}</span>
+                          </div>
+                          <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-purple-400" style={{ width: `${preset.stats.arc}%` }} />
+                          </div>
+                        </div>
                       </div>
 
                       <button
-                        className={`w-full mt-3 rounded-xl py-1 text-xs font-black uppercase tracking-wider transition ${
+                        className={`w-full mt-3 rounded-xl py-1.5 text-xs font-black uppercase tracking-wider transition ${
                           isSelected
-                            ? 'bg-amber-400 text-slate-950'
+                            ? 'bg-amber-400 text-slate-950 shadow-glow-gold'
                             : 'bg-slate-800 text-slate-300 group-hover:bg-slate-700'
                         }`}
                       >
-                        {isSelected ? '✓ Selected' : 'Choose Hero'}
+                        {isSelected ? '✓ Hero Equipped' : 'Equip Hero'}
                       </button>
                     </div>
                   );
@@ -369,18 +457,18 @@ export function CharacterCreationModal({
                 <div>
                   <h4 className="text-xs font-black text-white flex items-center gap-2">
                     100% Unique Character Guarantee
-                    <span className="rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5">
-                      Unique DNA
+                    <span className="rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 border border-emerald-500/40">
+                      Cryptographic Stamp
                     </span>
                   </h4>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Your photo is analyzed for skin tone, contour, and palette. It generates a bespoke RPG warrior that will never duplicate any other player or default character!
+                    Your photo is converted through our neural pixel quantization engine. It produces a bespoke RPG portrait stamped with a unique cryptographic hash—guaranteed to never match default game characters!
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Left: Upload Area & Controls (6 cols) */}
+                {/* Left: Upload Area & Style Selectors (6 cols) */}
                 <div className="lg:col-span-6 space-y-4">
                   {/* File Upload Box */}
                   <div
@@ -396,15 +484,38 @@ export function CharacterCreationModal({
                     />
                     <Upload className="h-10 w-10 text-slate-500 group-hover:text-purple-400 transition mb-2" />
                     <h5 className="text-xs font-black text-white">Click or Drag &amp; Drop Photo</h5>
-                    <p className="text-[10px] text-slate-400 mt-1">Upload a portrait, selfie, or avatar (PNG, JPG)</p>
+                    <p className="text-[10px] text-slate-400 mt-1">Upload your portrait, selfie, or profile picture (PNG, JPG, WebP)</p>
+                  </div>
+
+                  {/* 1-Click Quick Demo Photos */}
+                  <div>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                      Or Try Instant Demo Portrait
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {demoPhotos.map((demo) => (
+                        <button
+                          key={demo.label}
+                          onClick={() => {
+                            setPhotoSrc(demo.url);
+                            runPhotoGeneration(demo.url, selectedStyle, seed);
+                            soundEngine.playCoin();
+                          }}
+                          className="rounded-xl border border-slate-800 bg-slate-950/60 p-2 text-center text-xs font-bold text-slate-300 hover:border-purple-500 hover:text-white transition"
+                        >
+                          <span className="block text-[11px] font-bold">{demo.label}</span>
+                          <span className="text-[9px] text-purple-400">1-Click Test</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Art Styles Grid */}
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                      Select RPG Transformation Style
+                      Select Popular Game Transformation Style
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {stylesList.map((st) => (
                         <button
                           key={st.id}
@@ -412,14 +523,19 @@ export function CharacterCreationModal({
                             setSelectedStyle(st.id);
                             if (photoSrc) runPhotoGeneration(photoSrc, st.id, seed);
                           }}
-                          className={`rounded-xl border p-2 text-left transition flex items-center gap-2 ${
+                          className={`rounded-xl border p-2.5 text-left transition flex items-center justify-between ${
                             selectedStyle === st.id
                               ? 'border-purple-500 bg-purple-500/20 text-white font-bold shadow-glow-xp'
-                              : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
+                              : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                           }`}
                         >
-                          <span className="text-base">{st.icon}</span>
-                          <span className="text-[11px] truncate">{st.label}</span>
+                          <div className="flex items-center gap-2 truncate">
+                            <span className="text-base">{st.icon}</span>
+                            <span className="text-xs truncate">{st.label}</span>
+                          </div>
+                          <span className="text-[9px] font-mono text-purple-300/80 uppercase">
+                            {st.tag}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -437,39 +553,39 @@ export function CharacterCreationModal({
                     className="w-full flex items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition disabled:opacity-50"
                   >
                     <RefreshCw className={`h-3.5 w-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
-                    <span>Re-Roll Unique RPG Variations</span>
+                    <span>Re-Roll Unique RPG Variations &amp; Gear</span>
                   </button>
                 </div>
 
                 {/* Right: Generated Result Preview (6 cols) */}
                 <div className="lg:col-span-6 flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-950/60 p-6 text-center">
-                  <div className="relative h-48 w-48 overflow-hidden rounded-2xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold flex items-center justify-center">
+                  <div className="relative h-64 w-64 overflow-hidden rounded-2xl border-4 border-amber-400/80 bg-slate-950 shadow-glow-gold flex items-center justify-center">
                     {isGenerating ? (
                       <div className="flex flex-col items-center gap-2">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-purple-400 border-t-transparent" />
-                        <span className="text-[10px] font-bold text-purple-300">Forging RPG Likeness...</span>
+                        <div className="h-10 w-10 animate-spin rounded-full border-3 border-purple-400 border-t-transparent" />
+                        <span className="text-xs font-bold text-purple-300">Forging RPG Likeness...</span>
                       </div>
                     ) : generatedPhotoAvatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={generatedPhotoAvatar} alt="Photo RPG" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex flex-col items-center text-slate-500 p-4">
-                        <Camera className="h-10 w-10 mb-2 opacity-50" />
-                        <span className="text-xs font-bold">No photo uploaded yet</span>
-                        <span className="text-[10px] text-slate-600 mt-1">Upload a photo to generate your unique warrior</span>
+                        <Camera className="h-12 w-12 mb-2 opacity-50 text-purple-400" />
+                        <span className="text-xs font-bold text-slate-300">No photo uploaded yet</span>
+                        <span className="text-[10px] text-slate-500 mt-1">Upload a photo or try a 1-click demo to generate your unique warrior</span>
                       </div>
                     )}
                   </div>
 
                   {uniqueHeroData && (
-                    <div className="mt-4 p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-left w-full max-w-xs animate-in fade-in">
+                    <div className="mt-4 p-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 text-left w-full max-w-sm animate-in fade-in">
                       <div className="flex items-center justify-between text-[10px] font-mono text-amber-400 mb-1">
                         <span>{uniqueHeroData.heroId}</span>
-                        <span className="font-bold">VERIFIED UNIQUE</span>
+                        <span className="font-bold bg-amber-400/20 px-1.5 py-0.5 rounded">100% UNIQUE</span>
                       </div>
-                      <h5 className="text-xs font-black text-white">{name || 'Your Hero'}</h5>
-                      <p className="text-[11px] text-amber-300 font-bold">{uniqueHeroData.uniqueTitle}</p>
-                      <p className="text-[10px] text-slate-400">{uniqueHeroData.uniqueClass}</p>
+                      <h5 className="text-sm font-black text-white">{name || 'Your Hero'}</h5>
+                      <p className="text-xs text-amber-300 font-bold">{uniqueHeroData.uniqueTitle}</p>
+                      <p className="text-[11px] text-slate-400 font-mono mt-0.5">{uniqueHeroData.uniqueClass}</p>
                     </div>
                   )}
                 </div>
@@ -477,7 +593,7 @@ export function CharacterCreationModal({
             </div>
           )}
 
-          {/* TAB 3: MODULAR SPRITE BUILDER */}
+          {/* TAB 3: CUSTOM SPRITE BUILDER */}
           {activeTab === 'STUDIO' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Controls (7 cols) */}
@@ -485,7 +601,7 @@ export function CharacterCreationModal({
                 {/* Gender Toggle */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Gender Identity
+                    Hero Gender Identity
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {(['FEMALE', 'MALE', 'NON_BINARY'] as CharacterGender[]).map((g) => (
@@ -494,6 +610,7 @@ export function CharacterCreationModal({
                         onClick={() => {
                           setGender(g);
                           setSpriteParts((prev) => ({ ...prev, gender: g }));
+                          soundEngine.playMenuClick();
                         }}
                         className={`rounded-xl py-1.5 text-xs font-bold transition ${
                           gender === g
@@ -501,7 +618,7 @@ export function CharacterCreationModal({
                             : 'bg-slate-800 text-slate-400 hover:text-white'
                         }`}
                       >
-                        {g === 'FEMALE' ? '🌸 Female' : g === 'MALE' ? '⚔️ Male' : '⚡ Android'}
+                        {g === 'FEMALE' ? '🌸 Female' : g === 'MALE' ? '⚔️ Male' : '⚡ Non-Binary'}
                       </button>
                     ))}
                   </div>
@@ -510,26 +627,26 @@ export function CharacterCreationModal({
                 {/* Hairstyle */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Hairstyle (Female &amp; Male)
+                    Hairstyle (Famous Game Styles)
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'twin_braids', label: 'Twin Braids' },
-                      { id: 'odango_buns', label: 'Odango Buns' },
-                      { id: 'flowing_waves', label: 'Long Waves' },
-                      { id: 'side_bob', label: 'Side Bob' },
-                      { id: 'high_ponytail', label: 'High Ponytail' },
-                      { id: 'spiky', label: 'Spiky Blade' },
-                      { id: 'short', label: 'Short Crop' },
-                      { id: 'long', label: 'Sage Long' },
+                      { id: 'kelly_bob', label: 'Kelly Bob (FF)' },
+                      { id: 'jinwoo_shadow', label: 'Jin-Woo Swept (SL)' },
+                      { id: 'raiden_braid', label: 'Raiden Braid (GI)' },
+                      { id: 'moco_dreads', label: 'Moco Dreads (FF)' },
+                      { id: 'cha_blonde', label: 'Cha Waves (SL)' },
+                      { id: 'hayato_ponytail', label: 'Hayato Samurai' },
+                      { id: 'kafka_waves', label: 'Kafka Velvet (HSR)' },
+                      { id: 'zhongli_tail', label: 'Zhongli Tail (GI)' },
                     ].map((h) => (
                       <button
                         key={h.id}
                         onClick={() => setSpriteParts((prev) => ({ ...prev, hair: h.id }))}
-                        className={`rounded-xl p-1.5 text-center text-xs font-bold transition ${
+                        className={`rounded-xl border p-2 text-xs font-bold transition ${
                           spriteParts.hair === h.id
-                            ? 'bg-purple-600 text-white shadow-glow-xp'
-                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                            ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
+                            : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
                         }`}
                       >
                         {h.label}
@@ -541,24 +658,26 @@ export function CharacterCreationModal({
                 {/* Outfit */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Armor &amp; Attire
+                    Battle Armor &amp; Outfit
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'valkyrie_plate', label: 'Valkyrie Armor' },
-                      { id: 'sorceress_dress', label: 'Sorceress Gown' },
-                      { id: 'huntress_leather', label: 'Huntress Mantle' },
-                      { id: 'kunoichi_suit', label: 'Shinobi Suit' },
-                      { id: 'plate', label: 'Heavy Plate' },
-                      { id: 'cyber', label: 'Cyber Nanotech' },
+                      { id: 'kelly_track', label: 'Speed Track (FF)' },
+                      { id: 'jinwoo_duster', label: 'Shadow Duster (SL)' },
+                      { id: 'raiden_kimono', label: 'Kimono Plate (GI)' },
+                      { id: 'moco_cyber', label: 'Hacker Vest (FF)' },
+                      { id: 'cha_armor', label: 'Duelist Plate (SL)' },
+                      { id: 'hayato_haori', label: 'Samurai Haori (FF)' },
+                      { id: 'kafka_coat', label: 'Spider Velvet (HSR)' },
+                      { id: 'zhongli_coat', label: 'Archon Coat (GI)' },
                     ].map((o) => (
                       <button
                         key={o.id}
                         onClick={() => setSpriteParts((prev) => ({ ...prev, outfit: o.id }))}
-                        className={`rounded-xl p-1.5 text-center text-xs font-bold transition ${
+                        className={`rounded-xl border p-2 text-xs font-bold transition ${
                           spriteParts.outfit === o.id
-                            ? 'bg-purple-600 text-white shadow-glow-xp'
-                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                            ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
+                            : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
                         }`}
                       >
                         {o.label}
@@ -567,28 +686,26 @@ export function CharacterCreationModal({
                   </div>
                 </div>
 
-                {/* Weapon */}
+                {/* Signature Weapon */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Weapon Loadout
+                    Signature Weapon
                   </label>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {[
-                      { id: 'spear', label: 'Valkyrie Spear' },
+                      { id: 'shadow_daggers', label: 'Shadow Daggers' },
                       { id: 'dual_sabers', label: 'Dual Sabers' },
-                      { id: 'katana', label: 'Shadow Katana' },
-                      { id: 'bow', label: 'Moon Bow' },
+                      { id: 'katana', label: 'Tachi Katana' },
+                      { id: 'spear', label: 'Dragon Spear' },
                       { id: 'staff', label: 'Arcane Staff' },
-                      { id: 'sword', label: 'Broadsword' },
-                      { id: 'daggers', label: 'Twin Daggers' },
                     ].map((w) => (
                       <button
                         key={w.id}
                         onClick={() => setSpriteParts((prev) => ({ ...prev, weapon: w.id }))}
-                        className={`rounded-xl p-1.5 text-center text-xs font-bold transition ${
+                        className={`rounded-xl border p-2 text-xs font-bold transition ${
                           spriteParts.weapon === w.id
-                            ? 'bg-purple-600 text-white shadow-glow-xp'
-                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                            ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
+                            : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
                         }`}
                       >
                         {w.label}
@@ -597,28 +714,29 @@ export function CharacterCreationModal({
                   </div>
                 </div>
 
-                {/* Aura */}
+                {/* Elemental Aura */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                     Elemental Aura
                   </label>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'sakura', label: '🌸 Sakura' },
-                      { id: 'celestial', label: '✨ Celestial' },
-                      { id: 'holy', label: '👑 Holy' },
-                      { id: 'fire', label: '🔥 Fire' },
-                      { id: 'arcane', label: '🔮 Arcane' },
-                      { id: 'lightning', label: '⚡ Lightning' },
-                      { id: 'shadow', label: '🌑 Shadow' },
+                      { id: 'phoenix_blaze', label: 'Phoenix Blaze' },
+                      { id: 'shadow_monarch', label: 'Shadow Monarch' },
+                      { id: 'electro_storm', label: 'Electro Storm' },
+                      { id: 'cyber_matrix', label: 'Cyber Matrix' },
+                      { id: 'holy_radiance', label: 'Holy Radiance' },
+                      { id: 'fire', label: 'Flame Bushido' },
+                      { id: 'arcane', label: 'Arcane Web' },
+                      { id: 'celestial', label: 'Celestial Jade' },
                     ].map((a) => (
                       <button
                         key={a.id}
                         onClick={() => setSpriteParts((prev) => ({ ...prev, aura: a.id }))}
-                        className={`rounded-xl p-1.5 text-center text-xs font-bold transition ${
+                        className={`rounded-xl border p-2 text-xs font-bold transition ${
                           spriteParts.aura === a.id
-                            ? 'bg-purple-600 text-white shadow-glow-xp'
-                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                            ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
+                            : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
                         }`}
                       >
                         {a.label}
@@ -630,25 +748,25 @@ export function CharacterCreationModal({
 
               {/* Live Preview (5 cols) */}
               <div className="lg:col-span-5 flex flex-col items-center justify-center rounded-2xl border border-slate-800 bg-slate-950/60 p-6 text-center">
-                <div className="relative h-48 w-48 overflow-hidden rounded-2xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={generatedSpriteAvatar} alt="Sprite Preview" className="h-full w-full object-cover" />
+                <div className="relative h-64 w-64 overflow-hidden rounded-2xl border-4 border-cyan-400/80 bg-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center">
+                  {generatedSpriteAvatar && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={generatedSpriteAvatar} alt="Custom Sprite" className="h-full w-full object-cover" />
+                  )}
                 </div>
-                <h4 className="text-sm font-black text-white mt-3">{name || 'Hero'}</h4>
-                <p className="text-xs text-amber-300 font-bold">{title}</p>
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">
-                  {gender} • {charClass}
-                </span>
+                <h5 className="text-sm font-black text-white mt-4">{name || 'Custom Hero'}</h5>
+                <span className="text-xs font-bold text-cyan-400 font-mono">{charClass}</span>
+                <p className="text-[11px] text-slate-400 mt-1">{title}</p>
               </div>
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="border-t border-slate-800 bg-slate-950/80 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center justify-between border-t border-slate-800 bg-slate-950/80 px-6 py-4">
           <button
             onClick={onClose}
-            className="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
+            className="rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition"
           >
             Cancel
           </button>
@@ -656,10 +774,14 @@ export function CharacterCreationModal({
           <button
             onClick={handleSaveCharacter}
             disabled={isSaving}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-2 text-xs font-black text-white shadow-glow-xp hover:from-purple-500 hover:to-indigo-500 active:scale-95 transition disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-glow-gold hover:from-amber-400 hover:to-yellow-400 transition disabled:opacity-50"
           >
-            <Check className="h-4 w-4" />
-            <span>{isSaving ? 'Awakening Hero...' : 'Confirm & Save Hero'}</span>
+            {isSaving ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
+            <span>Lock In &amp; Save Hero</span>
           </button>
         </div>
       </div>
