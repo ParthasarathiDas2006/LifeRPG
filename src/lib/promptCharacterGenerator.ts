@@ -592,8 +592,15 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-lol-yasuo') || matchedPreset;
   }
 
+  const PROMPT_PHOTO_MAP: Record<string, string> = {
+    'prompt-ff-kelly': '/characters/kelly.jpg',
+    'prompt-pubg-survivor': '/characters/pubg_survivor.jpg',
+    'prompt-sl-jinwoo': '/characters/jinwoo.jpg',
+    'prompt-ff-alok': '/characters/alok.jpg',
+  };
+
   const svgContent = generatePromptCharacterSVG(matchedPreset);
-  const avatarUrl = svgToDataUri(svgContent);
+  const avatarUrl = PROMPT_PHOTO_MAP[matchedPreset.id] || svgToDataUri(svgContent);
 
   const spriteParts: SpritePartsConfig = {
     gender: matchedPreset.gender,

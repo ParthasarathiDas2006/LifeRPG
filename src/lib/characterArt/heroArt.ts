@@ -1567,19 +1567,19 @@ export const JINWOO_ART_SVG = `
  * Global Mapping of Hero Preset IDs to their authentic AAA Game Art SVG Data URIs
  */
 export const HERO_GAME_ART: Record<string, string> = {
-  'hero-ff-kelly': svgToDataUri(KELLY_ART_SVG),
-  'hero-pubg-lone-survivor': svgToDataUri(PUBG_SURVIVOR_ART_SVG),
-  'hero-ff-alok': svgToDataUri(DJ_ALOK_ART_SVG),
+  'hero-ff-kelly': '/characters/kelly.jpg',
+  'hero-pubg-lone-survivor': '/characters/pubg_survivor.jpg',
+  'hero-sl-jinwoo': '/characters/jinwoo.jpg',
+  'hero-ff-alok': '/characters/alok.jpg',
   'hero-pubg-valkyrie': svgToDataUri(VALKYRIE_SNIPER_ART_SVG),
   'hero-ff-moco': svgToDataUri(MOCO_HACKER_ART_SVG),
   'hero-pubg-pharaoh': svgToDataUri(PHARAOH_ART_SVG),
   'hero-ff-hayato': svgToDataUri(HAYATO_ART_SVG),
   'hero-ff-chrono': svgToDataUri(CHRONO_ART_SVG),
   'hero-pubg-desert': svgToDataUri(DESERT_ASSASSIN_ART_SVG),
-  'hero-sl-jinwoo': svgToDataUri(JINWOO_ART_SVG),
 };
 
 export function getHeroGameArt(heroId: string, fallback?: string): string {
-  return HERO_GAME_ART[heroId] || fallback || HERO_GAME_ART['hero-ff-kelly'];
+  return HERO_GAME_ART[heroId] || fallback || '/characters/kelly.jpg';
 }
 
