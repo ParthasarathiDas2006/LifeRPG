@@ -1569,8 +1569,10 @@ export const JINWOO_ART_SVG = `
 export const HERO_GAME_ART: Record<string, string> = {
   'hero-apex-vanguard': '/characters/vanguard.jpg',
   'hero-nova-valkyrie': '/characters/nova.jpg',
-  'hero-ff-kelly': '/characters/kelly.jpg',
-  'hero-pubg-lone-survivor': '/characters/pubg_survivor.jpg',
+  'hero-original-solaris': '/characters/solaris.jpg',
+  'hero-original-aegis': '/characters/aegis.jpg',
+  'hero-ff-kelly': '/characters/solaris.jpg',
+  'hero-pubg-lone-survivor': '/characters/aegis.jpg',
   'hero-sl-jinwoo': '/characters/jinwoo.jpg',
   'hero-ff-alok': '/characters/alok.jpg',
   'hero-pubg-valkyrie': '/characters/nova.jpg',

@@ -37,6 +37,34 @@ export const HERO_RANDOM_NAMES: Record<string, string[]> = {
     'ApexHuntress_Nova',
   ],
 
+  // Original Solaris
+  'hero-original-solaris': [
+    'Solaris "Solar Vanguard"',
+    'Solaris_Prime',
+    'SolarFlare_X',
+    'OrbitalHuntress',
+    'Sunfire_Solaris',
+    'Astraea_Drake',
+    'NovaSolaris',
+    'SolarDrop_99',
+    'RadiantAegis',
+    'Solaris_Apex',
+  ],
+
+  // Original Commander Aegis
+  'hero-original-aegis': [
+    'Commander Aegis "Ironclad"',
+    'Aegis_Commander',
+    'Ironclad_Vane',
+    'HighlandAegis',
+    'TitanBulwark',
+    'Ronan_Aegis',
+    'HeavyRecon_99',
+    'AegisOverwatch',
+    'PlateCarrier_Aegis',
+    'VanguardAegis',
+  ],
+
   // Free Fire Kelly
   'hero-ff-kelly': [
     'Kelly "The Swift"',

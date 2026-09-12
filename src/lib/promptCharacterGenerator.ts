@@ -79,52 +79,52 @@ export const FAMOUS_GAME_PROMPTS: PromptHeroPreset[] = [
     tags: ['Original', '3D', 'Battle Royale', 'Nova', 'Valkyrie', 'Cyan Armor'],
   },
 
-  // 1. FREE FIRE - KELLY AWAKENED
+  // 1. ORIGINAL 3D CHAMPION - SOLARIS (REPLACES KELLY)
   {
-    id: 'prompt-ff-kelly',
-    game: 'FREE FIRE',
-    characterName: 'Kelly "The Swift"',
-    promptText: 'Kelly from Free Fire, awakened golden phoenix sprinter in yellow aerodynamic racing tracksuit, glowing amber eyes, sprinting combat posture, dual energy blades, phoenix blaze aura',
+    id: 'prompt-original-solaris',
+    game: 'BATTLE ROYALE (ORIGINAL 3D)',
+    characterName: 'Solaris "Solar Vanguard"',
+    promptText: 'Original 3D battle-royale female champion Solaris, attractive athletic woman, realistic human face, warm amber eyes, modern swept auburn hair with side braid, dark titanium ballistic armor with glowing solar-gold energy micro-conduits, cropped tactical jacket, jump-pack, combat boots, sunset extraction zone',
     category: 'SPEED_SPRINTER',
     class: 'HUNTRESS',
     gender: 'FEMALE',
-    title: 'Awakened Phoenix Sprinter',
-    abilityName: 'Deadly Velocity',
-    abilityBuff: '+25% Sprint Speed & Momentum XP',
-    abilityIcon: '⚡',
-    quote: "Run faster than your doubts! No habit can outpace my sprint velocity.",
-    combatPower: 3350,
-    kdRatio: 4.9,
-    physique: 'Toned Athletic Sprinter Physique',
-    faceAndEyes: 'Radiant anime game symmetry, glowing amber eyes, determined battle smile',
-    torsoAndOutfit: 'Yellow aerodynamic racing tracksuit with Kevlar inner vest and carbon bracers',
-    weapon: 'Dual Phoenix Sabers',
-    aura: 'Golden Phoenix Flame Blaze',
-    tags: ['Free Fire', 'Kelly', 'Phoenix', 'Sprinter', 'Yellow Suit'],
+    title: 'Orbital Drop Zone Legend',
+    abilityName: 'Solar Flare Acceleration',
+    abilityBuff: '+25% Solar Velocity & Habit Multiplier',
+    abilityIcon: '☀️',
+    quote: "Ignite the path forward. No distraction can dim my solar momentum.",
+    combatPower: 3450,
+    kdRatio: 5.3,
+    physique: 'Athletic Defined Runner Physique',
+    faceAndEyes: 'Warm radiant facial symmetry, confident smile, expressive amber eyes, swept auburn hair with tactical side braid',
+    torsoAndOutfit: 'Dark titanium ballistic armor with glowing solar-gold energy micro-conduits and cropped tactical jacket',
+    weapon: 'Dual Energy Blasters',
+    aura: 'Solar Flare Radiant Blaze',
+    tags: ['Original', '3D', 'Solaris', 'Orbital', 'Solar Armor'],
   },
 
-  // 2. PUBG - LONE SURVIVOR (LEVEL 3 SPETSNAZ)
+  // 2. ORIGINAL 3D CHAMPION - COMMANDER AEGIS (REPLACES PUBG LONE SURVIVOR)
   {
-    id: 'prompt-pubg-survivor',
-    game: 'PUBG MOBILE',
-    characterName: 'PUBG Lone Survivor',
-    promptText: 'PUBG Mobile Lone Survivor with legendary Level 3 Spetsnaz ballistic helmet, white collared dress shirt, loosened red tie, leather shoulder holster, holding M416 assault rifle, airdrop red smoke',
+    id: 'prompt-original-aegis',
+    game: 'BATTLE ROYALE (ORIGINAL 3D)',
+    characterName: 'Commander Aegis "Ironclad"',
+    promptText: 'Original 3D male battle-royale champion Commander Aegis, handsome athletic commando, realistic human face, steely gray eyes, trimmed stubble, buzz-undercut, bone-conduction comms, matte charcoal modular plate carrier, storm jacket, tactical assault backpack with bedroll, combat boots, highland ridge',
     category: 'TACTICAL_SOLDIER',
     class: 'WARRIOR',
     gender: 'MALE',
-    title: 'Winner Winner Chicken Dinner Legend',
-    abilityName: 'Level 3 Ballistic Shield',
+    title: 'Highland Vanguard Commander',
+    abilityName: 'Aegis Ballistic Bulwark',
     abilityBuff: '+30% Willpower & Damage Resistance',
-    abilityIcon: '🪖',
-    quote: "Winner Winner Chicken Dinner! Solidify discipline under heavy fire.",
-    combatPower: 3500,
-    kdRatio: 5.6,
-    physique: 'Hardened Military Commando Build',
-    faceAndEyes: 'Strong chiseled jawline, glinting ballistic eye visor, battle scar',
-    torsoAndOutfit: 'Crisp white collared shirt, loosened red necktie, leather holster, tactical cargo trousers',
-    weapon: 'Custom M416 with Red Dot & Compensator',
-    aura: 'Crimson Airdrop Signal Smoke',
-    tags: ['PUBG', 'Spetsnaz', 'Level 3', 'Chicken Dinner', 'M416'],
+    abilityIcon: '🛡️',
+    quote: "Hold the high ground, command the field, conquer every objective.",
+    combatPower: 3550,
+    kdRatio: 5.7,
+    physique: 'Hardened Heavy Recon Commando Build',
+    faceAndEyes: 'Chiseled masculine jawline, focused steely gray eyes, trimmed stubble, tactical bone-conduction comms earpiece',
+    torsoAndOutfit: 'Matte charcoal-gray modular composite plate carrier over weatherproof storm jacket with carbon-fiber shoulder pauldrons',
+    weapon: 'Heavy Tactical Assault Carbine',
+    aura: 'Tungsten Aegis Shield Shimmer',
+    tags: ['Original', '3D', 'Aegis', 'Commander', 'Plate Carrier'],
   },
 
   // 3. FREE FIRE - DJ ALOK
@@ -642,13 +642,19 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-apex-vanguard') || matchedPreset;
   } else if (lower.includes('nova') || lower.includes('valkyrie prime') || lower.includes('cyan')) {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-nova-valkyrie') || matchedPreset;
+  } else if (lower.includes('solaris') || lower.includes('solar') || lower.includes('kelly')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-solaris') || matchedPreset;
+  } else if (lower.includes('aegis') || lower.includes('ironclad') || lower.includes('pubg') || lower.includes('survivor')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-aegis') || matchedPreset;
   }
 
   const PROMPT_PHOTO_MAP: Record<string, string> = {
     'prompt-apex-vanguard': '/characters/vanguard.jpg',
     'prompt-nova-valkyrie': '/characters/nova.jpg',
-    'prompt-ff-kelly': '/characters/kelly.jpg',
-    'prompt-pubg-survivor': '/characters/pubg_survivor.jpg',
+    'prompt-original-solaris': '/characters/solaris.jpg',
+    'prompt-original-aegis': '/characters/aegis.jpg',
+    'prompt-ff-kelly': '/characters/solaris.jpg',
+    'prompt-pubg-survivor': '/characters/aegis.jpg',
     'prompt-sl-jinwoo': '/characters/jinwoo.jpg',
     'prompt-ff-alok': '/characters/alok.jpg',
     'prompt-pubg-valkyrie': '/characters/nova.jpg',
