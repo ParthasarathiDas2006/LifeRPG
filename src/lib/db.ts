@@ -15,6 +15,7 @@ import {
   ArenaOpponent,
   ArenaBattleLog,
   DailyWheelSlice,
+  VirtueTheme,
 } from './types';
 import { generateProceduralSprite, HERO_PRESETS } from './photoGenerator';
 import {
