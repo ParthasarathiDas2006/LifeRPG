@@ -375,6 +375,47 @@ export function LobbySection({
               </div>
             </div>
 
+            {/* 4 Cardinal Moral Virtues Sanctuary Banner */}
+            <div className="rounded-2xl border border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 p-4 shadow-xl">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🏛️</span>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-purple-300">
+                      Sanctuary of Moral Virtues
+                    </h4>
+                    <p className="text-[10px] text-slate-400">4 Cardinal Pillars of Character Training</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onNavigateToTab('sanctuary')}
+                  className="rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-md hover:brightness-110 transition"
+                >
+                  Enter Sanctuary 🏛️
+                </button>
+              </div>
+
+              {/* 4 Virtues Grid */}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 mt-3">
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-center">
+                  <span className="text-[10px] font-bold text-amber-300 block">🛡️ Integrity</span>
+                  <span className="text-sm font-black text-white">{stats.integrity || 14} pts</span>
+                </div>
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-2 text-center">
+                  <span className="text-[10px] font-bold text-emerald-300 block">💚 Compassion</span>
+                  <span className="text-sm font-black text-white">{stats.compassion || 18} pts</span>
+                </div>
+                <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-2 text-center">
+                  <span className="text-[10px] font-bold text-indigo-300 block">🧭 Discipline</span>
+                  <span className="text-sm font-black text-white">{stats.discipline || 16} pts</span>
+                </div>
+                <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-2 text-center">
+                  <span className="text-[10px] font-bold text-purple-300 block">🔥 Wisdom</span>
+                  <span className="text-sm font-black text-white">{stats.wisdom || 19} pts</span>
+                </div>
+              </div>
+            </div>
+
             {/* Daily Airdrop Supply Wheel Banner */}
             <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-purple-600/10 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">

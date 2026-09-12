@@ -43,9 +43,9 @@ export function Navbar({
   onOpenCreate,
 }: NavbarProps) {
   const navItems: Array<{ id: GameTab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+    { id: 'sanctuary', label: '🏛️ Sanctuary of Virtues', icon: Sparkles },
     { id: 'lobby', label: 'Lobby HQ', icon: Compass },
-    { id: 'sanctuary', label: 'Sanctuary of Virtues', icon: Sparkles },
-    { id: 'operations', label: 'Operations', icon: Swords },
+    { id: 'operations', label: 'Operations & Quests', icon: Swords },
     { id: 'armory', label: 'Armory & Forge', icon: Hammer },
     { id: 'lucky', label: 'Lucky Royale', icon: Gift },
     { id: 'arena', label: 'Arena PvP', icon: Trophy },
@@ -59,7 +59,7 @@ export function Navbar({
         <div
           onClick={() => {
             soundEngine.playCoin();
-            onSelectTab('lobby');
+            onSelectTab('sanctuary');
           }}
           className="flex items-center gap-2.5 cursor-pointer"
         >
@@ -73,7 +73,7 @@ export function Navbar({
                 RPG
               </span>
             </div>
-            <p className="text-[10px] font-bold text-purple-400">Next-Gen IRL Game</p>
+            <p className="text-[10px] font-bold text-purple-400">Moral Training &amp; Virtues</p>
           </div>
         </div>
 

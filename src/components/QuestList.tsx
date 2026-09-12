@@ -14,6 +14,9 @@ import {
   Zap,
   Users,
   Swords,
+  ShieldCheck,
+  Heart,
+  Compass,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/sound';
 
@@ -34,6 +37,10 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
 
   const categories: Array<{ key: string; label: string; icon: React.ComponentType<{ className?: string }> }> = [
     { key: 'ALL', label: 'All Quests', icon: Swords },
+    { key: 'INTEGRITY', label: 'Integrity', icon: ShieldCheck },
+    { key: 'COMPASSION', label: 'Compassion', icon: Heart },
+    { key: 'DISCIPLINE', label: 'Discipline', icon: Compass },
+    { key: 'WISDOM', label: 'Wisdom', icon: Flame },
     { key: 'STRENGTH', label: 'Strength', icon: Dumbbell },
     { key: 'INTELLIGENCE', label: 'Intellect', icon: BookOpen },
     { key: 'VITALITY', label: 'Vitality', icon: HeartPulse },
@@ -214,6 +221,10 @@ export function QuestList({ tasks, onCompleteTask, onDeleteTask }: QuestListProp
                       <span className="flex items-center gap-1 font-bold text-amber-400">
                         <Coins className="h-3.5 w-3.5" />
                         +{task.baseGold} Gold
+                      </span>
+                      <span className="flex items-center gap-1 font-bold text-emerald-400">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        +{task.baseVirtueCoins || 5} VC
                       </span>
                     </div>
                   </div>

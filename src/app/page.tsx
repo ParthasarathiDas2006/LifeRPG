@@ -26,7 +26,7 @@ import { Gift } from 'lucide-react';
 
 export default function LifeRPGApp() {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<GameTab>('lobby');
+  const [activeTab, setActiveTab] = useState<GameTab>('sanctuary');
 
   const [profile, setProfile] = useState<{
     stats: UserStats;
