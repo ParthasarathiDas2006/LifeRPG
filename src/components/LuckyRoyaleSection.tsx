@@ -126,7 +126,7 @@ export function LuckyRoyaleSection({
         </div>
       </div>
 
-      {/* Free Fire-style Lucky Royale Crate Station */}
+      {/* Life RPG Lucky Royale Crate Station */}
       <div className="relative overflow-hidden rounded-3xl border border-rose-500/50 bg-gradient-to-br from-slate-900 via-rose-950/20 to-slate-950 p-8 shadow-2xl text-center">
         {/* Glow lights */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-80 rounded-full bg-rose-600/20 blur-3xl" />

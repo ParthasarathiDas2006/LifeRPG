@@ -238,7 +238,7 @@ export interface CharacterConfig {
   generationStyle?: AvatarStyle;
   generationSeed?: number;
   uniqueHeroId?: string;
-  gameOrigin?: 'FREE_FIRE' | 'PUBG' | 'SOLO_LEVELING';
+  gameOrigin?: 'ORIGINAL_3D' | 'SOLO_LEVELING' | 'CYBER_RPG';
   abilityName?: string;
   abilityBuff?: string;
   humanSpecs?: {
@@ -250,7 +250,7 @@ export interface CharacterConfig {
   };
 }
 
-// --- Free Fire Style Ranked Tier System ---
+// --- Battle Ranked Tier System ---
 export type RankedTier =
   | 'BRONZE'
   | 'SILVER'

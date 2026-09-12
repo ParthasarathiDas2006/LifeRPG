@@ -1,7 +1,6 @@
 /**
  * High-Fidelity AAA Battle Royale Vector Artwork Engine
- * Authentic video game styling inspired by Free Fire, PUBG Mobile, and Solo Leveling.
- * Full human proportions, battle outfits, weapons, lighting, and auras.
+ * Original 3D Champions and Solo Leveling Characters.
  */
 
 // Helper to wrap SVG in base64 data URI
@@ -9,7 +8,7 @@ export function svgToDataUri(svg: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg.trim())}`;
 }
 
-// 1. KELLY "THE SWIFT" (Free Fire Awakened Phoenix Legend)
+// 1. SOLARIS "SOLAR VANGUARD" (Original 3D Legend)
 export const KELLY_ART_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 650" width="100%" height="100%">
   <defs>
@@ -182,8 +181,8 @@ export const KELLY_ART_SVG = `
 
     <!-- White Sports Headband -->
     <path d="M192,130 Q250,110 308,130 L306,144 Q250,124 194,144 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-    <!-- Free Fire Red Emblem on Headband -->
-    <polygon points="247,126 253,126 255,134 250,138 245,134" fill="#dc2626" />
+    <!-- Gold Emblem on Headband -->
+    <polygon points="247,126 253,126 255,134 250,138 245,134" fill="#f59e0b" />
 
     <!-- Hair Front Bangs & Layers -->
     <path d="M188,140 Q250,70 312,140 Q285,115 250,110 Q215,115 188,140 Z" fill="url(#hairKellyGrad)" />
@@ -202,7 +201,7 @@ export const KELLY_ART_SVG = `
     <rect x="0" y="0" width="160" height="28" rx="14" fill="#09090b" stroke="#f59e0b" stroke-width="1.5" />
     <circle cx="16" cy="14" r="7" fill="#f97316" />
     <text x="28" y="18" fill="#fde047" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="1">
-      FREE FIRE • KELLY
+      ORIGINAL • SOLARIS
     </text>
   </g>
   <g transform="translate(360, 25)">
@@ -216,7 +215,7 @@ export const KELLY_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#09090b" stroke="#f59e0b" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="16" font-family="sans-serif" font-weight="900">
-      KELLY "THE SWIFT"
+      SOLARIS "SOLAR VANGUARD"
     </text>
     <text x="420" y="27" fill="#facc15" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       SPEED: 99 • AGI
@@ -225,7 +224,7 @@ export const KELLY_ART_SVG = `
 </svg>
 `;
 
-// 2. PUBG LONE SURVIVOR (Level 3 Spetsnaz Legend)
+// 2. COMMANDER AEGIS (Original 3D Legend)
 export const PUBG_SURVIVOR_ART_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 650" width="100%" height="100%">
   <defs>
@@ -365,7 +364,7 @@ export const PUBG_SURVIVOR_ART_SVG = `
     <rect x="0" y="0" width="180" height="28" rx="14" fill="#09090b" stroke="#22c55e" stroke-width="1.5" />
     <circle cx="16" cy="14" r="7" fill="#22c55e" />
     <text x="28" y="18" fill="#86efac" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="1">
-      PUBG • LONE SURVIVOR
+      ORIGINAL • AEGIS
     </text>
   </g>
   <g transform="translate(360, 25)">
@@ -379,7 +378,7 @@ export const PUBG_SURVIVOR_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#09090b" stroke="#22c55e" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="15" font-family="sans-serif" font-weight="900">
-      WINNER WINNER CHICKEN DINNER
+      AEGIS "IRONCLAD COMMANDER"
     </text>
     <text x="420" y="27" fill="#4ade80" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       DEF: 95 • ARMOR
@@ -388,7 +387,7 @@ export const PUBG_SURVIVOR_ART_SVG = `
 </svg>
 `;
 
-// 3. FREE FIRE - DJ ALOK "BEAT MASTER"
+// 3. ECHO "SOUNDWAVE SENTINEL" (Original 3D Legend)
 export const DJ_ALOK_ART_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 650" width="100%" height="100%">
   <defs>
@@ -513,7 +512,7 @@ export const DJ_ALOK_ART_SVG = `
     <rect x="0" y="0" width="180" height="28" rx="14" fill="#09090b" stroke="#22d3ee" stroke-width="1.5" />
     <circle cx="16" cy="14" r="7" fill="#22d3ee" />
     <text x="28" y="18" fill="#a5f3fc" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="1">
-      FREE FIRE • DJ ALOK
+      ORIGINAL • ECHO
     </text>
   </g>
   <g transform="translate(360, 25)">
@@ -527,7 +526,7 @@ export const DJ_ALOK_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#09090b" stroke="#22d3ee" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="15" font-family="sans-serif" font-weight="900">
-      DJ ALOK "BEAT MASTER"
+      ECHO "SOUNDWAVE SENTINEL"
     </text>
     <text x="420" y="27" fill="#22d3ee" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       AURA HEAL: +15 HP
@@ -536,7 +535,7 @@ export const DJ_ALOK_ART_SVG = `
 </svg>
 `;
 
-// 4. PUBG VALKYRIE COMMANDO (Female AWM Sniper Legend)
+// 4. NOVA VALKYRIE (Original 3D Legend)
 export const VALKYRIE_SNIPER_ART_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 650" width="100%" height="100%">
   <defs>
@@ -671,7 +670,7 @@ export const VALKYRIE_SNIPER_ART_SVG = `
     <rect x="0" y="0" width="180" height="28" rx="14" fill="#09090b" stroke="#10b981" stroke-width="1.5" />
     <circle cx="16" cy="14" r="7" fill="#10b981" />
     <text x="28" y="18" fill="#a7f3d0" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="1">
-      PUBG • VALKYRIE SNIPER
+      ORIGINAL • NOVA
     </text>
   </g>
   <g transform="translate(360, 25)">
@@ -685,7 +684,7 @@ export const VALKYRIE_SNIPER_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#09090b" stroke="#10b981" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="15" font-family="sans-serif" font-weight="900">
-      GHOST SNIPER OF POCHINKI
+      NOVA "VALKYRIE PRIME"
     </text>
     <text x="420" y="27" fill="#34d399" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       CRIT: +30% • AWM
@@ -693,7 +692,7 @@ export const VALKYRIE_SNIPER_ART_SVG = `
   </g>
 </svg>
 `;
-// 5. FREE FIRE - MOCO "CYBER MATRIX"
+// 5. CIPHER "NEON INFILTRATOR" (Original 3D Legend)
 export const MOCO_HACKER_ART_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 650" width="100%" height="100%">
   <defs>
@@ -821,7 +820,7 @@ export const MOCO_HACKER_ART_SVG = `
     <rect x="0" y="0" width="180" height="28" rx="14" fill="#09090b" stroke="#06b6d4" stroke-width="1.5" />
     <circle cx="16" cy="14" r="7" fill="#06b6d4" />
     <text x="28" y="18" fill="#67e8f9" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="1">
-      FREE FIRE • MOCO
+      ORIGINAL • CIPHER
     </text>
   </g>
   <g transform="translate(360, 25)">
@@ -835,7 +834,7 @@ export const MOCO_HACKER_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#09090b" stroke="#06b6d4" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="15" font-family="sans-serif" font-weight="900">
-      MOCO "CYBER MATRIX"
+      CIPHER "NEON INFILTRATOR"
     </text>
     <text x="420" y="27" fill="#22d3ee" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       HACKER'S EYE: +20% GP
@@ -844,7 +843,7 @@ export const MOCO_HACKER_ART_SVG = `
 </svg>
 `;
 
-// 6. PUBG - GOLDEN PHARAOH X-SUIT
+// 6. VANGUARD APEX (Original 3D Legend)
 export const PHARAOH_ART_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 650" width="100%" height="100%">
   <defs>
@@ -965,7 +964,7 @@ export const PHARAOH_ART_SVG = `
     <rect x="0" y="0" width="180" height="28" rx="14" fill="#09090b" stroke="#facc15" stroke-width="1.5" />
     <circle cx="16" cy="14" r="7" fill="#facc15" />
     <text x="28" y="18" fill="#fde047" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="1">
-      PUBG • PHARAOH X-SUIT
+      ORIGINAL • VANGUARD
     </text>
   </g>
   <g transform="translate(360, 25)">
@@ -979,7 +978,7 @@ export const PHARAOH_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#09090b" stroke="#facc15" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="15" font-family="sans-serif" font-weight="900">
-      GOLDEN PHARAOH X-SUIT
+      VANGUARD "APEX COMMANDER"
     </text>
     <text x="420" y="27" fill="#facc15" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       GOLD DROP: +40% GP
@@ -1122,11 +1121,11 @@ export const HAYATO_ART_SVG = `
     </text>
   </g>
 
-  <!-- Game Icon: Free Fire Signature -->
+  <!-- Game Icon: Original Signature -->
   <g transform="translate(340, 25)">
     <rect x="0" y="0" width="130" height="34" rx="8" fill="#180404" stroke="#fbbf24" stroke-width="2" opacity="0.95" />
     <text x="65" y="22" fill="#fbbf24" font-size="12" font-family="sans-serif" font-weight="900" text-anchor="middle" letter-spacing="1.5">
-      FREE FIRE ★
+      ORIGINAL ★
     </text>
   </g>
 
@@ -1256,11 +1255,11 @@ export const CHRONO_ART_SVG = `
     </text>
   </g>
 
-  <!-- Free Fire Badge -->
+  <!-- Original Badge -->
   <g transform="translate(340, 25)">
     <rect x="0" y="0" width="130" height="34" rx="8" fill="#050814" stroke="#38bdf8" stroke-width="2" opacity="0.95" />
     <text x="65" y="22" fill="#38bdf8" font-size="12" font-family="sans-serif" font-weight="900" text-anchor="middle" letter-spacing="1.5">
-      FREE FIRE ★
+      ORIGINAL ★
     </text>
   </g>
 
@@ -1386,11 +1385,11 @@ export const DESERT_ASSASSIN_ART_SVG = `
     </text>
   </g>
 
-  <!-- PUBG Badge -->
+  <!-- Original Badge -->
   <g transform="translate(340, 25)">
     <rect x="0" y="0" width="130" height="34" rx="8" fill="#1c1208" stroke="#fbbf24" stroke-width="2" opacity="0.95" />
     <text x="65" y="22" fill="#fbbf24" font-size="12" font-family="sans-serif" font-weight="900" text-anchor="middle" letter-spacing="1.5">
-      PUBG MOBILE
+      ORIGINAL 3D
     </text>
   </g>
 
@@ -1398,7 +1397,7 @@ export const DESERT_ASSASSIN_ART_SVG = `
   <g transform="translate(30, 580)">
     <rect x="0" y="0" width="440" height="42" rx="16" fill="#180e06" stroke="#f59e0b" stroke-width="2" opacity="0.95" />
     <text x="20" y="27" fill="#ffffff" font-size="15" font-family="sans-serif" font-weight="900">
-      DESERT ASSASSIN • MIRAMAR
+      ORIGINAL 3D • ASSASSIN
     </text>
     <text x="420" y="27" fill="#fbbf24" font-size="13" font-family="monospace" font-weight="900" text-anchor="end">
       DEAD-EYE: +30% CRIT
@@ -1571,16 +1570,19 @@ export const HERO_GAME_ART: Record<string, string> = {
   'hero-nova-valkyrie': '/characters/nova.jpg',
   'hero-original-solaris': '/characters/solaris.jpg',
   'hero-original-aegis': '/characters/aegis.jpg',
+  'hero-original-echo': '/characters/echo.jpg',
+  'hero-original-cipher': '/characters/cipher.jpg',
+  'hero-sl-jinwoo': '/characters/jinwoo.jpg',
+  // Backward compatibility aliases mapping to original art
   'hero-ff-kelly': '/characters/solaris.jpg',
   'hero-pubg-lone-survivor': '/characters/aegis.jpg',
-  'hero-sl-jinwoo': '/characters/jinwoo.jpg',
-  'hero-ff-alok': '/characters/alok.jpg',
+  'hero-ff-alok': '/characters/echo.jpg',
   'hero-pubg-valkyrie': '/characters/nova.jpg',
-  'hero-ff-moco': svgToDataUri(MOCO_HACKER_ART_SVG),
-  'hero-pubg-pharaoh': svgToDataUri(PHARAOH_ART_SVG),
-  'hero-ff-hayato': svgToDataUri(HAYATO_ART_SVG),
-  'hero-ff-chrono': svgToDataUri(CHRONO_ART_SVG),
-  'hero-pubg-desert': svgToDataUri(DESERT_ASSASSIN_ART_SVG),
+  'hero-ff-moco': '/characters/cipher.jpg',
+  'hero-pubg-pharaoh': '/characters/vanguard.jpg',
+  'hero-ff-hayato': '/characters/aegis.jpg',
+  'hero-ff-chrono': '/characters/vanguard.jpg',
+  'hero-pubg-desert': '/characters/solaris.jpg',
 };
 
 export function getHeroGameArt(heroId: string, fallback?: string): string {

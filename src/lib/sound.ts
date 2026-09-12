@@ -14,7 +14,7 @@ export const BGM_TRACKS: BgmTrackInfo[] = [
     name: 'Cyber Surge',
     genre: 'Synthwave / Battle Royale',
     bpm: 132,
-    description: 'High-octane adrenaline synth pulses inspired by Free Fire & Cyberpunk arena combat',
+    description: 'High-octane adrenaline synth pulses for tactical arena combat',
   },
   {
     id: 'heros-triumph',
@@ -184,7 +184,7 @@ class SoundEngine {
     const now = ctx.currentTime;
 
     if (trackId === 'cyber-surge') {
-      // 132 BPM Cyberpunk / Free Fire Adrenaline
+      // 132 BPM Cyberpunk / Tactical Arena Adrenaline
       // Kick on 0, 4, 8, 12 in every bar of 16
       const barStep = step % 16;
       if (barStep === 0 || barStep === 4 || barStep === 8 || barStep === 12) {
@@ -555,7 +555,7 @@ class SoundEngine {
 
   // --- Dopamine-Rich Specialized Game Sounds ---
 
-  // Free Fire-style Crate Opening Thrill (Suspense riser -> Grand burst)
+  // Tactical Crate Opening Thrill (Suspense riser -> Grand burst)
   playCrateOpen() {
     const ctx = this.getContext();
     if (!ctx || !this.sfxGain || this.isSfxMuted) return;

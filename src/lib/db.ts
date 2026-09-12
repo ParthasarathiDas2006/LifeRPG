@@ -1005,7 +1005,7 @@ export const dbService = {
     return baseEntries.map((e, idx) => ({ ...e, rank: idx + 1 }));
   },
 
-  // --- Free Fire Style Ranked Tier Calculator ---
+  // --- Life RPG Ranked Tier Calculator ---
   getRankedTier(level: number, totalStats: number, streak: number): RankedTier {
     const score = level * 100 + totalStats * 5 + streak * 50;
     if (score >= 8000) return 'GRANDMASTER';

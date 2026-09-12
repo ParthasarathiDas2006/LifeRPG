@@ -123,7 +123,7 @@ export function LobbySection({
     stats.level * 60 +
     (gearBonuses.bonusXP + gearBonuses.bonusGold) * 10;
 
-  // Compute Free Fire style Ranked Tier
+  // Compute Life RPG Ranked Tier
   const getTier = (): { name: RankedTier; color: string; bg: string; icon: string } => {
     if (combatPower >= 2500)
       return { name: 'GRANDMASTER', color: 'text-rose-400', bg: 'from-rose-600 to-amber-600', icon: '👑' };
@@ -259,7 +259,7 @@ export function LobbySection({
                           Switch / Customize Hero
                         </span>
                         <span className="text-[10px] text-slate-300 mt-1 text-center font-semibold">
-                          Free Fire • PUBG Mobile • AI Photo Forge
+                          Original 3D Champions • AI Photo Forge
                         </span>
                       </div>
 
@@ -475,7 +475,7 @@ export function LobbySection({
           <div className="space-y-5 lg:col-span-7">
             {/* Top Tier & Streaks Strip */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {/* Free Fire Style Ranked Tier */}
+              {/* Life RPG Ranked Tier */}
               <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-3">
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                   Ranked Tier

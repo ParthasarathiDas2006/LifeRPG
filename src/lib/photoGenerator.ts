@@ -12,7 +12,7 @@ export interface HumanBodySpecs {
 export interface HeroPreset {
   id: string;
   name: string;
-  gameInspiration: 'FREE_FIRE' | 'PUBG' | 'SOLO_LEVELING';
+  gameInspiration: 'ORIGINAL_3D' | 'SOLO_LEVELING' | 'CYBER_RPG';
   inspirationLabel: string;
   class: CharacterClass;
   gender: CharacterGender;
@@ -38,15 +38,14 @@ export interface HeroPreset {
 }
 
 /**
- * Curated AAA Roster of 10 Highly Attractive Human Characters
- * Inspired by Free Fire, PUBG Mobile, and Solo Leveling
+ * Curated AAA Roster of 100% Original 3D Champions & Solo Leveling Heroes
  */
 export const HERO_PRESETS: HeroPreset[] = [
   // 0. ORIGINAL 3D BATTLE ROYALE HERO - VANGUARD APEX
   {
     id: 'hero-apex-vanguard',
     name: 'Vanguard "Apex Commander"',
-    gameInspiration: 'PUBG',
+    gameInspiration: 'ORIGINAL_3D',
     inspirationLabel: 'Original 3D • Vanguard Apex',
     class: 'WARRIOR',
     gender: 'MALE',
@@ -85,7 +84,7 @@ export const HERO_PRESETS: HeroPreset[] = [
   {
     id: 'hero-nova-valkyrie',
     name: 'Nova "Valkyrie Prime"',
-    gameInspiration: 'FREE_FIRE',
+    gameInspiration: 'ORIGINAL_3D',
     inspirationLabel: 'Original 3D • Nova Valkyrie',
     class: 'HUNTRESS',
     gender: 'FEMALE',
@@ -120,11 +119,11 @@ export const HERO_PRESETS: HeroPreset[] = [
     },
   },
 
-  // 1. ORIGINAL FEMALE BATTLE ROYALE HERO - SOLARIS (REPLACES KELLY)
+  // 1. ORIGINAL FEMALE BATTLE ROYALE HERO - SOLARIS
   {
     id: 'hero-original-solaris',
     name: 'Solaris "Solar Vanguard"',
-    gameInspiration: 'FREE_FIRE',
+    gameInspiration: 'ORIGINAL_3D',
     inspirationLabel: 'Original 3D • Solaris',
     class: 'HUNTRESS',
     gender: 'FEMALE',
@@ -159,11 +158,11 @@ export const HERO_PRESETS: HeroPreset[] = [
     },
   },
 
-  // 2. ORIGINAL MALE BATTLE ROYALE HERO - COMMANDER AEGIS (REPLACES PUBG LONE SURVIVOR)
+  // 2. ORIGINAL MALE BATTLE ROYALE HERO - COMMANDER AEGIS
   {
     id: 'hero-original-aegis',
     name: 'Commander Aegis "Ironclad"',
-    gameInspiration: 'PUBG',
+    gameInspiration: 'ORIGINAL_3D',
     inspirationLabel: 'Original 3D • Commander Aegis',
     class: 'WARRIOR',
     gender: 'MALE',
@@ -198,276 +197,81 @@ export const HERO_PRESETS: HeroPreset[] = [
     },
   },
 
-  // 3. FREE FIRE - DJ ALOK
+  // 3. ORIGINAL 3D CYBER-AUDIO HERO - ECHO SOUNDWAVE
   {
-    id: 'hero-ff-alok',
-    name: 'DJ Alok "Beat Master"',
-    gameInspiration: 'FREE_FIRE',
-    inspirationLabel: 'Free Fire • DJ Alok',
+    id: 'hero-original-echo',
+    name: 'Echo "Soundwave Sentinel"',
+    gameInspiration: 'ORIGINAL_3D',
+    inspirationLabel: 'Original 3D • Echo Soundwave',
     class: 'PALADIN',
     gender: 'MALE',
-    title: 'Soundwave Apex & Beat Maestro',
+    title: 'Cyber-Acoustic Beat Sentinel',
     rarity: 'MYTHIC',
-    quote: "Feel the frequency! Music heals the mind and ignites unstoppable focus.",
+    quote: "Harmonize the chaos. Soundwaves shatter procrastination into pure focus.",
     ability: {
-      name: 'Drop The Beat',
-      description: 'Creates a 5-meter music aura restoring +15 Focus Mana and granting +15% XP.',
+      name: 'Resonant Frequency Aura',
+      description: 'Emits an ultraviolet harmonic pulse restoring +20 Focus Mana and boosting task XP by +20%.',
       icon: '🎧',
-      buffText: '+15 HP/Mana Regen & Audio Aura',
+      buffText: '+20 Focus Mana Regen & Sonic XP Boost',
     },
-    battleStats: { winRate: 86, kdRatio: 5.1, agility: 95, combatPower: 3250 },
-    portraitUrl: HERO_GAME_ART['hero-ff-alok'],
+    battleStats: { winRate: 91, kdRatio: 5.4, agility: 95, combatPower: 3400 },
+    portraitUrl: HERO_GAME_ART['hero-original-echo'],
     humanSpecs: {
-      physique: 'Chiseled Muscular Athletic Build',
-      faceAndEyes: 'Ultra-handsome facial contours, neat designer beard, gold aviator sunglasses',
-      torsoAndOutfit: 'Tactical black DJ duster coat with gold-trimmed cybernetic circuitry and open collar',
-      armsAndGloves: 'Muscular defined forearms, gold-accented audio controllers on wrists',
-      legsAndBoots: 'Designer dark combat joggers with gold side stripes and limited-edition sneakers',
+      physique: 'Athletic High-Tech Commando Build',
+      faceAndEyes: 'Handsome human face with stylish undercut, holographic cyan audio frequency monocle over left eye',
+      torsoAndOutfit: 'Tactical charcoal flight jacket with illuminated ultraviolet equalizer waveforms running down the sleeves',
+      armsAndGloves: 'Carbon audio gauntlets with integrated pulse woofers and tactile grip gloves',
+      legsAndBoots: 'High-mobility tactical cargo trousers with reinforced magnetic soundwave boots',
     },
-    description: 'Free Fire\'s world-famous charismatic DJ hero. Features styled undercut, groomed beard, gold sunglasses, and tactical black DJ coat with holographic soundwaves.',
+    description: 'Completely original 3D cyber-acoustic producer-warrior. Wields cutting-edge sonic gauntlets and a holographic audio visor, commanding frequency over focus.',
     parts: {
       gender: 'MALE',
-      body: 'tanned',
-      hair: 'alok_hair',
-      hairColor: '#0f172a',
-      outfit: 'alok_coat',
-      outfitColor: '#0f172a',
-      weapon: 'dual_sabers',
-      aura: 'soundwave_beat',
-    },
-  },
-
-  // 4. PUBG - VALKYRIE COMMANDO (FEMALE SNIPER)
-  {
-    id: 'hero-pubg-valkyrie',
-    name: 'Valkyrie Commando',
-    gameInspiration: 'PUBG',
-    inspirationLabel: 'PUBG • Valkyrie Sniper',
-    class: 'HUNTRESS',
-    gender: 'FEMALE',
-    title: 'Ghost Sniper of Pochinki & AWM Queen',
-    rarity: 'MYTHIC',
-    quote: "One shot, one milestone. Zero room for hesitation.",
-    ability: {
-      name: '8x Precision Scope',
-      description: 'Pinpoint laser targeting provides +30% Critical Hit Chance on difficult quests.',
-      icon: '🎯',
-      buffText: '+30% Critical Hit Chance',
-    },
-    battleStats: { winRate: 87, kdRatio: 5.3, agility: 96, combatPower: 3300 },
-    portraitUrl: HERO_GAME_ART['hero-pubg-valkyrie'],
-    humanSpecs: {
-      physique: 'Lean Muscular Spec-Ops Physique',
-      faceAndEyes: 'High cheekbones, piercing hazel-green eyes with laser-sharp sniper focus, subtle warpaint',
-      torsoAndOutfit: 'Fitted desert digital camo shirt with high-tech plate carrier vest and magazine pouches',
-      armsAndGloves: 'Toned arms with sniper sleeve brace, carbon knuckle tactical gloves gripping AWM',
-      legsAndBoots: 'Reinforced tactical cargo trousers, thigh holster, desert assault boots',
-    },
-    description: 'PUBG\'s lethal and stunning tactical female operative. Equipped with ghillie camouflage accents, tactical headset, and pinpoint AWM sniper precision.',
-    parts: {
-      gender: 'FEMALE',
       body: 'fair',
-      hair: 'pubg_tactical_pony',
-      hairColor: '#78350f',
-      outfit: 'pubg_tactical_vest',
-      outfitColor: '#1e293b',
-      weapon: 'pubg_m416',
-      aura: 'desert_storm',
+      hair: 'echo_undercut',
+      hairColor: '#0f172a',
+      outfit: 'echo_jacket',
+      outfitColor: '#18181b',
+      weapon: 'dual_sabers',
+      aura: 'phoenix_blaze',
     },
   },
 
-  // 5. FREE FIRE - MOCO
+  // 4. ORIGINAL 3D CYBER-HACKER HEROINE - CIPHER
   {
-    id: 'hero-ff-moco',
-    name: 'Moco "Cyber Matrix"',
-    gameInspiration: 'FREE_FIRE',
-    inspirationLabel: 'Free Fire • Moco Hacker',
+    id: 'hero-original-cipher',
+    name: 'Cipher "Neon Infiltrator"',
+    gameInspiration: 'ORIGINAL_3D',
+    inspirationLabel: 'Original 3D • Cipher Matrix',
     class: 'CYBER_VALKYRIE',
     gender: 'FEMALE',
-    title: 'Grand Infiltrator of the Neural Grid',
+    title: 'Data Core Cyber Infiltrator',
     rarity: 'LEGENDARY',
-    quote: "Firewalls bypassed. Your next achievement has already been tagged.",
+    quote: "Firewalls bypassed. Your next achievement is already decrypted.",
     ability: {
-      name: 'Hacker\'s Eye',
-      description: 'Tags upcoming milestones and reveals hidden daily gold bonus drops.',
-      icon: '👁️',
-      buffText: '+20% Extra Gold & Hidden Drops',
+      name: 'Neural Grid Decryption',
+      description: 'Breaches objective algorithms, granting +25% Extra Gold GP and revealing secret bonus loot.',
+      icon: '🔮',
+      buffText: '+25% Extra Gold & Secret Decrypted Loot',
     },
-    battleStats: { winRate: 80, kdRatio: 4.6, agility: 98, combatPower: 2950 },
-    portraitUrl: HERO_GAME_ART['hero-ff-moco'],
+    battleStats: { winRate: 93, kdRatio: 5.6, agility: 99, combatPower: 3500 },
+    portraitUrl: HERO_GAME_ART['hero-original-cipher'],
     humanSpecs: {
-      physique: 'Agile Cybernetic Infiltrator Body',
-      faceAndEyes: 'Futuristic facial aesthetic, neon turquoise eyeliner, holographic digital retinal HUD',
-      torsoAndOutfit: 'Nanotech carbon hacker crop vest with pulsating turquoise LED traces and high collar',
-      armsAndGloves: 'Full cybernetic arm sleeve with data-port tattoos and tactile hacking gloves',
-      legsAndBoots: 'Tactical cyber-pants with nanite pockets and glowing magnetic hover-boots',
+      physique: 'Agile Sleek Infiltrator Physique',
+      faceAndEyes: 'Striking attractive face with intense violet eyes and a silver-lavender asymmetrical bob haircut',
+      torsoAndOutfit: 'Nanotech carbon stealth infiltration catsuit with glowing magenta and cyan fiberoptic circuit traces',
+      armsAndGloves: 'Holographic data bracers projecting floating interactive code matrices and keyboards',
+      legsAndBoots: 'Reinforced stealth nanosuit leg plating with silent magnetic drop-boots',
     },
-    description: 'Free Fire\'s celebrated cyber hacker. Features neon turquoise dreadlocks, digital HUD visors, and nanotech cybernetics that automate complex goals.',
+    description: 'Completely original 3D cyber hacker champion. Master of data core infiltration, wearing an illuminated fiberoptic stealth suit with holographic code terminals.',
     parts: {
       gender: 'FEMALE',
-      body: 'cyber',
-      hair: 'moco_dreads',
-      hairColor: '#06b6d4',
-      outfit: 'moco_cyber',
-      outfitColor: '#0891b2',
-      weapon: 'dual_sabers',
-      aura: 'cyber_matrix',
-    },
-  },
-
-  // 6. PUBG - GOLDEN PHARAOH X-SUIT
-  {
-    id: 'hero-pubg-pharaoh',
-    name: 'Golden Pharaoh',
-    gameInspiration: 'PUBG',
-    inspirationLabel: 'PUBG • Golden Pharaoh X-Suit',
-    class: 'PALADIN',
-    gender: 'MALE',
-    title: 'Eternal Sovereign of the Desert Sun',
-    rarity: 'MYTHIC',
-    quote: "Bow before the divine sun! Order and discipline will prevail.",
-    ability: {
-      name: 'Solar Ascendance',
-      description: 'Radiant 24k gold aura grants +40% Gold GP loot from all habit completions.',
-      icon: '👑',
-      buffText: '+40% Gold Loot Multiplier',
-    },
-    battleStats: { winRate: 92, kdRatio: 5.9, agility: 94, combatPower: 3500 },
-    portraitUrl: HERO_GAME_ART['hero-pubg-pharaoh'],
-    humanSpecs: {
-      physique: 'God-Like Regal Warrior Physique',
-      faceAndEyes: 'Noble pharaonic features, glowing amber eyes with divine kohl eyeliner',
-      torsoAndOutfit: '24-karat solid gold sculpted pectoral armor with lapis lazuli inlays and falcon wings',
-      armsAndGloves: 'Gilded battle bracers engraved with ancient hieroglyphs of willpower',
-      legsAndBoots: 'Royal Egyptian golden war skirt over armored mesh and gilded greaves',
-    },
-    description: 'The most prestigious Mythic X-Suit in PUBG Mobile. Radiant with 24k gold falcon wings, glowing amber eyes, and ancient Egyptian celestial battle plate.',
-    parts: {
-      gender: 'MALE',
-      body: 'tanned',
-      hair: 'pubg_pharaoh_headdress',
-      hairColor: '#f59e0b',
-      outfit: 'pubg_pharaoh_armor',
-      outfitColor: '#d97706',
-      weapon: 'spear',
-      aura: 'pharaoh_gold',
-    },
-  },
-
-  // 7. FREE FIRE - HAYATO
-  {
-    id: 'hero-ff-hayato',
-    name: 'Hayato Shimada',
-    gameInspiration: 'FREE_FIRE',
-    inspirationLabel: 'Free Fire • Hayato Bushido',
-    class: 'WARRIOR',
-    gender: 'MALE',
-    title: 'Scorching Heir of the Shimada Katana',
-    rarity: 'LEGENDARY',
-    quote: "Honor is not given—it is forged in the furnace of discipline!",
-    ability: {
-      name: 'Art of Bushido',
-      description: 'Increases armor penetration and XP rewards by +25% on Boss Raids.',
-      icon: '⚔️',
-      buffText: '+25% Raid Boss Damage & XP',
-    },
-    battleStats: { winRate: 83, kdRatio: 4.7, agility: 91, combatPower: 3020 },
-    portraitUrl: HERO_GAME_ART['hero-ff-hayato'],
-    humanSpecs: {
-      physique: 'Muscular Battle-Trained Ronin Physique',
-      faceAndEyes: 'Handsome Japanese samurai warrior face, honorable scar on cheek, intense dark eyes',
-      torsoAndOutfit: 'Traditional navy-blue and crimson combat haori worn over modern tactical body armor',
-      armsAndGloves: 'Strong scarred forearms with wrapped leather gauntlets gripping the Shimada katana',
-      legsAndBoots: 'Loose-fitting samurai combat trousers, reinforced shin guards, traditional split-toe boots',
-    },
-    description: 'Free Fire\'s legendary samurai. Strikes with incandescent flame slashes and impenetrable bushido resolve.',
-    parts: {
-      gender: 'MALE',
-      body: 'tanned',
-      hair: 'hayato_ponytail',
-      hairColor: '#0f172a',
-      outfit: 'hayato_haori',
-      outfitColor: '#1e3a8a',
-      weapon: 'katana',
-      aura: 'fire',
-    },
-  },
-
-  // 8. FREE FIRE - CHRONO
-  {
-    id: 'hero-ff-chrono',
-    name: 'Chrono "Time Warper"',
-    gameInspiration: 'FREE_FIRE',
-    inspirationLabel: 'Free Fire • Chrono',
-    class: 'CYBER_HERO',
-    gender: 'MALE',
-    title: 'Cyber Mercenary & Time Guardian',
-    rarity: 'MYTHIC',
-    quote: "Time waits for no one. Master your hours, master your destiny.",
-    ability: {
-      name: 'Time Turner',
-      description: 'Deploys a temporal force field preventing streak reset if a daily habit is missed.',
-      icon: '🛡️',
-      buffText: 'Free Daily Streak Protection',
-    },
-    battleStats: { winRate: 85, kdRatio: 5.0, agility: 94, combatPower: 3180 },
-    portraitUrl: HERO_GAME_ART['hero-ff-chrono'],
-    humanSpecs: {
-      physique: 'Peak International Athletic Body',
-      faceAndEyes: 'Handsome angular jawline, confident cybernetic gaze with temporal blue eye glint',
-      torsoAndOutfit: 'High-tech carbon-fiber trench coat with glowing blue energy conduits and magnetic collar',
-      armsAndGloves: 'Titanium-alloy shoulder pauldrons, biometric chrono gauntlets generating force fields',
-      legsAndBoots: 'Nanotech armored combat trousers, kinetic energy absorption boots',
-    },
-    description: 'Free Fire\'s futuristic operative in sleek carbon armor with glowing cyan energy shields that manipulate the flow of time.',
-    parts: {
-      gender: 'MALE',
       body: 'fair',
-      hair: 'chrono_hair',
-      hairColor: '#0f172a',
-      outfit: 'chrono_suit',
+      hair: 'cipher_bob',
+      hairColor: '#c084fc',
+      outfit: 'cipher_suit',
       outfitColor: '#0f172a',
       weapon: 'dual_sabers',
-      aura: 'chrono_shield',
-    },
-  },
-
-  // 9. PUBG - DESERT ASSASSIN (FEMALE SPEC-OPS)
-  {
-    id: 'hero-pubg-desert',
-    name: 'Miramar Desert Assassin',
-    gameInspiration: 'PUBG',
-    inspirationLabel: 'PUBG • Desert Assassin',
-    class: 'ROGUE',
-    gender: 'FEMALE',
-    title: 'Miramar Phantom & Quickdraw Ace',
-    rarity: 'LEGENDARY',
-    quote: "Fast in the storm, silent in victory. Focus until the dinner is won.",
-    ability: {
-      name: 'Desert Camouflage',
-      description: 'Blends into the storm, granting +25% Focus Mana conservation on deep work.',
-      icon: '🌪️',
-      buffText: '+25% Deep Work Focus Mana',
-    },
-    battleStats: { winRate: 82, kdRatio: 4.9, agility: 98, combatPower: 3060 },
-    portraitUrl: HERO_GAME_ART['hero-pubg-desert'],
-    humanSpecs: {
-      physique: 'Agile Toned Desert Operative Body',
-      faceAndEyes: 'Sun-kissed complexion, golden wind-swept bob, ballistic goggles on forehead, amber gaze',
-      torsoAndOutfit: 'Tactical sand-camo crop vest with military web harness and desert shemagh scarf',
-      armsAndGloves: 'Toned arms with utility tactical wrist bands, leather shooting gloves',
-      legsAndBoots: 'Desert utility cargo trousers, drop-leg holster with quickdraw pistols, tactical sand boots',
-    },
-    description: 'Elite female PUBG operative in tactical crop vest, combat utility harness, and ballistic goggles, ruling Miramar with unmatched agility.',
-    parts: {
-      gender: 'FEMALE',
-      body: 'tanned',
-      hair: 'pubg_desert_bob',
-      hairColor: '#d97706',
-      outfit: 'pubg_desert_vest',
-      outfitColor: '#78350f',
-      weapon: 'pubg_m416',
-      aura: 'desert_storm',
+      aura: 'phoenix_blaze',
     },
   },
 
@@ -959,32 +763,32 @@ export async function generateAvatarFromPhoto(
         );
 
         const titles = [
-          'PUBG Pochinki Victor',
-          'Free Fire Booyah Apex',
+          'Apex Drop Zone Victor',
+          'Tactical Overdrive Legend',
           'Airdrop Phantom Specialist',
-          'Level 3 Spetsnaz Veteran',
-          'Miramar Quickdraw Sovereign',
+          'Highland Recon Veteran',
+          'Vanguard Quickdraw Sovereign',
           'Cyber Overdrive Enigma',
-          'Bermuda Phoenix Slayer',
+          'Solar Phoenix Slayer',
           'Solo Monarch of the Void',
-          'Winner Winner Chicken Dinner Legend',
-          'Soundwave Beat Infiltrator',
-          'AWM Deathmatch Champion',
+          'Apex Battle-Royale Champion',
+          'Soundwave Beat Sentinel',
+          'Assault Carbine Champion',
           'Eternal Sun Paladin',
         ];
 
         const classes = [
           'Battle Royale Apex Operative',
-          'Pochinki Ghost Sniper',
-          'Free Fire Rush Duelist',
-          'Spetsnaz Heavy Vanguard',
+          'Tactical Ghost Recon',
+          'Original Rush Duelist',
+          'Heavy Ballistic Vanguard',
           'Airdrop Assault Scout',
           'Neural Cyber Samurai',
         ];
 
         const uniqueTitle = titles[photoHash % titles.length];
         const uniqueClass = classes[(photoHash >> 2) % classes.length];
-        const heroId = `PUBG-FF-${(photoHash % 89999 + 10000).toString(16).toUpperCase()}`;
+        const heroId = `HERO-3D-${(photoHash % 89999 + 10000).toString(16).toUpperCase()}`;
 
         const pixelSize = options.pixelSize || (style === 'PIXEL_HERO' ? 5 : 4);
 

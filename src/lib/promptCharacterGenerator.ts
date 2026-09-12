@@ -79,7 +79,7 @@ export const FAMOUS_GAME_PROMPTS: PromptHeroPreset[] = [
     tags: ['Original', '3D', 'Battle Royale', 'Nova', 'Valkyrie', 'Cyan Armor'],
   },
 
-  // 1. ORIGINAL 3D CHAMPION - SOLARIS (REPLACES KELLY)
+  // 1. ORIGINAL 3D CHAMPION - SOLARIS
   {
     id: 'prompt-original-solaris',
     game: 'BATTLE ROYALE (ORIGINAL 3D)',
@@ -103,7 +103,7 @@ export const FAMOUS_GAME_PROMPTS: PromptHeroPreset[] = [
     tags: ['Original', '3D', 'Solaris', 'Orbital', 'Solar Armor'],
   },
 
-  // 2. ORIGINAL 3D CHAMPION - COMMANDER AEGIS (REPLACES PUBG LONE SURVIVOR)
+  // 2. ORIGINAL 3D CHAMPION - COMMANDER AEGIS
   {
     id: 'prompt-original-aegis',
     game: 'BATTLE ROYALE (ORIGINAL 3D)',
@@ -127,148 +127,52 @@ export const FAMOUS_GAME_PROMPTS: PromptHeroPreset[] = [
     tags: ['Original', '3D', 'Aegis', 'Commander', 'Plate Carrier'],
   },
 
-  // 3. FREE FIRE - DJ ALOK
+  // 3. ORIGINAL 3D CYBER-AUDIO CHAMPION - ECHO
   {
-    id: 'prompt-ff-alok',
-    game: 'FREE FIRE',
-    characterName: 'DJ Alok "Beat Master"',
-    promptText: 'DJ Alok from Free Fire, charismatic beat master in tactical black and gold equalizer duster coat, stylish undercut hair, neat designer beard, gold aviator sunglasses, holographic neon soundwave aura',
+    id: 'prompt-original-echo',
+    game: 'CYBERPUNK (ORIGINAL 3D)',
+    characterName: 'Echo "Soundwave Sentinel"',
+    promptText: 'Original 3D cyber-audio hero Echo Soundwave, handsome human face with modern undercut, holographic cyan audio frequency monocle, sleek tactical charcoal jacket with illuminated ultraviolet equalizer waveforms, carbon audio gauntlets, rainy cyberpunk rooftop',
     category: 'AUDIO_PALADIN',
     class: 'PALADIN',
     gender: 'MALE',
-    title: 'Soundwave Apex & Beat Maestro',
-    abilityName: 'Drop The Beat',
-    abilityBuff: '+20 HP/Mana Regen & Audio Aura',
+    title: 'Cyber-Acoustic Beat Sentinel',
+    abilityName: 'Resonant Frequency Aura',
+    abilityBuff: '+20 Focus Mana Regen & Sonic XP Boost',
     abilityIcon: '🎧',
-    quote: "Feel the frequency! Music heals the mind and ignites unstoppable focus.",
+    quote: "Harmonize the chaos. Soundwaves shatter procrastination into pure focus.",
     combatPower: 3400,
-    kdRatio: 5.2,
-    physique: 'Chiseled Muscular Athletic Build',
-    faceAndEyes: 'Ultra-handsome facial contours, groomed designer beard, gold aviators',
-    torsoAndOutfit: 'Tactical black DJ duster coat with gold-trimmed cyber circuitry and open collar',
-    weapon: 'Holographic Audio Wave Gauntlets',
-    aura: 'Cyan & Gold Soundwave Rings',
-    tags: ['Free Fire', 'DJ Alok', 'Soundwave', 'Heal Aura', 'Beat Master'],
-  },
-
-  // 4. PUBG - VALKYRIE SNIPER
-  {
-    id: 'prompt-pubg-valkyrie',
-    game: 'PUBG MOBILE',
-    characterName: 'Valkyrie Commando',
-    promptText: 'PUBG Mobile Valkyrie female sniper commando with 8x scope AWM sniper rifle, tactical ponytail, plate carrier vest, camouflage warpaint, radar laser target crosshair aura',
-    category: 'SPEC_OPS_SNIPER',
-    class: 'HUNTRESS',
-    gender: 'FEMALE',
-    title: 'Ghost Sniper of Pochinki & AWM Queen',
-    abilityName: '8x Precision Scope',
-    abilityBuff: '+35% Critical Hit Chance on Deep Quests',
-    abilityIcon: '🎯',
-    quote: "One shot, one milestone. Zero room for hesitation.",
-    combatPower: 3450,
     kdRatio: 5.4,
-    physique: 'Lean Muscular Spec-Ops Physique',
-    faceAndEyes: 'High cheekbones, piercing hazel-green eyes with laser sniper focus, warpaint',
-    torsoAndOutfit: 'Tactical olive desert camo shirt, heavy plate carrier vest, tactical cargo trousers',
-    weapon: 'AWM Magnum Sniper with 8x Scope',
-    aura: 'Laser Target Crosshair & Duststorm',
-    tags: ['PUBG', 'Valkyrie', 'AWM', 'Sniper', 'Spec-Ops'],
+    physique: 'Athletic High-Tech Commando Build',
+    faceAndEyes: 'Handsome human face with stylish undercut, holographic cyan audio frequency monocle over left eye',
+    torsoAndOutfit: 'Tactical charcoal flight jacket with illuminated ultraviolet equalizer waveforms running down the sleeves',
+    weapon: 'Carbon Audio Gauntlets',
+    aura: 'Ultraviolet & Cyan Soundwave Pulses',
+    tags: ['Original', '3D', 'Echo', 'Cyberpunk', 'Soundwave', 'Audio'],
   },
 
-  // 5. FREE FIRE - MOCO CYBER MATRIX
+  // 4. ORIGINAL 3D CYBER-HACKER HEROINE - CIPHER
   {
-    id: 'prompt-ff-moco',
-    game: 'FREE FIRE',
-    characterName: 'Moco "Cyber Matrix"',
-    promptText: 'Moco from Free Fire, legendary cyber hacker with neon turquoise braided dreadlocks, digital HUD retinal eye, nanotech crop top, cybernetic arm with pulsing data streams',
+    id: 'prompt-original-cipher',
+    game: 'CYBERPUNK (ORIGINAL 3D)',
+    characterName: 'Cipher "Neon Infiltrator"',
+    promptText: 'Original 3D female cyber-hacker champion Cipher, striking attractive woman with sharp violet eyes, silver-lavender asymmetrical bob haircut, nanotech carbon stealth infiltration catsuit with glowing magenta and cyan digital circuit lines, holographic data bracers projecting code, server room',
     category: 'CYBER_HACKER',
     class: 'CYBER_VALKYRIE',
     gender: 'FEMALE',
-    title: 'Grand Infiltrator of the Neural Grid',
-    abilityName: "Hacker's Eye",
-    abilityBuff: '+25% Extra Gold & Hidden Bonus Drops',
-    abilityIcon: '👁️',
-    quote: "Firewalls bypassed. Your next achievement has already been tagged.",
-    combatPower: 3200,
-    kdRatio: 4.8,
-    physique: 'Agile Cybernetic Infiltrator Body',
-    faceAndEyes: 'Neon turquoise braided dreadlocks, digital HUD retinal eye, futuristic aesthetic',
-    torsoAndOutfit: 'Nanotech carbon crop vest, chrome cybernetic arm sleeve, glowing magnetic boots',
-    weapon: 'Wrist Holographic Cyberdeck',
-    aura: 'Turquoise Binary Matrix Grid',
-    tags: ['Free Fire', 'Moco', 'Hacker', 'Cyber Matrix', 'Dreadlocks'],
-  },
-
-  // 6. PUBG - GOLDEN PHARAOH X-SUIT
-  {
-    id: 'prompt-pubg-pharaoh',
-    game: 'PUBG MOBILE',
-    characterName: 'Golden Pharaoh X-Suit',
-    promptText: 'PUBG Mobile Mythic Golden Pharaoh X-Suit with 24k solid gold armor, lapis lazuli inlays, royal Nemes headdress, divine kohl eyeliner, holding golden solar ankh spear',
-    category: 'MYTHIC_SOVEREIGN',
-    class: 'PALADIN',
-    gender: 'MALE',
-    title: 'Eternal Sovereign of the Desert Sun',
-    abilityName: 'Solar Ascendance',
-    abilityBuff: '+45% Gold GP Loot from Habit Mastery',
-    abilityIcon: '👑',
-    quote: "Bow before the divine sun! Order and discipline will prevail.",
-    combatPower: 3800,
-    kdRatio: 6.0,
-    physique: 'God-Like Regal Warrior Physique',
-    faceAndEyes: 'Noble pharaonic features, glowing golden eyes, Egyptian kohl eyeliner',
-    torsoAndOutfit: '24-karat solid gold sculpted falcon armor with lapis lazuli inlays and Nemes headdress',
-    weapon: 'Golden Solar Ankh Spear',
-    aura: 'Radiant 24K Gold Falcon Wings',
-    tags: ['PUBG', 'Golden Pharaoh', 'X-Suit', 'Mythic', 'Gold Armor'],
-  },
-
-  // 7. FREE FIRE - HAYATO BUSHIDO
-  {
-    id: 'prompt-ff-hayato',
-    game: 'FREE FIRE',
-    characterName: 'Hayato Shimada',
-    promptText: 'Hayato from Free Fire, legendary samurai ronin with topknot hair, cheek warrior scar, crimson and navy battle haori, wielding flaming Shimada katana',
-    category: 'BUSHIDO_RONIN',
-    class: 'WARRIOR',
-    gender: 'MALE',
-    title: 'Scorching Heir of the Shimada Katana',
-    abilityName: 'Art of Bushido',
-    abilityBuff: '+35% Armor Pierce & Boss Raid Damage',
-    abilityIcon: '⚔️',
-    quote: "Honor is not given—it is forged in the furnace of discipline!",
-    combatPower: 3300,
-    kdRatio: 5.0,
-    physique: 'Muscular Battle-Trained Ronin Physique',
-    faceAndEyes: 'Handsome Japanese warrior face, cheek warrior scar, intense dark eyes, topknot',
-    torsoAndOutfit: 'Traditional crimson and navy combat haori, samurai shoulder pauldrons, split-toe boots',
-    weapon: 'Incandescent Shimada Katana',
-    aura: 'Rising Crimson Flame Embers',
-    tags: ['Free Fire', 'Hayato', 'Samurai', 'Katana', 'Bushido'],
-  },
-
-  // 8. FREE FIRE - CHRONO TIME WARPER
-  {
-    id: 'prompt-ff-chrono',
-    game: 'FREE FIRE',
-    characterName: 'Chrono "Time Warper"',
-    promptText: 'Chrono from Free Fire, futuristic operative in high-tech black cyber trench coat with electric blue conduits, temporal force field shield sphere, sleek modern comb-over hair',
-    category: 'TIME_GUARDIAN',
-    class: 'CYBER_HERO',
-    gender: 'MALE',
-    title: 'Cyber Mercenary & Time Guardian',
-    abilityName: 'Time Turner Barrier',
-    abilityBuff: 'Free Daily Streak Loss Protection & 600HP Barrier',
-    abilityIcon: '🛡️',
-    quote: "Time waits for no one. Master your hours, master your destiny.",
-    combatPower: 3420,
-    kdRatio: 5.3,
-    physique: 'Peak International Athletic Body',
-    faceAndEyes: 'Angular confident jawline, temporal blue eye glint, textured comb-over haircut',
-    torsoAndOutfit: 'High-tech carbon trench coat with glowing blue energy conduits and biometric gauntlets',
-    weapon: 'Dual Chrono Energy Sabers',
-    aura: 'Cyan Temporal Forcefield Hexagon Sphere',
-    tags: ['Free Fire', 'Chrono', 'Time Warper', 'Shield', 'Forcefield'],
+    title: 'Data Core Cyber Infiltrator',
+    abilityName: 'Neural Grid Decryption',
+    abilityBuff: '+25% Extra Gold & Secret Decrypted Loot',
+    abilityIcon: '🔮',
+    quote: "Firewalls bypassed. Your next achievement is already decrypted.",
+    combatPower: 3500,
+    kdRatio: 5.6,
+    physique: 'Agile Sleek Infiltrator Physique',
+    faceAndEyes: 'Striking attractive face with intense violet eyes and a silver-lavender asymmetrical bob haircut',
+    torsoAndOutfit: 'Nanotech carbon stealth infiltration catsuit with glowing magenta and cyan fiberoptic circuit traces',
+    weapon: 'Holographic Data Gauntlets',
+    aura: 'Magenta & Cyan Code Matrix HUD',
+    tags: ['Original', '3D', 'Cipher', 'Cyberpunk', 'Hacker', 'Stealth'],
   },
 
   // 9. SOLO LEVELING - SUNG JIN-WOO
@@ -380,58 +284,35 @@ export function generatePromptCharacterSVG(preset: PromptHeroPreset): string {
   let badgeColor = '#38bdf8';
   let auraGlow = '#00f0ff';
 
-  if (preset.game === 'FREE FIRE') {
-    if (preset.id.includes('kelly')) {
+  if (preset.game === 'BATTLE ROYALE (ORIGINAL 3D)') {
+    if (preset.id.includes('vanguard')) {
+      bgGradient1 = '#0a0f1d';
+      bgGradient2 = '#1e293b';
+      accentColor = '#f59e0b';
+      secondaryAccent = '#fbbf24';
+      badgeColor = '#f59e0b';
+      auraGlow = '#d97706';
+    } else if (preset.id.includes('nova')) {
+      bgGradient1 = '#04131d';
+      bgGradient2 = '#0e3a53';
+      accentColor = '#00f0ff';
+      secondaryAccent = '#38bdf8';
+      badgeColor = '#00f0ff';
+      auraGlow = '#0284c7';
+    } else if (preset.id.includes('solaris')) {
       bgGradient1 = '#1a0d00';
       bgGradient2 = '#78350f';
       accentColor = '#fbbf24';
       secondaryAccent = '#ef4444';
       badgeColor = '#fbbf24';
       auraGlow = '#f59e0b';
-    } else if (preset.id.includes('alok')) {
-      bgGradient1 = '#050c1a';
-      bgGradient2 = '#1e1b4b';
-      accentColor = '#06b6d4';
-      secondaryAccent = '#fbbf24';
-      badgeColor = '#38bdf8';
-      auraGlow = '#22d3ee';
-    } else if (preset.id.includes('hayato')) {
-      bgGradient1 = '#1a0505';
-      bgGradient2 = '#7f1d1d';
-      accentColor = '#ef4444';
-      secondaryAccent = '#fbbf24';
-      badgeColor = '#ef4444';
-      auraGlow = '#dc2626';
-    } else if (preset.id.includes('chrono')) {
-      bgGradient1 = '#040d1a';
-      bgGradient2 = '#0c4a6e';
-      accentColor = '#00f0ff';
-      secondaryAccent = '#38bdf8';
-      badgeColor = '#00f0ff';
-      auraGlow = '#0284c7';
-    } else {
-      bgGradient1 = '#041417';
-      bgGradient2 = '#115e59';
-      accentColor = '#06b6d4';
-      secondaryAccent = '#10b981';
-      badgeColor = '#14b8a6';
-      auraGlow = '#06b6d4';
-    }
-  } else if (preset.game === 'PUBG MOBILE') {
-    if (preset.id.includes('pharaoh')) {
-      bgGradient1 = '#1a1200';
-      bgGradient2 = '#78350f';
-      accentColor = '#fbbf24';
+    } else if (preset.id.includes('aegis')) {
+      bgGradient1 = '#090d16';
+      bgGradient2 = '#1e293b';
+      accentColor = '#94a3b8';
       secondaryAccent = '#f59e0b';
-      badgeColor = '#facc15';
-      auraGlow = '#eab308';
-    } else if (preset.id.includes('valkyrie')) {
-      bgGradient1 = '#08140c';
-      bgGradient2 = '#14532d';
-      accentColor = '#4ade80';
-      secondaryAccent = '#fbbf24';
-      badgeColor = '#22c55e';
-      auraGlow = '#16a34a';
+      badgeColor = '#cbd5e1';
+      auraGlow = '#64748b';
     } else {
       bgGradient1 = '#090d16';
       bgGradient2 = '#1e293b';
@@ -439,6 +320,29 @@ export function generatePromptCharacterSVG(preset: PromptHeroPreset): string {
       secondaryAccent = '#ef4444';
       badgeColor = '#fbbf24';
       auraGlow = '#ef4444';
+    }
+  } else if (preset.game === 'CYBERPUNK (ORIGINAL 3D)') {
+    if (preset.id.includes('echo')) {
+      bgGradient1 = '#050c1a';
+      bgGradient2 = '#1e1b4b';
+      accentColor = '#a855f7';
+      secondaryAccent = '#00f0ff';
+      badgeColor = '#c084fc';
+      auraGlow = '#7c3aed';
+    } else if (preset.id.includes('cipher')) {
+      bgGradient1 = '#1a052b';
+      bgGradient2 = '#4a044e';
+      accentColor = '#f43f5e';
+      secondaryAccent = '#00f0ff';
+      badgeColor = '#e879f9';
+      auraGlow = '#d946ef';
+    } else {
+      bgGradient1 = '#041417';
+      bgGradient2 = '#115e59';
+      accentColor = '#06b6d4';
+      secondaryAccent = '#10b981';
+      badgeColor = '#14b8a6';
+      auraGlow = '#06b6d4';
     }
   } else if (preset.game === 'SOLO LEVELING') {
     bgGradient1 = '#030712';
@@ -607,7 +511,7 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
   const lower = inputPrompt.toLowerCase();
 
   // Find best matching famous game preset
-  let matchedPreset = FAMOUS_GAME_PROMPTS[0]; // Kelly as default
+  let matchedPreset = FAMOUS_GAME_PROMPTS[0]; // Vanguard Apex as default
 
   for (const p of FAMOUS_GAME_PROMPTS) {
     // Check tags or name
@@ -621,31 +525,27 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
     }
   }
 
-  // Fallback check by game keywords
-  if (lower.includes('pubg') || lower.includes('spetsnaz') || lower.includes('helmet')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-pubg-survivor') || matchedPreset;
-  } else if (lower.includes('alok') || lower.includes('dj')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-ff-alok') || matchedPreset;
+  // Fallback check by hero keywords
+  if (lower.includes('vanguard') || lower.includes('apex') || lower.includes('obsidian')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-apex-vanguard') || matchedPreset;
+  } else if (lower.includes('nova') || lower.includes('valkyrie') || lower.includes('cyan')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-nova-valkyrie') || matchedPreset;
+  } else if (lower.includes('solaris') || lower.includes('solar') || lower.includes('sun')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-solaris') || matchedPreset;
+  } else if (lower.includes('aegis') || lower.includes('ironclad') || lower.includes('plate carrier') || lower.includes('bulwark')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-aegis') || matchedPreset;
+  } else if (lower.includes('echo') || lower.includes('soundwave') || lower.includes('audio') || lower.includes('beat')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-echo') || matchedPreset;
+  } else if (lower.includes('cipher') || lower.includes('neon') || lower.includes('hacker') || lower.includes('matrix')) {
+    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-cipher') || matchedPreset;
   } else if (lower.includes('jinwoo') || lower.includes('solo leveling') || lower.includes('shadow')) {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-sl-jinwoo') || matchedPreset;
-  } else if (lower.includes('hayato') || lower.includes('samurai') || lower.includes('katana')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-ff-hayato') || matchedPreset;
-  } else if (lower.includes('pharaoh') || lower.includes('egypt')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-pubg-pharaoh') || matchedPreset;
   } else if (lower.includes('ghost') || lower.includes('call of duty') || lower.includes('cod')) {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-cod-ghost') || matchedPreset;
   } else if (lower.includes('jett') || lower.includes('valorant')) {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-val-jett') || matchedPreset;
   } else if (lower.includes('yasuo') || lower.includes('hasagi')) {
     matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-lol-yasuo') || matchedPreset;
-  } else if (lower.includes('vanguard') || lower.includes('original') || lower.includes('tactical armor') || lower.includes('apex')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-apex-vanguard') || matchedPreset;
-  } else if (lower.includes('nova') || lower.includes('valkyrie prime') || lower.includes('cyan')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-nova-valkyrie') || matchedPreset;
-  } else if (lower.includes('solaris') || lower.includes('solar') || lower.includes('kelly')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-solaris') || matchedPreset;
-  } else if (lower.includes('aegis') || lower.includes('ironclad') || lower.includes('pubg') || lower.includes('survivor')) {
-    matchedPreset = FAMOUS_GAME_PROMPTS.find((p) => p.id === 'prompt-original-aegis') || matchedPreset;
   }
 
   const PROMPT_PHOTO_MAP: Record<string, string> = {
@@ -653,11 +553,9 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
     'prompt-nova-valkyrie': '/characters/nova.jpg',
     'prompt-original-solaris': '/characters/solaris.jpg',
     'prompt-original-aegis': '/characters/aegis.jpg',
-    'prompt-ff-kelly': '/characters/solaris.jpg',
-    'prompt-pubg-survivor': '/characters/aegis.jpg',
+    'prompt-original-echo': '/characters/echo.jpg',
+    'prompt-original-cipher': '/characters/cipher.jpg',
     'prompt-sl-jinwoo': '/characters/jinwoo.jpg',
-    'prompt-ff-alok': '/characters/alok.jpg',
-    'prompt-pubg-valkyrie': '/characters/nova.jpg',
   };
 
   const svgContent = generatePromptCharacterSVG(matchedPreset);
@@ -682,11 +580,9 @@ export function generateCharacterFromPrompt(inputPrompt: string): {
     avatarUrl,
     avatarType: 'SPRITE',
     spriteParts,
-    gameOrigin: matchedPreset.game.includes('FREE FIRE')
-      ? 'FREE_FIRE'
-      : matchedPreset.game.includes('PUBG')
-      ? 'PUBG'
-      : 'SOLO_LEVELING',
+    gameOrigin: matchedPreset.game.includes('SOLO LEVELING')
+      ? 'SOLO_LEVELING'
+      : 'ORIGINAL_3D',
     abilityName: matchedPreset.abilityName,
     abilityBuff: matchedPreset.abilityBuff,
     humanSpecs: {

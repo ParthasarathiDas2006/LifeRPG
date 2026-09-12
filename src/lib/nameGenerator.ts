@@ -1,7 +1,7 @@
 /**
  * Life RPG - Hero & Callsign Name Generator
- * Provides battle-tested, unique gamer tags and titles inspired by
- * Free Fire, PUBG Mobile, Solo Leveling, and Cyberpunk/RPG archetypes.
+ * Provides battle-tested, unique gamer tags and titles for
+ * Original 3D Champions, Solo Leveling, and Cyberpunk RPG archetypes.
  */
 
 export const HERO_RANDOM_NAMES: Record<string, string[]> = {
@@ -65,148 +65,90 @@ export const HERO_RANDOM_NAMES: Record<string, string[]> = {
     'VanguardAegis',
   ],
 
-  // Free Fire Kelly
-  'hero-ff-kelly': [
-    'Kelly "The Swift"',
-    'Kelly Phoenix',
-    'SwiftValkyrie',
-    'Velocity_Kelly',
-    'BlazeSprinter',
-    'GoldenStrike_Kelly',
-    'HyperKelly',
-    'FlashKelly',
-    'SonicMirage',
-    'Apex_Kelly',
-    'PhoenixWing_Kelly',
-    'WindrunnerKelly',
-  ],
-
-  // PUBG Lone Survivor
-  'hero-pubg-lone-survivor': [
-    'PUBG Lone Survivor',
-    'Spetsnaz_Ghost',
-    'WinnerWinner_Dinner',
-    'AirdropCommando',
-    'Level3_Reaper',
-    'PochinkiPhantom',
-    'ErangelSniper',
-    'LoneWarlord',
-    'RedZoneSurvivor',
-    'ApexPredator_PUBG',
-    'ChickenDinnerKing',
-    'M416_Gunslinger',
-  ],
-
-  // Free Fire DJ Alok
-  'hero-ff-alok': [
-    'DJ Alok "Beat Master"',
-    'DJ_Alok_Prime',
-    'SoundwaveMaestro',
-    'DropTheBeat_Alok',
-    'NeonEqualizer',
-    'BeatMaster_Alok',
-    'CyberBass_Alok',
-    'HarmonicOverload',
-    'BassCannon_Alok',
+  // Original 3D Cyber-Audio Hero Echo
+  'hero-original-echo': [
+    'Echo "Soundwave Sentinel"',
+    'Echo_SonicBeat',
+    'ResonantSentinel',
+    'Soundwave_Echo',
+    'FrequencyOverlord',
+    'Echo_BassPrime',
+    'HarmonicWarrior',
+    'EchoPulse_99',
+    'AudioAegis_Echo',
+    'BeatMaster_Echo',
+    'CyberBass_Echo',
     'PulseCommander',
-    'Alok_AudioNexus',
-    'FrequencyKing',
   ],
 
-  // PUBG Valkyrie Sniper
+  // Original 3D Cyber-Hacker Heroine Cipher
+  'hero-original-cipher': [
+    'Cipher "Neon Infiltrator"',
+    'Cipher_NeonGlitch',
+    'DataCore_Cipher',
+    'InfiltratorCipher',
+    'ZeroDay_Cipher',
+    'QuantumCipher',
+    'NeuralBreaker_Cipher',
+    'Cipher_MatrixPrime',
+    'GhostProtocol_Cipher',
+    'FirewallSpectre',
+    'NetRunner_Cipher',
+    'DecryptionQueen',
+  ],
+
+  // Backward compatibility aliases mapping to original champions
+  'hero-ff-kelly': [
+    'Solaris "Solar Vanguard"',
+    'Solaris_Prime',
+    'SolarFlare_X',
+    'OrbitalHuntress',
+    'Sunfire_Solaris',
+    'NovaSolaris',
+  ],
+  'hero-pubg-lone-survivor': [
+    'Commander Aegis "Ironclad"',
+    'Aegis_Commander',
+    'Ironclad_Vane',
+    'HighlandAegis',
+    'TitanBulwark',
+    'VanguardAegis',
+  ],
+  'hero-ff-alok': [
+    'Echo "Soundwave Sentinel"',
+    'Echo_SonicBeat',
+    'ResonantSentinel',
+    'Soundwave_Echo',
+    'FrequencyOverlord',
+  ],
   'hero-pubg-valkyrie': [
-    'Valkyrie Commando',
-    'Valkyrie_AWM',
-    'GhostScope_8x',
-    'OneShotElena',
-    'SilentValkyrie',
-    'BulletWhisper',
-    'DeadEye_Elena',
-    'MiramarWraith',
-    'FrostbiteValkyrie',
-    'EagleEyeValkyrie',
-    'PochinkiQueen',
-    'ValkyriePhantom',
+    'Nova "Valkyrie Prime"',
+    'Nova_CyanStrike',
+    'ValkyrieDrop',
+    'ExtractionQueen',
   ],
-
-  // Free Fire Moco
   'hero-ff-moco': [
-    'Moco "Cyber Matrix"',
-    'Moco_Matrix',
-    'CyberDread_Moco',
-    'NeuralBreaker',
-    'ZeroDay_Moco',
-    'FirewallGhost',
-    'GlitchQueen_Moco',
-    'CypherInfiltrator',
-    'QuantumMoco',
-    'NeonHacker_Moco',
-    'NetRunner_Prime',
-    'Moco_CodeBreaker',
+    'Cipher "Neon Infiltrator"',
+    'Cipher_NeonGlitch',
+    'DataCore_Cipher',
+    'InfiltratorCipher',
   ],
-
-  // PUBG Golden Pharaoh
   'hero-pubg-pharaoh': [
-    'Golden Pharaoh',
-    'Pharaoh_Ra',
-    'SolarEmperor',
-    'AnubisWarlord',
-    'GoldenOsiris',
-    'DynastyPharaoh',
-    'SunGod_Horus',
-    'GildedImmortal',
-    'PyramidMonarch',
-    'EternalPharaoh',
-    'DesertSovereign',
-    'Pharaoh_AmonRa',
+    'Vanguard "Apex Commander"',
+    'Apex_Vanguard',
+    'Titan_Cross',
   ],
-
-  // Free Fire Hayato
   'hero-ff-hayato': [
-    'Hayato Shimada',
-    'Hayato_Bushido',
-    'BladeMaster_Hayato',
-    'CrimsonSlash_Hayato',
-    'KatanaGhost',
-    'FlameSamurai_Hayato',
-    'HonorForged_Hayato',
-    'ShadowRonin_Hayato',
-    'SteelLotus_Hayato',
-    'BloodlineKatana',
-    'Shimada_Blaze',
-    'BushidoStriker',
+    'Commander Aegis "Ironclad"',
+    'Aegis_Commander',
   ],
-
-  // Free Fire Chrono
   'hero-ff-chrono': [
-    'Chrono "Time Warper"',
-    'Chrono_CR7',
-    'TimeWarp_Commander',
-    'TemporalAegis',
-    'ForcefieldGod',
-    'QuantumChrono',
-    'ChronoSphere',
-    'ClockworkReaper',
-    'ParadoxWarper',
-    'Chrono_Striker',
-    'NexusVanguard',
-    'ChronoMatrix',
+    'Vanguard "Apex Commander"',
+    'Apex_Vanguard',
   ],
-
-  // PUBG Desert Assassin
   'hero-pubg-desert': [
-    'Miramar Desert Assassin',
-    'MiramarRebel',
-    'QuickdrawSarah',
-    'SandstormSpectre',
-    'DesertViper',
-    'DeagleDuellist',
-    'DuneAssassin',
-    'ScorpionQueen',
-    'MiramarPhantom',
-    'WildWestSarah',
-    'DustReaper',
-    'MiramarQuickdraw',
+    'Solaris "Solar Vanguard"',
+    'Solaris_Prime',
   ],
 
   // Solo Leveling Sung Jin-Woo

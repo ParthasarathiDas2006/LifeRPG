@@ -60,7 +60,7 @@ export function ArenaSection({
     loadArenaData();
   }, []);
 
-  // Free Fire-style Ranked Tier system
+  // Life RPG Ranked Tier system
   const tiers: Array<{ name: RankedTier; cpRequired: number; color: string; icon: string }> = [
     { name: 'BRONZE', cpRequired: 0, color: 'text-amber-600', icon: '🥉' },
     { name: 'SILVER', cpRequired: 250, color: 'text-slate-300', icon: '🥈' },
@@ -132,7 +132,7 @@ export function ArenaSection({
         </div>
       </div>
 
-      {/* Free Fire Style Tier Hierarchy Bar */}
+      {/* Ranked Tier Hierarchy Bar */}
       <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl">
         <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
           <Crown className="h-4 w-4 text-amber-400" />

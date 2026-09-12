@@ -53,10 +53,10 @@ export function CharacterCreationModal({
   onCharacterSaved,
 }: CharacterCreationModalProps) {
   const [activeTab, setActiveTab] = useState<'ROSTER' | 'PROMPT' | 'PHOTO' | 'STUDIO'>('ROSTER');
-  const [rosterFilter, setRosterFilter] = useState<'ALL' | 'FREE_FIRE' | 'PUBG' | 'SOLO_LEVELING' | 'FEMALE' | 'MALE'>('ALL');
+  const [rosterFilter, setRosterFilter] = useState<'ALL' | 'ORIGINAL_3D' | 'SOLO_LEVELING' | 'FEMALE' | 'MALE'>('ALL');
 
   // Prompt Generator State
-  const [promptInput, setPromptInput] = useState('Kelly from Free Fire with golden phoenix wings');
+  const [promptInput, setPromptInput] = useState('Vanguard Apex in obsidian tactical armor with glowing amber seams');
   const [selectedPromptPreset, setSelectedPromptPreset] = useState<PromptHeroPreset | null>(FAMOUS_GAME_PROMPTS[0]);
   const [promptGeneratedAvatar, setPromptGeneratedAvatar] = useState<string | null>(null);
 
@@ -212,14 +212,12 @@ export function CharacterCreationModal({
         generationSeed: avatarType === 'PHOTO_GENERATED' ? seed : undefined,
         uniqueHeroId: uniqueHeroData?.heroId || selectedPromptPreset?.id,
         gameOrigin: selectedPromptPreset
-          ? (selectedPromptPreset.game.includes('FREE FIRE')
-              ? 'FREE_FIRE'
-              : selectedPromptPreset.game.includes('PUBG')
-              ? 'PUBG'
-              : 'SOLO_LEVELING')
+          ? (selectedPromptPreset.game.includes('SOLO LEVELING')
+              ? 'SOLO_LEVELING'
+              : 'ORIGINAL_3D')
           : activePreset
-          ? activePreset.gameInspiration
-          : undefined,
+          ? (activePreset.gameInspiration as any)
+          : 'ORIGINAL_3D',
         abilityName: selectedPromptPreset?.abilityName || activePreset?.ability.name,
         abilityBuff: selectedPromptPreset?.abilityBuff || activePreset?.ability.buffText,
         humanSpecs: selectedPromptPreset
@@ -258,27 +256,28 @@ export function CharacterCreationModal({
   if (!isOpen) return null;
 
   const stylesList: Array<{ id: AvatarStyle; label: string; icon: string; tag: string }> = [
-    { id: 'ANIME_LEGEND', label: 'Free Fire Cel-Shaded', icon: '🔥', tag: 'Battle Royale' },
-    { id: 'SHADOW_ASSASSIN', label: 'PUBG Tactical Noir', icon: '🪖', tag: 'Military Camo' },
-    { id: 'CYBER_ROGUE', label: 'Cyberpunk 2077 Neon', icon: '⚡', tag: 'Neon Hacker' },
-    { id: 'HOLY_PALADIN', label: 'Golden Pharaoh X-Suit', icon: '👑', tag: 'Mythic Gold' },
-    { id: 'CELESTIAL_ASTRAL', label: 'Astral Apex God', icon: '✨', tag: 'Cosmic Sky' },
-    { id: 'MYSTIC_ARCANE', label: 'Soundwave Cyber Beat', icon: '🎧', tag: 'Audio Wave' },
+    { id: 'ANIME_LEGEND', label: 'Stylized Anime Action', icon: '🔥', tag: 'Anime Legend' },
+    { id: 'ANIME_LEGEND', label: 'Cinematic 3D Action', icon: '🔥', tag: '3D Action' },
+    { id: 'SHADOW_ASSASSIN', label: 'Tactical Spec-Ops Noir', icon: '🪖', tag: 'Military Camo' },
+    { id: 'CYBER_ROGUE', label: 'Cyberpunk Neon Hacker', icon: '⚡', tag: 'Neon Hacker' },
+    { id: 'HOLY_PALADIN', label: 'Solar Vanguard Exosuit', icon: '👑', tag: 'Titanium Armor' },
+    { id: 'CELESTIAL_ASTRAL', label: 'Astral Apex Champion', icon: '✨', tag: 'Cosmic Sky' },
+    { id: 'MYSTIC_ARCANE', label: 'Cyber-Acoustic Soundwave', icon: '🎧', tag: 'Audio Wave' },
     { id: 'PIXEL_HERO', label: '16-Bit Retro Shooter', icon: '👾', tag: 'Classic 16-Bit' },
   ];
 
   const demoPhotos = [
-    { label: 'Free Fire Kelly', desc: 'Awakened Phoenix', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=360&auto=format&fit=crop&q=80' },
-    { label: 'PUBG Lone Survivor', desc: 'Level 3 Spetsnaz', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&auto=format&fit=crop&q=80' },
-    { label: 'DJ Alok Beat', desc: 'Soundwave Maestro', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=360&auto=format&fit=crop&q=80' },
-    { label: 'Valkyrie Sniper', desc: 'AWM Ghost Queen', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Solaris Vanguard', desc: 'Orbital Exosuit', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Commander Aegis', desc: 'Heavy Recon', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Echo Soundwave', desc: 'Cyber Producer', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=360&auto=format&fit=crop&q=80' },
+    { label: 'Nova Valkyrie', desc: 'Cyan Drop Zone', url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=360&auto=format&fit=crop&q=80' },
   ];
 
   const filteredPresets = HERO_PRESETS.filter((preset) => {
     if (rosterFilter === 'ALL') return true;
     if (rosterFilter === 'FEMALE') return preset.gender === 'FEMALE';
     if (rosterFilter === 'MALE') return preset.gender === 'MALE';
-    return preset.gameInspiration === rosterFilter;
+    return (preset.gameInspiration as string) === rosterFilter;
   });
 
   return (
@@ -300,10 +299,10 @@ export function CharacterCreationModal({
             </div>
             <div>
               <h2 className="text-xl font-black text-white flex items-center gap-2">
-                Battle Royale Hero Sanctum (Free Fire &amp; PUBG Legends)
+                Life RPG Champion Sanctuary (100% Original 3D Legends)
               </h2>
               <p className="text-xs text-slate-400">
-                Play as famous heroes inspired by Free Fire, PUBG Mobile, and Solo Leveling with unique combat abilities, or forge your photo into a unique warrior!
+                Play as completely original 3D battle-royale and cyber champions with unique combat abilities, or forge your photo into a unique warrior!
               </p>
             </div>
           </div>
@@ -319,7 +318,7 @@ export function CharacterCreationModal({
               }`}
             >
               <Crown className="h-4 w-4" />
-              Battle Royale Roster (10 Legends)
+              Original 3D Champions Roster
             </button>
             <button
               onClick={() => {
@@ -335,7 +334,7 @@ export function CharacterCreationModal({
               }`}
             >
               <Wand2 className="h-4 w-4 text-emerald-400 animate-pulse" />
-              ✨ AI Prompt Studio (Famous Games)
+              ✨ AI Prompt Studio (Original Heroes)
             </button>
             <button
               onClick={() => setActiveTab('PHOTO')}
@@ -448,12 +447,11 @@ export function CharacterCreationModal({
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {[
-                    { id: 'ALL', label: 'All 10 Legends' },
-                    { id: 'FREE_FIRE', label: '🔥 Free Fire Icons' },
-                    { id: 'PUBG', label: '🪖 PUBG Legends' },
+                    { id: 'ALL', label: 'All Champions' },
+                    { id: 'ORIGINAL_3D', label: '🛡️ Original 3D Champions' },
                     { id: 'SOLO_LEVELING', label: '🌑 Solo Leveling' },
-                    { id: 'FEMALE', label: '🌸 Female Warriors' },
-                    { id: 'MALE', label: '⚔️ Male Icons' },
+                    { id: 'FEMALE', label: '🌸 Female Champions' },
+                    { id: 'MALE', label: '⚔️ Male Champions' },
                   ].map((filter) => (
                     <button
                       key={filter.id}
@@ -487,10 +485,10 @@ export function CharacterCreationModal({
 
                   // Origin Badge colors
                   let badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-                  if (preset.gameInspiration === 'PUBG') {
-                    badgeBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-                  } else if (preset.gameInspiration === 'SOLO_LEVELING') {
+                  if (preset.gameInspiration === 'SOLO_LEVELING') {
                     badgeBg = 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+                  } else {
+                    badgeBg = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
                   }
 
                   return (
@@ -638,13 +636,13 @@ export function CharacterCreationModal({
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-white flex items-center gap-2">
-                      AI Prompt Studio: Famous Game Characters
+                      AI Prompt Studio: Original 3D Champions &amp; Game Archetypes
                       <span className="rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 border border-emerald-500/40">
-                        12 Famous Games Built-In
+                        Original 3D Roster Built-In
                       </span>
                     </h4>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Type any custom prompt or select famous heroes from Free Fire, PUBG Mobile, Solo Leveling, Call of Duty, Valorant, or League of Legends to generate high-fidelity game character art!
+                      Type any custom prompt or select from our original 3D champions and customizable archetypes to generate high-fidelity game character art!
                     </p>
                   </div>
                 </div>
@@ -664,7 +662,7 @@ export function CharacterCreationModal({
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleGenerateFromPrompt();
                       }}
-                      placeholder="e.g. Free Fire Kelly golden phoenix, PUBG Level 3 Spetsnaz with M416, or Solo Leveling Jinwoo..."
+                      placeholder="e.g. Vanguard Apex in obsidian composite armor, Nova Valkyrie Prime with glowing cyan circuits, or Solo Leveling Jinwoo..."
                       className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-xs font-semibold text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
                     />
                   </div>
@@ -996,18 +994,18 @@ export function CharacterCreationModal({
                 {/* Hairstyle / Helmet */}
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Hairstyle / Headgear (Free Fire &amp; PUBG)
+                    Hairstyle / Headgear (Original 3D Battle-Royale)
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'kelly_freefire', label: 'Kelly Bob (FF)' },
-                      { id: 'pubg_spetsnaz', label: 'Spetsnaz Lvl 3 (PUBG)' },
-                      { id: 'alok_hair', label: 'Alok Undercut (FF)' },
-                      { id: 'pubg_tactical_pony', label: 'Sniper Comms (PUBG)' },
-                      { id: 'moco_dreads', label: 'Moco Dreads (FF)' },
-                      { id: 'pubg_pharaoh_headdress', label: 'Pharaoh Crown (PUBG)' },
-                      { id: 'hayato_ponytail', label: 'Hayato Samurai' },
-                      { id: 'chrono_hair', label: 'Chrono Cyber (FF)' },
+                      { id: 'kelly_freefire', label: 'Auburn Braid (Solaris)' },
+                      { id: 'pubg_spetsnaz', label: 'Tactical Buzz (Aegis)' },
+                      { id: 'alok_hair', label: 'Sonic Undercut (Echo)' },
+                      { id: 'pubg_tactical_pony', label: 'Braided Ponytail (Nova)' },
+                      { id: 'moco_dreads', label: 'Cyber Bob (Cipher)' },
+                      { id: 'pubg_pharaoh_headdress', label: 'Vanguard Crest (Apex)' },
+                      { id: 'hayato_ponytail', label: 'Stealth Topknot' },
+                      { id: 'chrono_hair', label: 'Cyber Sweep' },
                     ].map((h) => (
                       <button
                         key={h.id}
@@ -1031,13 +1029,13 @@ export function CharacterCreationModal({
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'kelly_tracksuit', label: 'Yellow Track (FF)' },
-                      { id: 'pubg_suit', label: 'Tie & Harness (PUBG)' },
-                      { id: 'alok_coat', label: 'DJ Coat (FF)' },
-                      { id: 'pubg_tactical_vest', label: 'Ammo Vest (PUBG)' },
-                      { id: 'pubg_pharaoh_armor', label: 'Pharaoh Gold (PUBG)' },
-                      { id: 'chrono_suit', label: 'Chrono Armor (FF)' },
-                      { id: 'hayato_haori', label: 'Bushido Haori (FF)' },
+                      { id: 'kelly_tracksuit', label: 'Titanium Flight Suit' },
+                      { id: 'pubg_suit', label: 'Obsidian Plate Carrier' },
+                      { id: 'alok_coat', label: 'Sonic Equalizer Jacket' },
+                      { id: 'pubg_tactical_vest', label: 'Heavy Ballistic Vest' },
+                      { id: 'pubg_pharaoh_armor', label: 'Solar Vanguard Exosuit' },
+                      { id: 'chrono_suit', label: 'Nanotech Cyber Suit' },
+                      { id: 'hayato_haori', label: 'Tactical Recon Coat' },
                       { id: 'jinwoo_duster', label: 'Shadow Duster (SL)' },
                     ].map((o) => (
                       <button
@@ -1062,11 +1060,11 @@ export function CharacterCreationModal({
                   </label>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {[
-                      { id: 'pubg_m416', label: 'PUBG M416' },
+                      { id: 'pubg_m416', label: 'Assault Carbine' },
                       { id: 'dual_sabers', label: 'Dual Sabers' },
                       { id: 'katana', label: 'Flame Katana' },
                       { id: 'shadow_daggers', label: 'Shadow Daggers' },
-                      { id: 'spear', label: 'Pharaoh Spear' },
+                      { id: 'spear', label: 'Titanium Glaive' },
                     ].map((w) => (
                       <button
                         key={w.id}
@@ -1090,14 +1088,14 @@ export function CharacterCreationModal({
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: 'phoenix_blaze', label: 'Phoenix Blaze (FF)' },
-                      { id: 'airdrop_smoke', label: 'Airdrop Flare (PUBG)' },
-                      { id: 'soundwave_beat', label: 'Soundwave Beat (FF)' },
-                      { id: 'desert_storm', label: 'Miramar Storm (PUBG)' },
-                      { id: 'pharaoh_gold', label: 'Pharaoh Wings (PUBG)' },
-                      { id: 'chrono_shield', label: 'Chrono Barrier (FF)' },
+                      { id: 'phoenix_blaze', label: 'Solar Flare' },
+                      { id: 'airdrop_smoke', label: 'Tactical Extraction Smoke' },
+                      { id: 'soundwave_beat', label: 'Ultraviolet Equalizer' },
+                      { id: 'desert_storm', label: 'Highland Storm Dust' },
+                      { id: 'pharaoh_gold', label: 'Golden Exosuit Wings' },
+                      { id: 'chrono_shield', label: 'Cyber Nanotech Barrier' },
                       { id: 'shadow_monarch', label: 'Shadow Mist (SL)' },
-                      { id: 'fire', label: 'Flame Bushido (FF)' },
+                      { id: 'fire', label: 'Crimson Plasma Flame' },
                     ].map((a) => (
                       <button
                         key={a.id}
