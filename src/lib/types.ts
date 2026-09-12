@@ -176,6 +176,9 @@ export interface CharacterConfig {
   generationStyle?: AvatarStyle;
   generationSeed?: number;
   uniqueHeroId?: string;
+  gameOrigin?: 'FREE_FIRE' | 'PUBG' | 'SOLO_LEVELING';
+  abilityName?: string;
+  abilityBuff?: string;
 }
 
 // --- Free Fire Style Ranked Tier System ---

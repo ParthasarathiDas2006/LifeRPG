@@ -102,9 +102,16 @@ function readDb(): DatabaseSchema {
 
 function writeDb(data: DatabaseSchema) {
   ensureDb();
-  const tempFile = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
-  fs.renameSync(tempFile, DB_FILE);
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    const tempFile = `${DB_FILE}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+      fs.copyFileSync(tempFile, DB_FILE);
+      fs.unlinkSync(tempFile);
+    } catch (_) {}
+  }
 }
 
 // Initial Starter Dataset

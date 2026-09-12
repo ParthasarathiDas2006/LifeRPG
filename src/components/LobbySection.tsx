@@ -22,7 +22,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/sound';
-import { HERO_PRESETS } from '@/lib/photoGenerator';
+import { HERO_PRESETS, generateProceduralSprite } from '@/lib/photoGenerator';
 
 interface LobbySectionProps {
   stats: UserStats;
@@ -226,9 +226,22 @@ export function LobbySection({
                   <h2 className="mt-6 text-2xl font-black text-white sm:text-3xl tracking-wide flex items-center justify-center gap-2">
                     {character.name}
                   </h2>
-                  <p className="text-xs font-medium text-slate-400 mt-0.5">
-                    {character.title} • Tier {Math.floor(stats.level / 5) + 1} Champion
-                  </p>
+                  {/* Battle Royale Origin & Ability Pill */}
+                  {activePreset && (
+                    <div className="mt-3 rounded-2xl border border-purple-500/40 bg-purple-950/30 p-2.5 max-w-xs text-left backdrop-blur-sm shadow-md">
+                      <div className="flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-amber-400 font-bold">{activePreset.inspirationLabel}</span>
+                        <span className="text-emerald-400 font-bold">K/D {activePreset.battleStats.kdRatio}</span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-1.5 text-xs font-black text-white">
+                        <span>{activePreset.ability.icon}</span>
+                        <span>{activePreset.ability.name}</span>
+                      </div>
+                      <p className="text-[10px] text-purple-200 mt-0.5 font-medium">
+                        {activePreset.ability.buffText}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Character Quote Banner */}
                   {activePreset && (
@@ -237,14 +250,51 @@ export function LobbySection({
                     </p>
                   )}
 
-                  {/* Switch Hero Quick Action */}
-                  <button
-                    onClick={onEditCharacter}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3.5 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/30 transition shadow-sm"
-                  >
-                    <Crown className="h-3.5 w-3.5 text-amber-400" />
-                    <span>Switch Hero (8 Legends &amp; AI Photo)</span>
-                  </button>
+                  {/* 1-Click Battle Royale Hero Quick Switcher */}
+                  <div className="mt-3.5 flex flex-wrap items-center justify-center gap-1.5 max-w-sm">
+                    {HERO_PRESETS.slice(0, 5).map((preset) => (
+                      <button
+                        key={preset.id}
+                        onClick={async () => {
+                          soundEngine.playEquip();
+                          const payload = {
+                            name: preset.name,
+                            class: preset.class,
+                            gender: preset.gender,
+                            title: preset.title,
+                            avatarUrl: generateProceduralSprite(preset.parts, preset.class),
+                            avatarType: 'SPRITE',
+                            spriteParts: preset.parts,
+                            gameOrigin: preset.gameInspiration,
+                            abilityName: preset.ability.name,
+                            abilityBuff: preset.ability.buffText,
+                          };
+                          await fetch('/api/character', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                          });
+                          onRefreshData();
+                        }}
+                        className={`flex items-center gap-1 rounded-xl border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider transition ${
+                          character.name === preset.name
+                            ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-glow-gold'
+                            : 'border-slate-800 bg-slate-900/70 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                        title={preset.name}
+                      >
+                        <span>{preset.ability.icon}</span>
+                        <span>{preset.name.split(' ')[0]}</span>
+                      </button>
+                    ))}
+                    <button
+                      onClick={onEditCharacter}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/20 px-2 py-1 text-[10px] font-black uppercase text-purple-300 hover:bg-purple-500/30 transition"
+                      title="Open Full Roster (10 Legends & AI Photo Forge)"
+                    >
+                      + All 10
+                    </button>
+                  </div>
 
                   {/* Combat Power (CP) Banner */}
                   <div className="mt-3 flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-2 shadow-glow-gold">
