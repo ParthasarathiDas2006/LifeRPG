@@ -146,9 +146,11 @@ export function CharacterCreationModal({
     try {
       setIsSaving(true);
       const avatarType = activeTab === 'PHOTO' && generatedPhotoAvatar ? 'PHOTO_GENERATED' : 'SPRITE';
-      const avatarUrl = avatarType === 'PHOTO_GENERATED' ? generatedPhotoAvatar! : generatedSpriteAvatar;
-
       const activePreset = HERO_PRESETS.find((p) => p.name === name);
+      const avatarUrl =
+        activeTab === 'PHOTO' && generatedPhotoAvatar
+          ? generatedPhotoAvatar!
+          : activePreset?.portraitUrl || generatedSpriteAvatar;
 
       const payload: CharacterConfig = {
         name,
@@ -165,6 +167,7 @@ export function CharacterCreationModal({
         gameOrigin: activePreset ? activePreset.gameInspiration : undefined,
         abilityName: activePreset ? activePreset.ability.name : undefined,
         abilityBuff: activePreset ? activePreset.ability.buffText : undefined,
+        humanSpecs: activePreset ? activePreset.humanSpecs : undefined,
       };
 
       const res = await fetch('/api/character', {
@@ -390,23 +393,56 @@ export function CharacterCreationModal({
                           </span>
                         </div>
 
-                        {/* High-Definition Character Illustration Canvas */}
-                        <div className="relative h-48 w-48 overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-950 shadow-lg group-hover:scale-105 group-hover:border-amber-400/80 transition duration-300">
+                        {/* High-Definition Human Character Portrait & Canvas */}
+                        <div className="relative h-56 w-full overflow-hidden rounded-2xl border-2 border-slate-800 bg-slate-950 shadow-lg group-hover:scale-102 group-hover:border-amber-400/80 transition duration-300">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={previewSvg} alt={preset.name} className="h-full w-full object-cover" />
-                          <span className={`absolute bottom-1.5 right-1.5 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
-                            preset.gender === 'FEMALE' ? 'bg-pink-600 text-white shadow-sm' : 'bg-blue-600 text-white shadow-sm'
+                          <img
+                            src={preset.portraitUrl || previewSvg}
+                            alt={preset.name}
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = previewSvg;
+                            }}
+                            className="h-full w-full object-cover object-top"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
+                          <span className={`absolute bottom-2 right-2 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-md ${
+                            preset.gender === 'FEMALE' ? 'bg-pink-600 text-white' : 'bg-blue-600 text-white'
                           }`}>
                             {preset.gender}
                           </span>
-                          <span className="absolute top-1.5 left-1.5 rounded-full bg-slate-950/80 border border-amber-400/60 px-1.5 py-0.5 text-[9px] font-black text-amber-300">
+                          <span className="absolute top-2 left-2 rounded-full bg-slate-950/85 border border-amber-400/70 px-2 py-0.5 text-[9px] font-black text-amber-300 shadow-md">
                             {preset.rarity}
                           </span>
+                          <div className="absolute bottom-2 left-2 text-left">
+                            <span className="rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-slate-300 backdrop-blur-xs">
+                              {preset.humanSpecs.physique.split(' ')[0]} Body
+                            </span>
+                          </div>
                         </div>
 
                         {/* Name & Class */}
-                        <h4 className="text-sm font-black text-white mt-3">{preset.name}</h4>
+                        <h4 className="text-sm font-black text-white mt-2.5">{preset.name}</h4>
                         <span className="text-[11px] font-bold text-amber-400 font-mono">{preset.class}</span>
+
+                        {/* Human Anatomy & Realistic Body Breakdown */}
+                        <div className="w-full mt-2 rounded-xl bg-slate-900/90 p-2.5 border border-amber-500/20 text-left space-y-1 text-[9px]">
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-amber-400 font-bold">👤 Face:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.faceAndEyes}</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-cyan-400 font-bold">👕 Torso:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.torsoAndOutfit}</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-emerald-400 font-bold">🥊 Arms:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.armsAndGloves}</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-slate-300">
+                            <span className="text-purple-400 font-bold">👖 Legs:</span>
+                            <span className="text-slate-300 line-clamp-1">{preset.humanSpecs.legsAndBoots}</span>
+                          </div>
+                        </div>
 
                         {/* Battle Royale Special Ability Pill */}
                         <div className="w-full mt-2 rounded-xl bg-slate-900/90 p-2 border border-purple-500/30 text-left">

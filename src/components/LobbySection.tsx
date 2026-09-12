@@ -186,26 +186,34 @@ export function LobbySection({
                     {/* Outer Aura Rings */}
                     <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-amber-500/30 via-purple-500/30 to-cyan-500/30 blur-xl group-hover:blur-2xl transition duration-500" />
 
-                    <div className="relative flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold transition-transform duration-300 group-hover:scale-105">
-                      {character.avatarUrl ? (
+                    <div className="relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-400/80 bg-slate-950 shadow-glow-gold transition-transform duration-300 group-hover:scale-105">
+                      {character.avatarUrl || activePreset?.portraitUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={character.avatarUrl}
+                          src={character.avatarUrl || activePreset?.portraitUrl}
                           alt={character.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover object-top"
+                          onError={(e) => {
+                            if (activePreset) {
+                              (e.currentTarget as HTMLImageElement).src = generateProceduralSprite(activePreset.parts, activePreset.class);
+                            }
+                          }}
                         />
                       ) : (
                         <span className="text-6xl">⚔️</span>
                       )}
 
+                      {/* Full Human Body Vignette */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20 pointer-events-none" />
+
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity p-4">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/85 opacity-0 group-hover:opacity-100 transition-opacity p-4">
                         <Sparkles className="h-8 w-8 text-amber-300 animate-pulse mb-1" />
                         <span className="text-xs font-black uppercase tracking-wider text-amber-300">
                           Switch / Customize Hero
                         </span>
-                        <span className="text-[10px] text-slate-300 mt-1 text-center">
-                          Free Fire • Solo Leveling • AI Photo
+                        <span className="text-[10px] text-slate-300 mt-1 text-center font-semibold">
+                          Free Fire • PUBG Mobile • AI Photo Forge
                         </span>
                       </div>
 
@@ -213,6 +221,13 @@ export function LobbySection({
                       {activePreset && (
                         <div className="absolute top-2.5 left-2.5 rounded-full bg-slate-950/90 border border-amber-400/60 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 backdrop-blur-sm shadow-sm">
                           {activePreset.inspirationLabel}
+                        </div>
+                      )}
+
+                      {/* Rarity Tag */}
+                      {activePreset && (
+                        <div className="absolute top-2.5 right-2.5 rounded-full bg-slate-950/90 border border-amber-400/60 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300 backdrop-blur-sm shadow-sm">
+                          {activePreset.rarity}
                         </div>
                       )}
                     </div>
@@ -226,6 +241,19 @@ export function LobbySection({
                   <h2 className="mt-6 text-2xl font-black text-white sm:text-3xl tracking-wide flex items-center justify-center gap-2">
                     {character.name}
                   </h2>
+
+                  {/* Human Body & Attractive Specs Summary */}
+                  {activePreset && (
+                    <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 max-w-sm">
+                      <span className="rounded-full bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
+                        🏃 {activePreset.humanSpecs.physique}
+                      </span>
+                      <span className="rounded-full bg-cyan-500/20 border border-cyan-500/30 px-2.5 py-0.5 text-[10px] font-bold text-cyan-300">
+                        ✨ Realistic Human Model
+                      </span>
+                    </div>
+                  )}
+
                   {/* Battle Royale Origin & Ability Pill */}
                   {activePreset && (
                     <div className="mt-3 rounded-2xl border border-purple-500/40 bg-purple-950/30 p-2.5 max-w-xs text-left backdrop-blur-sm shadow-md">
@@ -262,12 +290,13 @@ export function LobbySection({
                             class: preset.class,
                             gender: preset.gender,
                             title: preset.title,
-                            avatarUrl: generateProceduralSprite(preset.parts, preset.class),
+                            avatarUrl: preset.portraitUrl,
                             avatarType: 'SPRITE',
                             spriteParts: preset.parts,
                             gameOrigin: preset.gameInspiration,
                             abilityName: preset.ability.name,
                             abilityBuff: preset.ability.buffText,
+                            humanSpecs: preset.humanSpecs,
                           };
                           await fetch('/api/character', {
                             method: 'POST',
@@ -276,14 +305,18 @@ export function LobbySection({
                           });
                           onRefreshData();
                         }}
-                        className={`flex items-center gap-1 rounded-xl border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider transition ${
+                        className={`flex items-center gap-1.5 rounded-xl border px-2 py-1 text-[10px] font-black uppercase tracking-wider transition ${
                           character.name === preset.name
                             ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-glow-gold'
                             : 'border-slate-800 bg-slate-900/70 text-slate-400 hover:text-white hover:border-slate-700'
                         }`}
                         title={preset.name}
                       >
-                        <span>{preset.ability.icon}</span>
+                        {/* Mini human face avatar icon */}
+                        <div className="h-4 w-4 rounded-full overflow-hidden border border-slate-700">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={preset.portraitUrl} alt={preset.name} className="h-full w-full object-cover" />
+                        </div>
                         <span>{preset.name.split(' ')[0]}</span>
                       </button>
                     ))}
