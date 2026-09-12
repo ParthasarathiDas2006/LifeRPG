@@ -64,6 +64,7 @@ liferpg/
 ├── src/
 │   ├── app/
 │   │   ├── api/
+│   │   │   ├── character/route.ts
 │   │   │   ├── profile/route.ts
 │   │   │   ├── tasks/route.ts
 │   │   │   ├── tasks/[id]/complete/route.ts
@@ -78,6 +79,7 @@ liferpg/
 │   ├── components/
 │   │   ├── Navbar.tsx
 │   │   ├── HeroHUD.tsx
+│   │   ├── CharacterCreationModal.tsx
 │   │   ├── AttributeRadar.tsx
 │   │   ├── QuestList.tsx
 │   │   ├── CreateQuestModal.tsx
@@ -87,6 +89,7 @@ liferpg/
 │   │   └── LevelUpModal.tsx
 │   └── lib/
 │       ├── db.ts
+│       ├── photoGenerator.ts
 │       ├── progression.ts
 │       ├── sound.ts
 │       └── types.ts
@@ -96,4 +99,16 @@ liferpg/
 ├── tsconfig.json
 └── package.json
 ```
->>>>>>> ef00549 (feat: complete Life RPG full-stack gamified productivity application with Character Creation Studio and Photo-to-RPG Generator)
+
+---
+
+## 🎨 Character Studio & AI-Style Photo Generator
+
+- **Procedural Sprite Builder**: Customize class (Warrior, Mage, Rogue, Paladin, Ranger, Cyber Hero), hairstyle, outfit, weapon, and radiant aura.
+- **Photo-to-RPG Generator**: Upload any portrait photo and convert it into 5 distinct game art styles:
+  - 👾 *16-Bit Retro Pixel Art*
+  - ⚔️ *High Fantasy Oil Portrait*
+  - 🤖 *Cyberpunk Neon Hologram*
+  - 📜 *Dark Souls Eldritch Sketch*
+  - ✨ *Anime Mana Shimmer*
+- **Instant Random Variations**: Tap **✨ Generate New Variation** to generate fresh artistic seeds and palette combinations on the fly.
