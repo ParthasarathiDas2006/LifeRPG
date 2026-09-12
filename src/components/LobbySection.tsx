@@ -20,9 +20,14 @@ import {
   Gift,
   Crosshair,
   TrendingUp,
+  Edit3,
+  Check,
+  X,
+  Dices,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/sound';
 import { HERO_PRESETS, generateProceduralSprite } from '@/lib/photoGenerator';
+import { getRandomNameAndTitle, HERO_RANDOM_NAMES } from '@/lib/nameGenerator';
 
 interface LobbySectionProps {
   stats: UserStats;
@@ -63,6 +68,47 @@ export function LobbySection({
   const [spinResult, setSpinResult] = useState<DailyWheelSlice | null>(null);
   const [spinMessage, setSpinMessage] = useState<string | null>(null);
   const [quickActionNotice, setQuickActionNotice] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(character.name);
+  const [isSavingName, setIsSavingName] = useState(false);
+
+  const handleSaveName = async (newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || isSavingName) return;
+    try {
+      setIsSavingName(true);
+      soundEngine.playEquip();
+      const payload = {
+        ...character,
+        name: trimmed,
+      };
+      const res = await fetch('/api/character', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setIsEditingName(false);
+        setQuickActionNotice(`Callsign changed: "${trimmed}"!`);
+        setTimeout(() => setQuickActionNotice(null), 3500);
+        onRefreshData();
+      }
+    } catch (err) {
+      soundEngine.playError();
+      console.error(err);
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handleRollRandomName = async () => {
+    const activePreset = HERO_PRESETS.find(
+      (p) => p.name.toLowerCase() === character.name.toLowerCase() || p.class === character.class
+    );
+    const { name: randomName } = getRandomNameAndTitle(activePreset?.id, character.class, character.name);
+    setEditedName(randomName);
+    await handleSaveName(randomName);
+  };
 
   // Compute Combat Power (CP)
   const totalStats =
@@ -238,9 +284,88 @@ export function LobbySection({
                     </div>
                   </div>
 
-                  <h2 className="mt-6 text-2xl font-black text-white sm:text-3xl tracking-wide flex items-center justify-center gap-2">
-                    {character.name}
-                  </h2>
+                  {isEditingName ? (
+                    <div className="mt-5 flex items-center justify-center gap-2">
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="rounded-xl border border-amber-400 bg-slate-900 px-3 py-1.5 text-center text-lg font-black text-white focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner max-w-[220px]"
+                        autoFocus
+                        disabled={isSavingName}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveName(editedName);
+                          if (e.key === 'Escape') setIsEditingName(false);
+                        }}
+                      />
+                      <button
+                        onClick={() => handleSaveName(editedName)}
+                        disabled={isSavingName}
+                        className="rounded-xl bg-emerald-600 p-2 text-white hover:bg-emerald-500 shadow-md transition"
+                        title="Save Callsign"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setIsEditingName(false)}
+                        className="rounded-xl bg-slate-800 p-2 text-slate-400 hover:text-white transition"
+                        title="Cancel"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-5 flex flex-col items-center justify-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <h2 className="text-2xl font-black text-white sm:text-3xl tracking-wide">
+                          {character.name}
+                        </h2>
+                        <button
+                          onClick={() => {
+                            setEditedName(character.name);
+                            setIsEditingName(true);
+                          }}
+                          className="rounded-xl border border-slate-800 bg-slate-900/80 p-1.5 text-slate-400 hover:border-slate-700 hover:text-white transition"
+                          title="Edit Hero Callsign"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={handleRollRandomName}
+                          disabled={isSavingName}
+                          className="flex items-center gap-1.5 rounded-xl border border-amber-500/50 bg-amber-500/20 px-2.5 py-1 text-xs font-black uppercase text-amber-300 hover:bg-amber-500/30 transition shadow-glow-gold active:scale-95"
+                          title="Roll Random Gaming Callsign"
+                        >
+                          <Dices className="h-3.5 w-3.5 text-amber-400 animate-spin" />
+                          <span>Random</span>
+                        </button>
+                      </div>
+
+                      {/* Quick Name Suggestions for Active Hero */}
+                      {activePreset && HERO_RANDOM_NAMES[activePreset.id] && (
+                        <div className="mt-2 flex flex-wrap items-center justify-center gap-1 max-w-sm">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mr-0.5">
+                            Random:
+                          </span>
+                          {HERO_RANDOM_NAMES[activePreset.id].slice(0, 4).map((suggestedName) => (
+                            <button
+                              key={suggestedName}
+                              onClick={() => handleSaveName(suggestedName)}
+                              disabled={isSavingName}
+                              className={`rounded-full border px-2 py-0.5 text-[9px] font-bold transition ${
+                                character.name === suggestedName
+                                  ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-sm'
+                                  : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white hover:border-slate-700'
+                              }`}
+                              title={`Switch callsign to ${suggestedName}`}
+                            >
+                              {suggestedName.split('"')[1] || suggestedName.split(' ')[0]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Human Body & Attractive Specs Summary */}
                   {activePreset && (

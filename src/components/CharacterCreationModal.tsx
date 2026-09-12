@@ -30,7 +30,9 @@ import {
   Flame,
   Target,
   Crosshair,
+  Dices,
 } from 'lucide-react';
+import { getRandomNameAndTitle, HERO_RANDOM_NAMES } from '@/lib/nameGenerator';
 
 interface CharacterCreationModalProps {
   isOpen: boolean;
@@ -132,14 +134,30 @@ export function CharacterCreationModal({
     reader.readAsDataURL(file);
   };
 
-  const handleSelectPreset = (preset: HeroPreset) => {
+  const handleSelectPreset = (preset: HeroPreset, rollRandom: boolean = false) => {
     soundEngine.playEquip();
-    setName(preset.name);
+    if (rollRandom) {
+      const generated = getRandomNameAndTitle(preset.id, preset.class);
+      setName(generated.name);
+      setTitle(generated.title);
+    } else {
+      setName(preset.name);
+      setTitle(preset.title);
+    }
     setCharClass(preset.class);
     setGender(preset.gender);
-    setTitle(preset.title);
     setSpriteParts(preset.parts);
     setGeneratedPhotoAvatar(null);
+  };
+
+  const handleRandomizeCurrentName = () => {
+    soundEngine.playEquip();
+    const activePreset = HERO_PRESETS.find(
+      (p) => p.name.toLowerCase() === name.toLowerCase() || p.class === charClass
+    );
+    const generated = getRandomNameAndTitle(activePreset?.id, charClass, name);
+    setName(generated.name);
+    setTitle(generated.title);
   };
 
   const handleSaveCharacter = async () => {
@@ -286,15 +304,55 @@ export function CharacterCreationModal({
           {/* Identity Bar (Hero Name, Title, Archetype) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl border border-slate-800 bg-slate-950/60 shadow-inner">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                Active Callsign / Hero Name
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Active Callsign / Hero Name
+                </label>
+                <button
+                  type="button"
+                  onClick={handleRandomizeCurrentName}
+                  className="flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/20 px-2 py-0.5 text-[9px] font-extrabold uppercase text-amber-300 hover:bg-amber-500/30 transition shadow-sm"
+                  title="Roll Random Gaming Callsign"
+                >
+                  <Dices className="h-3 w-3 animate-spin" />
+                  <span>Random</span>
+                </button>
+              </div>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-bold text-white focus:border-purple-500 focus:outline-none"
               />
+              {/* Quick Random Callsign Suggestion Chips */}
+              {(() => {
+                const currentPreset = HERO_PRESETS.find(
+                  (p) => p.name.toLowerCase() === name.toLowerCase() || p.class === charClass
+                );
+                const suggested = currentPreset && HERO_RANDOM_NAMES[currentPreset.id] ? HERO_RANDOM_NAMES[currentPreset.id] : [];
+                if (suggested.length === 0) return null;
+                return (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {suggested.slice(0, 3).map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => {
+                          soundEngine.playEquip();
+                          setName(n);
+                        }}
+                        className={`rounded-md border px-1.5 py-0.5 text-[8.5px] font-bold transition ${
+                          name === n
+                            ? 'border-amber-400 bg-amber-500/20 text-amber-300'
+                            : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {n.split('"')[1] || n.split(' ')[0]}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
@@ -388,9 +446,18 @@ export function CharacterCreationModal({
                           <span className={`rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider border ${badgeBg}`}>
                             {preset.inspirationLabel}
                           </span>
-                          <span className="text-[10px] font-black text-amber-400">
-                            ★★★★★
-                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectPreset(preset, true);
+                            }}
+                            className="flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900/90 px-2 py-0.5 text-[9px] font-bold text-amber-300 hover:border-amber-400 hover:bg-amber-500/20 transition shadow-sm"
+                            title={`Select ${preset.name} with a random callsign`}
+                          >
+                            <Dices className="h-3 w-3" />
+                            <span>Random</span>
+                          </button>
                         </div>
 
                         {/* High-Definition Human Character Portrait & Canvas */}
